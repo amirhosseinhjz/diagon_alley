@@ -20,4 +20,3 @@ RUN apk add --no-cache --update supervisor
 RUN apk add nodejs npm
 
 CMD ["mkdir", "/var/log/supervisor"]
-
