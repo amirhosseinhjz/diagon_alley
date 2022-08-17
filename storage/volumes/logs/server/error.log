@@ -1,6 +1,0 @@
-2022/08/17 08:03:24 [emerg] 1#1: host not found in upstream "bootcamp" in /etc/nginx/conf.d/default.conf:29
-2022/08/17 08:03:30 [emerg] 1#1: host not found in upstream "bootcamp" in /etc/nginx/conf.d/default.conf:29
-2022/08/17 08:03:35 [emerg] 1#1: host not found in upstream "bootcamp" in /etc/nginx/conf.d/default.conf:29
-2022/08/17 08:03:41 [emerg] 1#1: host not found in upstream "bootcamp" in /etc/nginx/conf.d/default.conf:29
-2022/08/17 08:03:47 [emerg] 1#1: host not found in upstream "bootcamp" in /etc/nginx/conf.d/default.conf:29
-2022/08/17 08:03:54 [emerg] 1#1: host not found in upstream "bootcamp" in /etc/nginx/conf.d/default.conf:29
