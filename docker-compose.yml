@@ -1,48 +1,74 @@
-version: '3.8'
+version: "3.5"
 
 services:
   database:
-    image: mysql:latest
-    container_name: camp-db
+    image: 'mysql:8.0'
+    container_name: diagonalley_mysql
+    cap_add:
+        - SYS_NICE
+    ports:
+      - 9306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: camp2
-      MYSQL_USER: digi
-      MYSQL_PASSWORD: digi
-    ports:
-      - "3306:3306"
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+    restart: unless-stopped
     volumes:
-      - ./docker/mysql/data:/var/lib/mysql
-    networks:
-      - camp-network
-  app:
-    container_name: camp-app
+      - ./docker/database/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:cached
+      - ./storage/volumes/data/database:/var/lib/mysql
+      - ./storage/volumes/logs/database:/var/log/mysql
+
+  cache:
+    image: 'redis:6.0-alpine'
+    container_name: diagonalley_redis
+    ports:
+      - 9379:6379
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    restart: unless-stopped
+    volumes:
+      - ./docker/cache/redis.conf:/usr/local/etc/redis/redis.conf:cached
+
+  diagonalley:
+    image: diagonalley
+    container_name: diagonalley_app
     build:
-      context: ./docker/php
-      args:
-        USER_ID: ${UID}
-        GROUP_ID: ${GID}
-        USER_NAME: ${USER}
-        EMAIL: "soori.mojtaba@gmail.com"
+      context: .
+      dockerfile: docker/diagonalley/Dockerfile
+    working_dir: /var/www/html
+    restart: unless-stopped
     volumes:
-      - .:/var/www/camp
+      - ./docker/diagonalley/custom_php.ini:/usr/local/etc/php/conf.d/custom_php.ini:cached
+      - ./:/var/www/html
     depends_on:
       - database
-    networks:
-      - camp-network
-  web:
-    image: nginx:latest
-    container_name: camp-web
+      - cache
+
+  worker:
+    image: worker
+    container_name: diagonalley_worker
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    working_dir: /etc/supervisor
+    command: ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
+    restart: unless-stopped
+    volumes:
+      - ./docker/worker/custom_php.ini:/usr/local/etc/php/conf.d/custom_php.ini:cached
+      - ./docker/worker/supervisord.conf:/etc/supervisord.conf:cached
+      - ./docker/worker/queue.conf:/etc/supervisord.d/queue.conf:cached
+      - ./storage/volumes/logs/worker:/var/log/supervisor
+      - ./:/var/www/html
+    depends_on:
+      - database
+
+  server:
+    image: 'nginx:1.17-alpine'
+    container_name: diagonalley_nginx
     ports:
-      - "80:80"
+      - 980:80
+    restart: unless-stopped
     volumes:
-      - .:/var/www/camp
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/server/default.conf:/etc/nginx/conf.d/default.conf:cached
+      - ./storage/volumes/logs/server:/var/log/nginx
+      - ./:/var/www/html
     depends_on:
-      - app
-      - database
-    networks:
-      - camp-network
-networks:
-  camp-network:
-    driver: bridge
+      - diagonalley

@@ -59,4 +59,6 @@
 /web/css/
 /web/js/
 
+/storage
+
 # End of https://www.toptal.com/developers/gitignore/api/symfony
