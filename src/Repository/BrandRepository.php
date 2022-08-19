@@ -39,24 +39,28 @@ class BrandRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneByName($name): ?Brand
-    {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.name = :name')
-            ->setParameter('name', $name)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
+//    /**
+//     * @return Brand[] Returns an array of Brand objects
+//     */
+//    public function findByExampleField($value): array
+//    {
+//        return $this->createQueryBuilder('b')
+//            ->andWhere('b.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->orderBy('b.id', 'ASC')
+//            ->setMaxResults(10)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
 
-    /**
-     * @return Brand[]
-     */
-    public function findManyByQuery($q): array
-    {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.name LIKE :pattern')
-            ->setParameter('pattern', '%'.$q.'%')
-            ->getQuery()
-            ->getResult();
-    }
+//    public function findOneBySomeField($value): ?Brand
+//    {
+//        return $this->createQueryBuilder('b')
+//            ->andWhere('b.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->getQuery()
+//            ->getOneOrNullResult()
+//        ;
+//    }
 }
