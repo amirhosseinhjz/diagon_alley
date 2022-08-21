@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Brand;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 class Category
@@ -13,14 +15,24 @@ class Category
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\Column(type: "string", length: 255, unique: true, nullable: false)]
+    private $name = null;
 
-    #[ORM\Column]
     #[ORM\OneToOne(targetEntity: "Category")]
     #[ORM\JoinColumn(name: "parent_id", referencedColumnName: "id")]
-    private ?int $parent = null;
+    private $parent;
 
+    #[ORM\ManyToMany(targetEntity: "Brand", mappedBy: "categories")]
+    private $brands;
+
+    #[ORM\OneToMany(mappedBy: "category", targetEntity: "Product")]
+    private $products;
+
+    #[ORM\ManyToMany(targetEntity: "Feature", inversedBy: "categories")]
+    #[JoinTable(name: "category_features")]
+    #[JoinColumn(name: "category_id", referencedColumnName: "id")]
+    #[InverseJoinColumn(name: "feature_id", referencedColumnName: "id")]
+    private $features;
 
     public function getId(): ?int
     {
