@@ -21,6 +21,10 @@ class CategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Category::class);
     }
 
+    //TODO: add indexes
+    //TODO: show all products in a category with filters
+    //TODO: get main cats
+
     public function add(Category $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
