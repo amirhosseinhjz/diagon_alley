@@ -2,12 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Brand;
 use App\Entity\Product;
-use App\Entity\Variant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Query\Expr\Join;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -43,45 +39,28 @@ class ProductRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneByName(string $name): ?Product
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.name = :val')
-            ->setParameter('val', $name)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
+//    /**
+//     * @return Product[] Returns an array of Product objects
+//     */
+//    public function findByExampleField($value): array
+//    {
+//        return $this->createQueryBuilder('p')
+//            ->andWhere('p.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->orderBy('p.id', 'ASC')
+//            ->setMaxResults(10)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
 
-    public function findWithFilters(array $categories, array $brands, int $offset, int $limit, int $minPrice, int $maxPrice, bool $availableOnly)
-    {
-        //categories and brands are arrays of ids
-        $qb = $this->createQueryBuilder('p');
-
-        $qb->select('p.name, MIN(v.price) AS price')
-            ->innerJoin(Variant::class, 'v', Join::ON, 'p.id = v.product_id')
-            ->groupBy('p.id')
-            ->andWhere('p.active = 1')//or true
-            ->andWhere($qb->expr()->in('p.category_id', $categories))
-            ->andWhere($qb->expr()->in('p.brand_id', $brands))
-            ->andWhere($qb->expr()->between('price', $minPrice, $maxPrice))
-            ->setFirstResult($offset)
-            ->setMaxResults($limit);
-        //feature value filters
-
-        if ($availableOnly) $qb->andWhere('v.quantity > 0');
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findBrandsByCategoryName(string $categoryName): array
-    {
-        $qb = $this->createQueryBuilder('p');
-
-        return $qb->select('b.name')
-            ->innerJoin(Brand::class, 'b', Join::ON, 'p.brand = b.id')
-            ->andWhere('p.category = :category')
-            ->setParameter('category', $categoryName)
-            ->getQuery()
-            ->getResult();
-    }
+//    public function findOneBySomeField($value): ?Product
+//    {
+//        return $this->createQueryBuilder('p')
+//            ->andWhere('p.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->getQuery()
+//            ->getOneOrNullResult()
+//        ;
+//    }
 }
