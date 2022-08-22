@@ -20,8 +20,8 @@ class Brand
     #[ORM\Column(length: 255, unique: true, nullable: false)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $description;
+    #[ORM\Column(length: 255, nullable: false)]
+    private ?string $description = "";
 
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'brands')]
     private Collection $categories;

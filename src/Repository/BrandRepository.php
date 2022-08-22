@@ -21,6 +21,9 @@ class BrandRepository extends ServiceEntityRepository
         parent::__construct($registry, Brand::class);
     }
 
+    //TODO: show all products of a brand with filters( should be in entity)
+    //TODO: add indexes
+
     public function add(Brand $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
