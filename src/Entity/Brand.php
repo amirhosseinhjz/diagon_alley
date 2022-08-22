@@ -23,11 +23,13 @@ class Brand
     #[ORM\Column(length: 255)]
     private ?string $description;
 
-    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: "brands")]
-    #[ORM\JoinTable(name: "brand_categories")]
-    #[ORM\JoinColumn(name: "brand_id", referencedColumnName: "id")]
-    #[ORM\InverseJoinColumn(name: "category_id", referencedColumnName: "id")]
+    #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'brands')]
     private Collection $categories;
+
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -54,6 +56,33 @@ class Brand
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addBrand($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeBrand($this);
+        }
 
         return $this;
     }
