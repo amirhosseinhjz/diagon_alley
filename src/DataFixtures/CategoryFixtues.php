@@ -2,18 +2,17 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Brand;
+use App\Entity\Category;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class BrandFixtures extends Fixture
+class CategoryFixtues extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $brand = new Brand();
-        $brand->setName("apple");
+        // $product = new Product();
+        // $manager->persist($product);
 
-        $manager->persist($brand);
-        $manager->flush();
+//        $manager->flush();
     }
 }
