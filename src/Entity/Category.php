@@ -25,16 +25,13 @@ class Category
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
     private Collection $children;
 
-    #[ORM\ManyToMany(targetEntity: Brand::class, mappedBy: "categories")]
+    #[ORM\ManyToMany(targetEntity: Brand::class, inversedBy: 'categories')]
     private Collection $brands;
 
-    #[ORM\OneToMany(mappedBy: "category", targetEntity: Product::class)]
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class)]
     private Collection $products;
 
-    #[ORM\ManyToMany(targetEntity: ItemFeature::class, inversedBy: "categories")]
-    #[ORM\JoinTable(name: "category_features")]
-    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id")]
-    #[ORM\InverseJoinColumn(name: "feature_id", referencedColumnName: "id")]
+    #[ORM\ManyToMany(targetEntity: ItemFeature::class, inversedBy: 'categories')]
     private Collection $features;
 
     public function __construct()
@@ -42,7 +39,6 @@ class Category
         $this->brands = new ArrayCollection();
         $this->products = new ArrayCollection();
         $this->features = new ArrayCollection();
-        $this->children = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -70,6 +66,84 @@ class Category
     public function setParent(?self $parent): self
     {
         $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Brand>
+     */
+    public function getBrands(): Collection
+    {
+        return $this->brands;
+    }
+
+    public function addBrand(Brand $brand): self
+    {
+        if (!$this->brands->contains($brand)) {
+            $this->brands->add($brand);
+        }
+
+        return $this;
+    }
+
+    public function removeBrand(Brand $brand): self
+    {
+        $this->brands->removeElement($brand);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products->add($product);
+            $product->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->removeElement($product)) {
+            // set the owning side to null (unless already changed)
+            if ($product->getCategory() === $this) {
+                $product->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ItemFeature>
+     */
+    public function getFeatures(): Collection
+    {
+        return $this->features;
+    }
+
+    public function addFeature(ItemFeature $feature): self
+    {
+        if (!$this->features->contains($feature)) {
+            $this->features->add($feature);
+        }
+
+        return $this;
+    }
+
+    public function removeFeature(ItemFeature $feature): self
+    {
+        $this->features->removeElement($feature);
 
         return $this;
     }
