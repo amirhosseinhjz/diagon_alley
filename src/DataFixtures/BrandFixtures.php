@@ -10,10 +10,13 @@ class BrandFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $brand = new Brand();
-        $brand->setName("apple");
+        $brand1 = new Brand();
+        $brand1->setName("brand1");
 
-        $manager->persist($brand);
+        $brand2 = new Brand();
+        $brand2->setName("brand2");
+
+        $manager->persist($brand1);
         $manager->flush();
     }
 }
