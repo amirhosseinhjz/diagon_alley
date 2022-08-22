@@ -20,13 +20,14 @@ abstract class UserDTO
 
     public ?string $lastName = null;
 
-    #[Assert\Regex(pattern: '/^(\+9891\d{8}|09\d{9})$/', message:"The number '{{ value }}' is not a valid PhoneNumber.")]
+    #[Assert\Regex(pattern: '/^(\+989|09)\d{9}$/', message:"The number '{{ value }}' is not a valid PhoneNumber.")]
     public string $phoneNumber;
 
     #[Assert\NotBlank()]
     public string $password;
 
-    #[Assert\Length(min:1)]
+    #[Assert\Type(type:'array')]
+    #[Assert\NotBlank()]
     public array $roles;
 
     public function getId(): ?int

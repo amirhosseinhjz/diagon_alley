@@ -5,14 +5,18 @@ namespace App\Entity\User;
 use App\Repository\UserRepository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "type", type: "string" )]
 #[ORM\DiscriminatorMap(['seller'=>'Seller','admin'=>'Admin','customer'=>'Customer'])]
-class User
+#[UniqueEntity(fields: ["email"], message: "This email is already in use")]
+#[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
+abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -25,12 +29,10 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lastName = null;
 
-    #[Assert\Email(message:"The email '{{ value }}' is not a valid email.")]
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Assert\Regex(pattern: '/^(\+9891\d{8}|09\d{9})$/', message:"The number '{{ value }}' is not a valid PhoneNumber.")]
-    #[ORM\Column(length: 13)]
+    #[ORM\Column(length: 13, unique: true)]
     private ?string $phoneNumber = null;
 
     #[ORM\Column(type: Types::SIMPLE_ARRAY)]
