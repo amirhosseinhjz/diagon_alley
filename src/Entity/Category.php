@@ -34,6 +34,9 @@ class Category
     #[ORM\ManyToMany(targetEntity: ItemFeature::class, inversedBy: 'categories')]
     private Collection $features;
 
+    #[ORM\Column]
+    private ?bool $isLeaf = false;
+
     public function __construct()
     {
         $this->brands = new ArrayCollection();
@@ -174,6 +177,18 @@ class Category
                 $child->setParent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsLeaf(): ?bool
+    {
+        return $this->isLeaf;
+    }
+
+    public function setIsLeaf(bool $isLeaf): self
+    {
+        $this->isLeaf = $isLeaf;
 
         return $this;
     }
