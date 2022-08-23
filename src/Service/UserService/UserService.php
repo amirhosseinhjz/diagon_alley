@@ -47,9 +47,9 @@ class UserService
     private function createValidDTO(array $array)
     {
         $userDTO = $this->arrayToDTO($array);
-        $DTOErrors = $this->validator->validate($userDTO);
+        $DTOErrors = $this->validate($userDTO);
         if (count($DTOErrors) > 0) {
-            raise(new \Exception((string)$DTOErrors));
+            throw (new \Exception(json_encode($DTOErrors)));
         }
         return $userDTO;
     }
@@ -66,7 +66,7 @@ class UserService
         $user = $this->createUserFromDTO($userDTO, false);
         $databaseErrors = $this->validate($user);
         if (count($databaseErrors) > 0) {
-            raise(new \Exception((string)$databaseErrors));
+            throw (new \Exception(json_encode($databaseErrors)));
         }
         $this->em->flush();
         return $user;
@@ -89,9 +89,9 @@ class UserService
         return $user;
     }
 
-    private function validate($dto): array
+    private function validate($object): array
     {
-        $errors = $this->validator->validate($dto);
+        $errors = $this->validator->validate($object);
         $errorsArray = [];
         foreach ($errors as $error) {
             $errorsArray[] = $error->getMessage();
@@ -101,6 +101,14 @@ class UserService
 
     public function getUserById(int $id): User\User
     {
-        return $this->em->getRepository(User\User::class)->find($id);
+        $user = $this->em->getRepository(User\User::class)->find($id);
+        if (!$user) {
+            raise(new \Exception('User not found'));
+        }
+        return $user;
+    }
+
+    public function updateUser(User\User $user, array $array)
+    {
     }
 }

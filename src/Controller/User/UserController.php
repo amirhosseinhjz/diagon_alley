@@ -35,8 +35,14 @@ class UserController extends AbstractController
 //        $x->setShopSlug('test');
         return $this->json($S);
     }
-//
-//        return $this->renderForm('seller/edit.html.twig', [
+
+    #[Route('/{id}', name: 'app_user_new', methods: ['GET'])]
+    public function getUserData(UserService $userService, $id): Response
+    {
+        return $this->json($userService->getUserById($id));
+    }
+
+    //        return $this->renderForm('seller/edit.html.twig', [
 //            'seller' => $seller,
 //            'form' => $form,
 //        ]);
