@@ -18,6 +18,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const PAYLOAD_KEY_FOR_USERNAME = 'phoneNumber';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

@@ -49,7 +49,7 @@ class UserService
         $userDTO = $this->arrayToDTO($array);
         $DTOErrors = $this->validator->validate($userDTO);
         if (count($DTOErrors) > 0) {
-            raise(new \Exception((string)$DTOErrors));
+            throw (new \Exception(json_encode($DTOErrors)));
         }
         return $userDTO;
     }
@@ -66,7 +66,7 @@ class UserService
         $user = $this->createUserFromDTO($userDTO, false);
         $databaseErrors = $this->validate($user);
         if (count($databaseErrors) > 0) {
-            raise(new \Exception((string)$databaseErrors));
+            throw (new \Exception(json_encode($databaseErrors)));
         }
         $this->em->flush();
         return $user;
