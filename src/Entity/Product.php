@@ -51,6 +51,9 @@ class Product
     #[Groups(['product_itemValues'])]
     private Collection $itemValues;
 
+    #[ORM\Column(length: 511, nullable: true)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->variants = new ArrayCollection();
@@ -187,6 +190,18 @@ class Product
         if ($this->itemValues->removeElement($itemValue)) {
             $itemValue->removeProduct($this);
         }
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }
