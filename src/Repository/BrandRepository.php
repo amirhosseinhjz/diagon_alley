@@ -2,6 +2,8 @@
 
 namespace App\Repository;
 
+use App\DTO\BrandDTO;
+use App\DTO\Transformer\BrandTransformer;
 use App\Entity\Brand;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,7 +23,6 @@ class BrandRepository extends ServiceEntityRepository
         parent::__construct($registry, Brand::class);
     }
 
-    //TODO: show all products of a brand with filters( should be in entity)
     //TODO: add indexes
 
     public function add(Brand $entity, bool $flush = false): void
@@ -42,6 +43,20 @@ class BrandRepository extends ServiceEntityRepository
         }
     }
 
+    public function findOneByName($name): ?BrandDTO
+    {
+        $entity = $this->createQueryBuilder('b')
+            ->andWhere('b.name = :name')
+            ->setParameter('name', $name)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if ($entity != null) {
+            return BrandTransformer::transformFromEntity($entity);
+        }
+        return null;
+    }
+
 //    /**
 //     * @return Brand[] Returns an array of Brand objects
 //     */
@@ -57,13 +72,4 @@ class BrandRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Brand
-//    {
-//        return $this->createQueryBuilder('b')
-//            ->andWhere('b.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }
