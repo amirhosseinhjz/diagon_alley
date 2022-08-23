@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
@@ -20,6 +19,7 @@ class Category
     private ?string $name = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
+//    #[ORM\JoinColumn(name: "parent_id", referencedColumnName: "id")]
     private ?self $parent = null;
 
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
@@ -40,6 +40,7 @@ class Category
     public function __construct()
     {
         $this->brands = new ArrayCollection();
+        $this->children = new ArrayCollection();
         $this->products = new ArrayCollection();
         $this->features = new ArrayCollection();
     }
