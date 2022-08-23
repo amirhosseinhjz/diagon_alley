@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Category;
+use App\Entity\Brand;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -22,8 +23,6 @@ class CategoryRepository extends ServiceEntityRepository
     }
 
     //TODO: add indexes
-    //TODO: show all products in a category with filters
-    //TODO: get main cats
 
     public function add(Category $entity, bool $flush = false): void
     {
@@ -42,6 +41,39 @@ class CategoryRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    /**
+     * @return Category[] Returns an array of Category objects
+     */
+    public function findMainCategories(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.parent = null')
+            ->getQuery()
+            ->getResult();
+    }
+
+     public function findOneByName($name): ?Category
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.name = :val')
+            ->setParameter('val', $name)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function findBrands($name): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.name = :val')
+            ->setParameter('val', $name)
+            ->addSelect(["brands"])
+            ->getQuery()
+            ->getResult();
+    }
+
+    //TODO find parents!!
 
 //    /**
 //     * @return Category[] Returns an array of Category objects
