@@ -31,6 +31,9 @@ class Product
     #[ORM\ManyToMany(targetEntity: Seller::class, inversedBy: 'products')]
     private Collection $sellers;
 
+    #[ORM\Column(length: 511, nullable: true)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->variants = new ArrayCollection();
@@ -128,6 +131,18 @@ class Product
     public function removeSeller(Seller $seller): self
     {
         $this->sellers->removeElement($seller);
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

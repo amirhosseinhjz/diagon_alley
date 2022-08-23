@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use App\Repository\BrandRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use App\Entity\Category;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
@@ -20,8 +18,8 @@ class Brand
     #[ORM\Column(length: 255, unique: true, nullable: false)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, nullable: false)]
-    private ?string $description = "";
+    #[ORM\Column(length: 511, nullable: true)]
+    private ?string $description = null;
 
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'brands')]
     private Collection $categories;
