@@ -8,7 +8,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 interface JWTManagementInterface
 {
     public function getTokenUser(
-        UserInterface $user,
-        Request $request
+        UserInterface $user
     );
+
+    public function invalidateToken();
+
+    public function authenticatedUser();
 }

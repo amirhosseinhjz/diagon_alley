@@ -31,7 +31,7 @@ class JWTManagement implements JWTManagementInterface
         $this->tokenStorageInterface = $tokenStorageInterface;
     }
 
-    public function getTokenUser(UserInterface $user, Request $request)
+    public function getTokenUser(UserInterface $user)
     {
         $jwt = $this->JWTManager->create($user);
         $response = new Response();
