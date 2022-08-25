@@ -8,6 +8,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -20,15 +21,19 @@ class JWTManagement implements JWTManagementInterface
 
     protected $tokenStorageInterface;
 
+    private $hasher;
+
     public function __construct(
         EventDispatcherInterface $dispatcher,
         JWTTokenManagerInterface $JWTManager,
-        TokenStorageInterface $tokenStorageInterface
+        TokenStorageInterface $tokenStorageInterface,
+        UserPasswordHasherInterface $hasher
     )
     {
         $this->JWTManager = $JWTManager;
         $this->dispatcher = $dispatcher;
         $this->tokenStorageInterface = $tokenStorageInterface;
+        $this->hasher = $hasher;
     }
 
     public function getTokenUser(UserInterface $user)
@@ -51,6 +56,14 @@ class JWTManagement implements JWTManagementInterface
         if ($this->tokenStorageInterface->getToken())
         {
             return $this->tokenStorageInterface->getToken()->getUser();
+        }
+    }
+
+    public function checkIfPasswordIsValid(UserInterface $user,Request $request)
+    {
+        $password = $request->toArray()['password'];
+        if (!$this->hasher->isPasswordValid($user, $password)) {
+            throw (new \Exception(json_encode('Invalid password')));
         }
     }
 }

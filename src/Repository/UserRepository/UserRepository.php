@@ -72,7 +72,7 @@ class UserRepository extends ServiceEntityRepository
         return $entityManager->createQuery(
             'SELECT u
                 FROM App\Entity\User\User u
-                WHERE u.phone = :query'
+                WHERE u.phone_number = :query'
         )
             ->setParameter('query', $identifier)
             ->getOneOrNullResult();

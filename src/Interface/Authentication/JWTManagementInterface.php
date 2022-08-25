@@ -14,4 +14,6 @@ interface JWTManagementInterface
     public function invalidateToken();
 
     public function authenticatedUser();
+
+    public function checkIfPasswordIsValid(UserInterface $user,Request $request);
 }

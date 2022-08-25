@@ -26,7 +26,7 @@ class AuthenticationFixture extends Fixture
         $seller->setPassword($this->passHasher->hashPassword($seller,'123456789'));
         $seller->setPhoneNumber('09128464485');
         $seller->setLastname('eeeccc');
-        $seller->setProductsSlug('hvfdoe');
+        $seller->setShopSlug('hvfdoe');
         $seller->setRoles(['ROLE_SELLER']);
         $manager->persist($seller);
 
