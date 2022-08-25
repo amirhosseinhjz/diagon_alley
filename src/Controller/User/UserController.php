@@ -10,39 +10,50 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\UserService\UserService;
+use OpenApi\Attributes as OA;
 
 #[Route('/user')]
 class UserController extends AbstractController
 {
-    #[Route('/', name: 'app_user_index', methods: ['GET'])]
+
+
+//    #[OA\Response(
+//        response: 200,
+//        description: 'Returns list of users',
+//        content: new OA\JsonContent(
+//            type: 'array',
+//            items: new OA\Items(ref: new Model(type: AlbumDto::class, groups: ['full']))
+//        )
+//    )]
+    #[Route('/list', name: 'app_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
+        $x = (new Route('/hjtj', name: 'app_user_new', methods: ['POST']))->getPath();
+        dd($x);
         $users = $userRepository->findAll();
         return $this->json($users);
     }
 
-    #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, UserRepository $userRepository, UserService $userService): Response
+    #[Route('/new', name: 'app_user_new_user', methods: ['POST'])]
+    public function newUser(Request $request, UserService $userService): Response
     {
-//        try{
-//        return $this->json($userService->createFromArray($request->toArray()));
-//        }catch(\Exception $e){
-//            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
-//        }
-//        $cls = $request::class;
-        $S= 'Seller';
-        $x = new $S();
-//        $x->setShopSlug('test');
-        return $this->json($S);
+        try{
+        return $this->json($userService->createFromArray($request->toArray()));
+        }catch(\Exception $e){
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
     }
 
-    #[Route('/{id}', name: 'app_user_new', methods: ['GET'])]
+    #[Route('/{int:id}', name: 'get_user_by_id', methods: ['GET'])]
     public function getUserData(UserService $userService, $id): Response
     {
-        return $this->json($userService->getUserById($id));
-    }
+        try {
+            return $this->json($userService->getUserById($id));
+        } catch (\Exception $e) {
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
 
-    //        return $this->renderForm('seller/edit.html.twig', [
+        //        return $this->renderForm('seller/edit.html.twig', [
 //            'seller' => $seller,
 //            'form' => $form,
 //        ]);
@@ -57,4 +68,5 @@ class UserController extends AbstractController
 //
 //        return $this->redirectToRoute('app_seller_index', [], Response::HTTP_SEE_OTHER);
 //    }
+    }
 }
