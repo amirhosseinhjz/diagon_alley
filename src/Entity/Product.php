@@ -6,6 +6,7 @@ use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -28,16 +29,23 @@ class Product
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: Variant::class)]
     private Collection $variants;
 
-    #[ORM\ManyToMany(targetEntity: Seller::class, inversedBy: 'products')]
-    private Collection $sellers;
-
     #[ORM\Column(length: 511, nullable: true)]
     private ?string $description = null;
+
+    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Brand $brand = null;
+
+    #[ORM\Column]
+    private ?bool $active = null;
+
+    #[ORM\ManyToMany(targetEntity: ItemValue::class, mappedBy: 'products')]
+    private Collection $itemValues;
 
     public function __construct()
     {
         $this->variants = new ArrayCollection();
-        $this->sellers = new ArrayCollection();
+        $this->itemValues = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -111,30 +119,6 @@ class Product
         return $this;
     }
 
-    /**
-     * @return Collection<int, Seller>
-     */
-    public function getSellers(): Collection
-    {
-        return $this->sellers;
-    }
-
-    public function addSeller(Seller $seller): self
-    {
-        if (!$this->sellers->contains($seller)) {
-            $this->sellers->add($seller);
-        }
-
-        return $this;
-    }
-
-    public function removeSeller(Seller $seller): self
-    {
-        $this->sellers->removeElement($seller);
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -143,6 +127,57 @@ class Product
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getBrand(): ?Brand
+    {
+        return $this->brand;
+    }
+
+    public function setBrand(?Brand $brand): self
+    {
+        $this->brand = $brand;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ItemValue>
+     */
+    public function getItemValues(): Collection
+    {
+        return $this->itemValues;
+    }
+
+    public function addItemValue(ItemValue $itemValue): self
+    {
+        if (!$this->itemValues->contains($itemValue)) {
+            $this->itemValues->add($itemValue);
+            $itemValue->addProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeItemValue(ItemValue $itemValue): self
+    {
+        if ($this->itemValues->removeElement($itemValue)) {
+            $itemValue->removeProduct($this);
+        }
 
         return $this;
     }

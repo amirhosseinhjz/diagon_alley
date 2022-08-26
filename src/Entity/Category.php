@@ -6,6 +6,8 @@ use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 class Category
@@ -13,29 +15,41 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['category_basic'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: false)]
+    #[Groups(['category_basic'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
-//    #[ORM\JoinColumn(name: "parent_id", referencedColumnName: "id")]
+    #[Groups(['category_parent'])]
     private ?self $parent = null;
 
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
+    #[Groups(['category_children'])]
+    #[MaxDepth(1)]
     private Collection $children;
 
     #[ORM\ManyToMany(targetEntity: Brand::class, inversedBy: 'categories')]
+    #[Groups(['category_brands'])]
     private Collection $brands;
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class)]
+    #[Groups(['category_products'])]
     private Collection $products;
 
     #[ORM\ManyToMany(targetEntity: ItemFeature::class, inversedBy: 'categories')]
+    #[Groups(['category_features'])]
     private Collection $features;
 
     #[ORM\Column]
-    private ?bool $isLeaf = false;
+    #[Groups(['category_basic'])]
+    private ?bool $leaf = false;
+
+    #[ORM\Column(nullable: false)]
+    #[Groups(['category_basic'])]
+    private ?bool $active = true;
 
     public function __construct()
     {
@@ -182,14 +196,26 @@ class Category
         return $this;
     }
 
-    public function isIsLeaf(): ?bool
+    public function isLeaf(): ?bool
     {
-        return $this->isLeaf;
+        return $this->leaf;
     }
 
-    public function setIsLeaf(bool $isLeaf): self
+    public function setLeaf(bool $leaf): self
     {
-        $this->isLeaf = $isLeaf;
+        $this->leaf = $leaf;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
 
         return $this;
     }
