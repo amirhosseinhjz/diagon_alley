@@ -2,84 +2,90 @@
 
 namespace App\Controller;
 
-use App\Entity\Brand;
+use App\Service\CategoryManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Category;
+use Exception;
 
 #[Route('/category', name: 'app_category_')]
 class CategoryController extends AbstractController
 {
-    #[Route('/main', name: 'main', methods: ['GET'])]
-    public function main(ManagerRegistry $doctrine, Request $req): Response
-    {
-        $mainCategories = $doctrine->getRepository(Category::class)->findMainCategories();
+    protected CategoryManager $categoryManager;
 
-        return $this->json([
-            "mainCategories" => $mainCategories
-        ]);
+    public function __construct(CategoryManager $categoryManager)
+    {
+        $this->categoryManager = $categoryManager;
+    }
+
+    #[Route('/main', name: 'main', methods: ['GET'])]
+    public function main(ManagerRegistry $doctrine, SerializerInterface $serializer): Response
+    {
+        try {
+            $mainCategories = $doctrine->getRepository(Category::class)->findMainCategories();
+            $json = $serializer->serialize($mainCategories, 'json', ['groups' => ['category_basic']]);
+            return $this->json(["mainCategories" => $json]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     #[Route('/{name}', name: 'show', methods: ['GET'])]
-    public function show(ManagerRegistry $doctrine, Request $req, string $name): Response
+    public function show(ManagerRegistry $doctrine, string $name, SerializerInterface $serializer): Response
     {
-        $category = $doctrine->getRepository(Category::class)->findOneByName($name);
-
-        return $this->json([
-            "category" => $category
-        ]);
+        try {
+            $category = $doctrine->getRepository(Category::class)->findOneByName($name);
+            $json = $serializer->serialize($category, 'json', [
+                'groups' => ['category_basic', 'category_children']
+            ]);
+            return $this->json(["category" => $json]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
-//    #[Route('/{name}/children', name: 'show_children', methods: ['GET'])]
-//    public function showChildren(ManagerRegistry $doctrine, Request $req, string $name): Response
-//    {
-//        return $this->json([]);
-//    }
-
     #[Route('/{name}/parents', name: 'show_parents', methods: ['GET'])]
-    public function showParents(ManagerRegistry $doctrine, Request $req, string $name): Response
+    public function showParents(string $name): Response
     {
-        return $this->json([]);
+        try {
+            $parents = $this->categoryManager->findParents($name);
+            return $this->json(['parents' => $parents]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     #[Route('/{name}/brands', name: 'show_brands', methods: ['GET'])]
-    public function showBrands(ManagerRegistry $doctrine, Request $req, string $name): Response
+    public function showBrands(string $name): Response
     {
-        $brands = $doctrine->getRepository(Category::class)->findBrands($name);
-
-        return $this->json([
-            "brands" => $brands
-        ]);
+        try {
+            $brands = $this->categoryManager->findBrandsByName($name);
+            return $this->json(["category" => $brands]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     //TODO: admin auth
     #[Route('/create', name: 'create', methods: ['POST'])]
-    public function create(ManagerRegistry $doctrine, Request $req): Response
+    public function create(ManagerRegistry $doctrine, Request $req, SerializerInterface $serializer): Response
     {
-        $entityManager = $doctrine->getManager();
-
-        $name = trim($req->get("name"));
-        $parent = $req->get("parent");
-        $isLeaf = $req->get("isLeaf");
-        if (!$name) return new Response("invalid name", 400);
-        if ($isLeaf == null) $isLeaf = false;
-        $categoryRepo = $doctrine->getRepository(Category::class);
-        if ($categoryRepo->findOneByName($name)) return new Response('name already exists', 400);
-
-        $category = new Category();
-        $category->setName($name);
-        $category->setIsLeaf($isLeaf);
-        $category->setParent($parent);
-
-        $entityManager->persist($category);
-        $entityManager->flush();
-
-        return $this->json([
-            "category" => $category
-        ]);
+        try {
+            $requestBody = $this->categoryManager->getRequestBody($req);
+            $validatedBody = $this->categoryManager->validateCategoryArray($requestBody);
+            if (array_key_exists('error', $validatedBody)) return $this->json(['m' => $validatedBody['error']], 400);
+            $category = $this->categoryManager->createEntityFromArray($validatedBody);
+            $doctrine->getRepository(Category::class)->add($category, true);
+            $json = $serializer->serialize($category, 'json', ["groups" => ["category_basic"]]);
+//            $json = $serializer->deserialize($json, Category::class, 'json');
+            return $this->json(["category" => $json]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     //TODO: admin auth
@@ -95,4 +101,8 @@ class CategoryController extends AbstractController
     {
         return $this->json([]);
     }
+
+    //TODO change category parent
+
+    //TODO disable category and all product and children categories
 }
