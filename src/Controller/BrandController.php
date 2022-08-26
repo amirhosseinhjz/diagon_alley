@@ -2,77 +2,92 @@
 
 namespace App\Controller;
 
-use App\DTO\Transformer\BrandTransformer;
 use App\Entity\Category;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Brand;
+use App\Service\BrandManager;
 
 #[Route('/brand', name: 'app_brand_')]
 class BrandController extends AbstractController
 {
+    protected BrandManager $brandManager;
+
+    public function __construct(BrandManager $brandManager)
+    {
+        $this->brandManager = $brandManager;
+    }
+
     //TODO: admin auth
     #[Route('/create', name: 'create', methods: ['POST'])]
     public function create(ManagerRegistry $doctrine, Request $req): Response
     {
-        $name = trim($req->get("name"));
-        $description = $req->get("description");
-        if (!$name) return new Response("invalid name", 400);
-        if ($description == null) $description = "";
-        $brandRepo = $doctrine->getRepository(Brand::class);
-        if ($brandRepo->findOneByName($name)) return new Response('name already exists', 400);
-        $brand = new Brand();
-        $brand->setName($name);
-        $brand->setDescription($description);
-        $entityManager = $doctrine->getManager();
-        $entityManager->persist($brand);
-        $entityManager->flush();
-        return $this->json([
-            "brand" => BrandTransformer::transformFromEntity($brand)
-        ]);
+        try {
+            $requestBody = $this->brandManager->getRequestBody($req);
+            $validatedBody = $this->brandManager->validateBrandArray($requestBody);
+            if (array_key_exists('error', $validatedBody)) return $this->json(['m' => $validatedBody['error']], 400);
+            $brand = $this->brandManager->createEntityFromArray($validatedBody);
+            $doctrine->getRepository(Brand::class)->add($brand, true);
+            return $this->json(["brand" => $brand]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     //TODO: admin auth
     #[Route('/add/category', name: 'add_category', methods: ['PATCH'])]
     public function addCategory(ManagerRegistry $doctrine, Request $req): Response
     {
-        $brandName = $req->get("brandName");
-        $categoryName = $req->get("categoryName");
-        $brand = new Brand();
-        $brand->setName($brandName);
-//        $brand = $doctrine->getRepository(Brand::class)->findOneByName($brandName);
-        $category = $doctrine->getRepository(Category::class)->findOneByName($categoryName);
-        $brand->addCategory($category);
-        $entityManager = $doctrine->getManager();
-        $entityManager->persist($brand);
-        $entityManager->flush();
-        return $this->json([
-            "categories" => $brand->getCategories()
-        ]);
+        try {
+            [$brandName, $categoryName] = $this->brandManager->getRequestBody($req);
+            $this->brandManager->addRelationWithCategory($brandName, $categoryName);
+            return $this->json(['m' => "relation added"]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     //TODO: admin auth
     #[Route('/delete', name: 'delete', methods: ['DELETE'])]
     public function delete(ManagerRegistry $doctrine, Request $req): Response
     {
-        return $this->json([]);
+        try {
+            $name = $req->get('name');
+            $this->brandManager->removeUnusedByName($name);
+            return $this->json(['m' => 'removed brand']);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     //TODO: admin auth
     #[Route('/remove/category', name: 'remove_category', methods: ['DELETE'])]
     public function removeCategory(ManagerRegistry $doctrine, Request $req): Response
     {
-        return $this->json([]);
+        try {
+            [$brandName, $categoryName] = $this->brandManager->getRequestBody($req);
+            $this->brandManager->removeRelationWithCategory($brandName, $categoryName);
+            return $this->json(['m' => "relation removed"]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     //TODO: admin auth
     #[Route('/update', name: 'update', methods: ['PATCH'])]
     public function update(ManagerRegistry $doctrine, Request $req): Response
     {
-        return $this->json([]);
+        try {
+            [$name, $updates] = $this->brandManager->getRequestBody($req);
+            $this->brandManager->update($name, $updates);
+            return $this->json([]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
+        }
     }
 
     #[Route('/{name}/description', name: 'description', methods: ['GET'])]
@@ -87,6 +102,12 @@ class BrandController extends AbstractController
     #[Route('/search', name: 'search', methods: ['GET'])]
     public function search(ManagerRegistry $doctrine, Request $req): Response
     {
-        return $this->json([]);
+        try {
+            $q = $req->get('query');
+            $brands = $doctrine->getRepository(Brand::class)->findManyByQuery($q);
+            return $this->json(['brands' => $brands]);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()]);
+        }
     }
 }
