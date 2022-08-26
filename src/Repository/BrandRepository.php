@@ -2,8 +2,6 @@
 
 namespace App\Repository;
 
-use App\DTO\BrandDTO;
-use App\DTO\Transformer\BrandTransformer;
 use App\Entity\Brand;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -23,8 +21,6 @@ class BrandRepository extends ServiceEntityRepository
         parent::__construct($registry, Brand::class);
     }
 
-    //TODO: add indexes
-
     public function add(Brand $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
@@ -43,33 +39,24 @@ class BrandRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneByName($name): ?BrandDTO
+    public function findOneByName($name): ?Brand
     {
-        $entity = $this->createQueryBuilder('b')
+        return $this->createQueryBuilder('b')
             ->andWhere('b.name = :name')
             ->setParameter('name', $name)
             ->getQuery()
             ->getOneOrNullResult();
-
-        if ($entity != null) {
-            return BrandTransformer::transformFromEntity($entity);
-        }
-        return null;
     }
 
-//    /**
-//     * @return Brand[] Returns an array of Brand objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('b')
-//            ->andWhere('b.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('b.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
+    /**
+     * @return Brand[]
+     */
+    public function findManyByQuery($q): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.name LIKE :pattern')
+            ->setParameter('pattern', '%'.$q.'%')
+            ->getQuery()
+            ->getResult();
+    }
 }
