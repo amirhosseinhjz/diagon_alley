@@ -6,12 +6,12 @@ namespace App\Service\UserService;
 use App\Entity\User;
 use App\DTO\UserDTOs;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
 class UserService
@@ -39,12 +39,14 @@ class UserService
     private EntityManagerInterface $em;
     private Serializer $serializer;
     private ValidatorInterface $validator;
+    private UserPasswordHasherInterface $passwordHasher;
 
-    public function __construct(EntityManagerInterface $em, ValidatorInterface $validator)
+    public function __construct(EntityManagerInterface $em, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher)
     {
         $this->em = $em;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
         $this->validator = $validator;
+        $this->passwordHasher = $passwordHasher;
     }
 
     public function arrayToDTO(array $array)
@@ -84,6 +86,8 @@ class UserService
             $setterName = 'set' . ucfirst($key);
             $user->$setterName($dto->$getterName());
         }
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $dto->getPassword());
+        $user->setPassword($hashedPassword);
         $this->em->persist($user);
         if ($flush) {
             $this->em->flush();
@@ -146,7 +150,7 @@ class UserService
         return $this->em->getRepository(User\User::class)->findAll();
     }
 
-    private function updateUser(User\User $user, array $criteria): UserInterface
+    private function updateUser(UserInterface $user, array $criteria): UserInterface
     {
         foreach (self::importantFields as $key) {
             if (array_key_exists($key, $criteria)) {
@@ -198,7 +202,7 @@ class UserService
         return $this->updatePhoneNumber($user, $phoneNumber);
     }
 
-    private function updatePhoneNumber(User\User $user, string $phoneNumber)
+    private function updatePhoneNumber(UserInterface $user, string $phoneNumber)
     {
         if (!preg_match('/^(\+989|09)\d{9}$/', $phoneNumber)) {
             throw (new \Exception("Invalid phone number"));
@@ -220,7 +224,11 @@ class UserService
 
     private function updatePassword(UserInterface $user, string $password)
     {
-        $user->setPassword($password);
+        if (!preg_match('/^(?=.*[0-9])(?=.*[A-Z]).{8,20}$/', $password)) {
+            throw (new \Exception("The password is not a strong password."));
+        }
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $password);
+        $user->setPassword($hashedPassword);
         $this->em->flush();
         return $user;
     }

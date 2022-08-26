@@ -23,6 +23,7 @@ abstract class UserDTO
     #[Assert\Regex(pattern: '/^(\+989|09)\d{9}$/', message:"The number '{{ value }}' is not a valid PhoneNumber.")]
     public string $phoneNumber;
 
+    #[Assert\Regex(pattern: '/^(?=.*[0-9])(?=.*[A-Z]).{8,20}$/', message:"The password is not a strong password.")]
     #[Assert\NotBlank()]
     public string $password;
 
