@@ -52,7 +52,7 @@ class UserAuthenticationController extends AbstractController
             $token = $this->JWTManager->getTokenUser($user,$request);
             return new JsonResponse($token);
         }catch(\Exception $e){
-            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -84,7 +84,7 @@ class UserAuthenticationController extends AbstractController
             }
         } catch(Exception $e) {
 
-            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
         }
     }
 }

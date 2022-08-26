@@ -61,6 +61,8 @@ class UserAuthenticationProcessTest extends TestCase
     {
         $dispatcher = $this->getDispatchObject();
 
+        $hasher = $this->getUserPasswordHasher();
+
         $tokenManagement = $this->getJWTTokenManager();
 
         $tokenStorageInterface = $this->getTokenStorageMock();

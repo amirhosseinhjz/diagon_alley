@@ -18,8 +18,6 @@ class AuthenticationFixture extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
         $seller = new Seller();
         $seller->setName('4rter');
         $seller->setEmail('ee44@gmail.com');
@@ -35,7 +33,7 @@ class AuthenticationFixture extends Fixture
         $customer->setLastname('hdhhd');
         $customer->setEmail('eee@gmail.com');
         $customer->setPassword($this->passHasher->hashPassword($seller,'123456789'));
-        $customer->setPhoneNumber('09128468485');
+        $customer->setPhoneNumber('09128468486');
         $customer->setRoles(['ROLE_CUSTOMER']);
         $manager->persist($customer);
         $manager->flush();
