@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
 class UserService
@@ -31,12 +32,14 @@ class UserService
     private EntityManagerInterface $em;
     private Serializer $serializer;
     private ValidatorInterface $validator;
+    private UserPasswordHasherInterface $passwordHasher;
 
-    public function __construct(EntityManagerInterface $em, ValidatorInterface $validator)
+    public function __construct(EntityManagerInterface $em, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher)
     {
         $this->em = $em;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
         $this->validator = $validator;
+        $this->passwordHasher = $passwordHasher;
     }
 
     public function arrayToDTO(array $array)
