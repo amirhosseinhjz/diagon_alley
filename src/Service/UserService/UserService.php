@@ -72,7 +72,7 @@ class UserService
         return $user;
     }
 
-    public function createUserFromDTO(UserDTOs\UserDTO $dto, $flush = true): User\User
+    public function createUserFromDTO(UserDTOs\UserDTO $dto, $flush = true): UserInterface
     {
         $role = $dto->roles[0];
         $userClass = self::UserRoles[$role];
@@ -82,6 +82,8 @@ class UserService
             $setterName = 'set' . ucfirst($key);
             $user->$setterName($dto->$getterName());
         }
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $dto->getPassword());
+        $user->setPassword($hashedPassword);
         $this->em->persist($user);
         if ($flush) {
             $this->em->flush();
