@@ -2,6 +2,8 @@
 
 namespace App\DTO\Payment;
 
+use App\Service\Payment\PaymentService;
+use App\Trait\PaymentTrait;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -9,35 +11,29 @@ class PaymentDTO
 {
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    // todo -> set enum
     public readonly ?string $type;
 
     #[Assert\PositiveOrZero]
     #[Assert\NotNull]
     public readonly ?int $paidAmount;
 
-    // #[Assert\NotNull]
-    // public readonly ?\DateTimeImmutable $createdAt;
-
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    //todo -> set enum
     public readonly ?string $status;
 
-    #[Assert\NotBlank]
-    #[Assert\NotNull]
-    //todo -> length of code
+    
     public readonly ?string $code;
 
-    public function __construct(array $fields, ValidatorInterface $validator)
-    {
-        foreach ($fields as $field => $value) {
-            if (property_exists($this, $field)) {
-                $this->{$field} = $value;
-            }
-        }
+    use PaymentTrait;
 
-        // $this->createdAt = new \DateTimeImmutable();
+    public function __construct($fields,$type, ValidatorInterface $validator)
+    {
+        $this->type = $type;
+        $this->paidAmount = $this->calculatePaidAmount($fields["price"],$fields["discount"]);
+        $this->status = "PENDING";
+        //TODO: change default code
+        $this->code = "123";
+
 
         $this->validate($validator);
     }
@@ -48,10 +44,7 @@ class PaymentDTO
 
         if(count($errors)>0)
         {
-            //TODO
-            //$payment not valid
-            // dd((string)$errors);
-            throw new \Exception();
+            throw (new \Exception(json_encode($errors)));
         }
     }
 }

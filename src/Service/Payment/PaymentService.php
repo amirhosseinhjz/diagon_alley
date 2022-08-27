@@ -2,32 +2,27 @@
 
 namespace App\Service\Payment;
 
-use App\Entity\Payment\Payment;
+use App\Interface\Payment\BankPortalInterface;
 use App\Repository\Payment\PaymentRepository;
-use App\DTO\Payment\PaymentDTO;
 
 class PaymentService
 {
+    public BankPortalInterface $portal;
+
+    private const PortalTypes = [
+        'SAMAN' => SamanPortalService::class,
+    ];
+
     public function __construct(
-        private readonly PaymentRepository $repository)
+        private readonly PaymentRepository $repository,
+        string $type)
     {
-    }
-
-    public function new(PaymentDTO $requestDto): Payment
-    {
-        //TODO -> logic of payment
-        
-        $payment = new Payment();
-        $payment->setType($requestDto->type);
-        $payment->setPaidAmount($requestDto->paidAmount);
-        // $payment->setCreatedAt($requestDto->createdAt);
-        $payment->setStatus($requestDto->status);
-        $payment->setCode($requestDto->code);
-
-        $this->repository->add($payment, true);
-        // $client = new \nusoap_client();
-        // $client = new \nusoap_client('https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl');
-
-        return $payment;
+        // dd($type);
+        if( isset( self::PortalTypes[$type] ) ){
+            $newPortal = self::PortalTypes[$type];
+            $this->portal = new $newPortal($repository);
+        }         
+        else
+            throw (new \Exception("This type is not valid"));
     }
 }
