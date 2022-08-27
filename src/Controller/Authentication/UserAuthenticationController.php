@@ -21,23 +21,18 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UserAuthenticationController extends AbstractController
 {
     protected JWTManagementInterface $JWTManager;
-
-    protected EntityManagerInterface $entityManager;
-
+    
     protected $passHasher;
 
     protected $userService;
 
     public function __construct(
         JWTManagementInterface $JWTManager,
-        EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $hasher,
         UserService $userService
     )
     {
         $this->JWTManager = $JWTManager;
-
-        $this->entityManager = $entityManager;
 
         $this->passHasher = $hasher;
 
