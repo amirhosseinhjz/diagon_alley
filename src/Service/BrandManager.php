@@ -77,8 +77,8 @@ class BrandManager
     function update(string $name, array $updateInfo)
     {
         $brand = $this->em->getRepository(Brand::class)->findOneByName($name);
-        if ($updateInfo['name'] != null) $brand->setName($updateInfo['name']);
-        if ($updateInfo['description'] != null) $brand->setName($updateInfo['description']);
+        if (array_key_exists('name', $updateInfo)) $brand->setName($updateInfo['name']);
+        if (array_key_exists('description', $updateInfo)) $brand->setName($updateInfo['description']);
         $this->em->getRepository(Brand::class)->add($brand, true);
     }
 
