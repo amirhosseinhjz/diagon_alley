@@ -14,8 +14,10 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker/database/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:cached
-      - ./storage/volumes/data/database:/var/lib/mysql
-      - ./storage/volumes/logs/database:/var/log/mysql
+#      - ./storage/volumes/data/database:/var/lib/mysql
+#      - ./storage/volumes/logs/database:/var/log/mysql
+      - db-data:/var/lib/mysql
+      - db-data:/var/log/mysql
 
   cache:
     image: 'redis:6.0-alpine'
@@ -72,3 +74,5 @@ services:
       - ./:/var/www/html
     depends_on:
       - diagonalley
+volumes:
+  db-data:
