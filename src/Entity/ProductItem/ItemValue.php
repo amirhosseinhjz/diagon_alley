@@ -1,11 +1,12 @@
 <?php
 
-namespace App\EntityProductItem;
+namespace App\Entity\ProductItem;
 
-use App\Repository\ItemValueRepository;
+use App\Repository\ProductItem\ItemValueRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ItemValueRepository::class)]
 class ItemValue
@@ -20,10 +21,12 @@ class ItemValue
     private ?Varient $varient = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups('show')]
     private ?string $value = null;
 
-    #[ORM\ManyToMany(targetEntity: ItemFeature::class, mappedBy: 'itemValues')]
-    private Collection $itemFeatures;
+    #[ORM\ManyToOne(inversedBy: 'itemValues')]
+    #[Groups('show')]
+    private ?ItemFeature $itemFeature = null;
 
     public function __construct()
     {
@@ -59,29 +62,14 @@ class ItemValue
         return $this;
     }
 
-    /**
-     * @return Collection<int, ItemFeature>
-     */
-    public function getItemFeatures(): Collection
+    public function getItemFeature(): ?ItemFeature
     {
-        return $this->itemFeatures;
+        return $this->itemFeature;
     }
 
-    public function addItemFeature(ItemFeature $itemFeature): self
+    public function setItemFeature(?ItemFeature $itemFeature): self
     {
-        if (!$this->itemFeatures->contains($itemFeature)) {
-            $this->itemFeatures->add($itemFeature);
-            $itemFeature->addItemValue($this);
-        }
-
-        return $this;
-    }
-
-    public function removeItemFeature(ItemFeature $itemFeature): self
-    {
-        if ($this->itemFeatures->removeElement($itemFeature)) {
-            $itemFeature->removeItemValue($this);
-        }
+        $this->itemFeature = $itemFeature;
 
         return $this;
     }

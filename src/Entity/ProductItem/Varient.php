@@ -1,12 +1,13 @@
 <?php
 
-namespace App\EntityProductItem;
+namespace App\Entity\ProductItem;
 
-use App\Repository\VarientRepository;
+use App\Repository\ProductItem\VarientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: VarientRepository::class)]
 class Varient
@@ -16,14 +17,36 @@ class Varient
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::BIGINT)]
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups('show')]
     private ?string $serial = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::BIGINT)]
+    #[Groups('show')]
     private ?int $price = null;
 
+    #[ORM\Column]
+    #[Groups('show')]
+    private ?int $quantity = null;
+
+    #[ORM\Column]
+    #[Groups('show')]
+    private ?bool $status = null;
+
+    #[Groups('show')]
     #[ORM\OneToMany(mappedBy: 'varient', targetEntity: ItemValue::class, orphanRemoval: true)]
     private Collection $itemValues;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups('show')]
+    private ?string $description = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    // #[ORM\ManyToOne(inversedBy: 'variants')]
+    // #[ORM\JoinColumn(nullable: false)]
+    // private ?Product $product = null;
 
     public function __construct()
     {
@@ -59,6 +82,18 @@ class Varient
         return $this;
     }
 
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): self
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, ItemValue>
      */
@@ -85,6 +120,54 @@ class Varient
                 $itemValue->setVarient(null);
             }
         }
+
+        return $this;
+    }
+
+    // public function getProduct(): ?Product
+    // {
+    //     return $this->product;
+    // }
+
+    // public function setProduct(?Product $product): self
+    // {
+    //     $this->product = $product;
+
+    //     return $this;
+    // }
+
+    public function isStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(bool $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
