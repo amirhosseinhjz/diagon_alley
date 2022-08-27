@@ -24,6 +24,7 @@ class Brand
 
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'brands')]
     #[Groups(['show_categories'])]
+    //TODO remove relation with categories
     private Collection $categories;
 
     #[ORM\OneToMany(mappedBy: 'brand', targetEntity: Product::class)]

@@ -14,32 +14,41 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['product_basic'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['product_basic'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['product_category'])]
     private ?Category $category = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['product_basic'])]
     private ?string $type = null;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: Variant::class)]
+    #[Groups(['product_variants'])]
     private Collection $variants;
 
     #[ORM\Column(length: 511, nullable: true)]
+    #[Groups(['product_basic'])]
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['product_brand'])]
     private ?Brand $brand = null;
 
     #[ORM\Column]
+    #[Groups(['product_basic'])]
     private ?bool $active = null;
 
     #[ORM\ManyToMany(targetEntity: ItemValue::class, mappedBy: 'products')]
+    #[Groups(['product_itemValues'])]
     private Collection $itemValues;
 
     public function __construct()

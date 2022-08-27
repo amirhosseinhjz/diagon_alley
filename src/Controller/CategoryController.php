@@ -30,7 +30,7 @@ class CategoryController extends AbstractController
             $json = $serializer->serialize($mainCategories, 'json', ['groups' => ['category_basic']]);
             return $this->json(["mainCategories" => $json]);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
 
@@ -44,7 +44,7 @@ class CategoryController extends AbstractController
             ]);
             return $this->json(["category" => $json]);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
 
@@ -55,18 +55,19 @@ class CategoryController extends AbstractController
             $parents = $this->categoryManager->findParents($name);
             return $this->json(['parents' => $parents]);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
 
     #[Route('/{name}/brands', name: 'show_brands', methods: ['GET'])]
+    //TODO replace with joins (category <=> products <=> brands )
     public function showBrands(string $name): Response
     {
         try {
             $brands = $this->categoryManager->findBrandsByName($name);
             return $this->json(["category" => $brands]);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
 
@@ -77,32 +78,67 @@ class CategoryController extends AbstractController
         try {
             $requestBody = $this->categoryManager->getRequestBody($req);
             $validatedBody = $this->categoryManager->validateCategoryArray($requestBody);
-            if (array_key_exists('error', $validatedBody)) return $this->json(['m' => $validatedBody['error']], 400);
+            if (array_key_exists('error', $validatedBody)) return $this->json(['message' => $validatedBody['error']], 400);
             $category = $this->categoryManager->createEntityFromArray($validatedBody);
             $doctrine->getRepository(Category::class)->add($category, true);
             $json = $serializer->serialize($category, 'json', ["groups" => ["category_basic"]]);
 //            $json = $serializer->deserialize($json, Category::class, 'json');
             return $this->json(["category" => $json]);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
 
     //TODO: admin auth
     #[Route('/delete', name: 'delete', methods: ['DELETE'])]
-    public function delete(ManagerRegistry $doctrine, Request $req): Response
+    public function delete(Request $req): Response
     {
-        return $this->json([]);
+        try {
+            $name = $req->get('name');
+            $result = $this->categoryManager->removeUnusedByName($name);
+            if (array_key_exists('error', $result)) return $this->json(['message' => $result['error']], 400);
+            return $this->json(['message' => $result['message']]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
     }
 
     //TODO: admin auth
     #[Route('/update', name: 'update', methods: ['PATCH'])]
-    public function update(ManagerRegistry $doctrine, Request $req): Response
+    public function update(Request $req, SerializerInterface $serializer): Response
     {
-        return $this->json([]);
+        //TODO change category parent
+        try {
+            [$name, $updates] = $this->categoryManager->getRequestBody($req);
+            $updatedCategory = $this->categoryManager->update($name, $updates);
+            if (array_key_exists('error', $updatedCategory)) return $this->json(['message' => $updatedCategory['error']], 400);
+            $json = $serializer->serialize($updatedCategory, 'json', ['groups' => ['category_basic']]);
+            return $this->json(['category' => $json]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
     }
 
-    //TODO change category parent
+    //TODO: admin auth
+    #[Route('/toggleActivity', name: 'disable', methods: ['PATCH'])]
+    public function disable(ManagerRegistry $doctrine, Request $req): Response
+    {
+        try {
+            $name = $req->get('name');
+            $active = $req->get('active');
+            $this->categoryManager->toggleCategoryActivityByName($name, $active);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
 
-    //TODO disable category and all product and children categories
+    #[Route('/products', name: 'products', methods: ['GET'])]
+    public function products(ManagerRegistry $doctrine, Request $req): Response
+    {
+        try {
+            //TODO category-prodcuts
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
 }

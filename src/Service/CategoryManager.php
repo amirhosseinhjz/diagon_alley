@@ -58,15 +58,15 @@ class CategoryManager
         return $category;
     }
 
-    public function findBrandsByName(string $name)
+    public function findBrandsByName(string $name): array
     {
-          $category = $this->em->getRepository(Category::class)->findOneByName($name);
-          $brands = $category->getBrands();
-          $brandNames = [];
-          foreach ($brands as $brand) {
-              $brandNames[] = $brand->getName();
-          }
-          return $brandNames;
+        $category = $this->em->getRepository(Category::class)->findOneByName($name);
+        $brands = $category->getBrands();
+        $brandNames = [];
+        foreach ($brands as $brand) {
+            $brandNames[] = $brand->getName();
+        }
+        return $brandNames;
     }
 
     public function findParents(string $name): array
@@ -83,11 +83,58 @@ class CategoryManager
 
     public function update(string $name, array $updateInfo)
     {
-
+        try {
+            $category = $this->em->getRepository(Category::class)->findOneByName($name);
+            if (array_key_exists('name', $updateInfo)) $category->setName($updateInfo['name']);
+            if (array_key_exists('parent', $updateInfo)) {
+                $parent = $this->em->getRepository(Category::class)->findOneByName($updateInfo['parent']);
+                if (!$parent) throw new Exception('invalid parent');
+                if ($parent->isLeaf()) throw new Exception('parent cant be leaf');
+                $category->setParent($parent);
+            }
+            if (array_key_exists('leaf', $updateInfo)) {
+                if ($updateInfo['leaf'] == true) {
+                    if (count($category->getChildren()) != 0) throw new Exception('category has subcategories');
+                    if ($category->getParent() == null) throw new Exception('parent cant be null');
+                } else {
+                    if (count($category->getProducts()) != 0) throw new Exception('category has existing products');
+                }
+                $category->setLeaf($updateInfo['leaf']);
+            }
+            $this->em->getRepository(Category::class)->add($category, true);
+        } catch (Exception $exception) {
+            return ['error' => $exception->getMessage()];
+        }
     }
 
-    public function removeUnusedByName(string $name)
+    public function removeUnusedByName(string $name): array
     {
-        //check if it is unused first
+        try {
+            $category = $this->em->getRepository(Category::class)->findOneByName($name);
+            if (count($category->getChildren()) != 0) throw new Exception('category has existing children');
+            if (count($category->getProducts()) != 0) throw new Exception('category has existing products');
+            $this->em->getRepository(Category::class)->remove($category);
+            return ['message' => 'category ' . $category->getName() . ' deleted'];
+        } catch (Exception $exception) {
+            return ['error' => $exception->getMessage()];
+        }
+    }
+
+    public function toggleCategoryActivity(Category $category, bool $active)
+    {
+        $category->setActive($active);
+        if ($category->isLeaf()) {
+            $products = $category->getProducts();
+            foreach ($products as $key => $value) $products[$key]->setActive($active);
+        } else {
+            $children = $category->getChildren();
+            foreach ($children as $key => $value) $this->disableCategory($children[$key]);
+        }
+    }
+
+    public function toggleCategoryActivityByName(string $name, bool $active)
+    {
+        $category = $this->em->getRepository(Category::class)->findOneByName($name);
+        $this->toggleCategoryActivity($category, $active);
     }
 }
