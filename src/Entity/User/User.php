@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
@@ -31,9 +31,11 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lastName = null;
 
+    #[Assert\Email(message:"The email '{{ value }}' is not a valid email.")]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
+    #[Assert\Regex(pattern: '/^(\+989|09)\d{9}$/', message:"The number '{{ value }}' is not a valid PhoneNumber.")]
     #[ORM\Column(length: 13, unique: true)]
     private ?string $phoneNumber = null;
 
@@ -45,6 +47,9 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $tokenValidateAfter = null;
+
+    #[ORM\Column]
+    private bool $isActive = true;
 
     public function getId(): ?int
     {
@@ -131,6 +136,18 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setTokenValidateAfter(?\DateTimeInterface $tokenValidateAfter): self
     {
         $this->tokenValidateAfter = $tokenValidateAfter;
+
+        return $this;
+    }
+
+    public function isIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }

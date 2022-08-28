@@ -7,6 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+
 /**
  * @extends ServiceEntityRepository<User>
  *
@@ -65,6 +66,7 @@ class UserRepository extends ServiceEntityRepository
 //        ;
 //    }
 
+
     public function loadUserByIdentifier(string $identifier): ?UserInterface
     {
         $entityManager = $this->getEntityManager();
@@ -77,4 +79,5 @@ class UserRepository extends ServiceEntityRepository
             ->setParameter('query', $identifier)
             ->getOneOrNullResult();
     }
+
 }
