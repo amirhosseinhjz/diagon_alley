@@ -6,31 +6,39 @@ use App\Interface\Payment\BankPortalInterface;
 use App\Repository\Payment\PaymentRepository;
 use App\DTO\Payment\PaymentDTO;
 use App\Entity\Payment\Payment;
+use App\Service\CartManager;
+use nusoap_client;
 
-
-class SamanPortalService implements BankPortalInterface
+class SamanPortalService extends BankPortalService
 {
-    public function call(PaymentDTO $requestDto, PaymentRepository $repository)
+    public function setInitial()
     {
-        //TODO -> http request to test bank
-
-
-        //TODO: set new status and code
-
-        $this->DtoToEntity($requestDto, $repository);
-
-        //TODO: return payment
+        $this->terminalId='kBkvJ7sq-zH8Z7r';
+        $this->userName='user2366';
+        $this->password='13472887';
     }
 
-    public function DtoToEntity(PaymentDTO $requestDto)
+    public function getToken(PaymentDTO $paymentDTO)
     {
-        $payment = new Payment();
-        $payment->setType($requestDto->type);
-        $payment->setPaidAmount($requestDto->paidAmount);
-        $payment->setStatus($requestDto->status);
-        $payment->setCode($requestDto->code);
+        $data = [
+            'TermID'=> $this->terminalId,
+            'Amounts' =>$paymentDTO->paidAmount,
+            //TODO: change to Id
+            'ResNum'=>$paymentDTO->cartId,
+        ];
 
-        $this->repository->add($payment, true);
+        $client = new nusoap_client('https://banktest.ir/gateway/saman/Payments/InitPayment?wsdl','wsdl');
+        $token = $client->call('RequestMultiSettleTypeToken',$data);
 
+        return $token;
+    }
+
+    public function directToPayment($token)
+    {
+        return [
+            'url' => "https://banktest.ir/gateway/saman/gate",
+            "token"=> $token,
+            "redirect_url"=> "http://localhost:70/api/payment/getStatus",
+        ];
     }
 }

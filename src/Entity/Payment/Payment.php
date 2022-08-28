@@ -2,6 +2,7 @@
 
 namespace App\Entity\Payment;
 
+use App\Entity\Cart;
 use App\Repository\Payment\PaymentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,6 +29,10 @@ class Payment
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $code = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cart $cartId = null;
 
     
     public function getId(): ?int
@@ -93,6 +98,18 @@ class Payment
     public function setCode(?string $code): self
     {
         $this->code = $code;
+
+        return $this;
+    }
+
+    public function getCartId(): ?Cart
+    {
+        return $this->cartId;
+    }
+
+    public function setCartId(?Cart $cartId): self
+    {
+        $this->cartId = $cartId;
 
         return $this;
     }

@@ -17,22 +17,32 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route('/api/payment')]
 class PaymentController extends AbstractController
 {
-    #[Route('/{id}/{type}', name: 'app_payment_new', methods: ['POST'])]
+    private $portalService;
+
+    #[Route('/{cartId}/{type}', name: 'app_payment_new', methods: ['GET'])]
     public function new(
         ValidatorInterface $validator,
         PaymentRepository $repository,
         int $cartId,
         string $type,
     ) {
-        $requestDto = new PaymentDTO($cartId, $type, $validator);
+        $this->portalService = PotalFactory::create($type);
+        
+        $requestDto = $this->portalService->makePaymentDTO($cartId,$type,$validator);
 
-        $portalService = PotalFactory::create($type);
+        $directToPayment = $this->portalService->payCart($requestDto);
 
-        $payment = $portalService->call($requestDto, $repository);
-
-        return $this->json($payment);
+        return $this->render('Payment/payment.html.twig', $directToPayment);
     }
 
+    #[Route('/getStatus', name: 'app_payment_get_status', methods: ['POST'])]
+    public function checkStatus(Request $request)
+    {
+        dd($request);
+        $responce = $this->portalService->checkStatus($request->request->all());
+        dd($responce);
+    }
+    
     #[Route('/{id}', name: 'app_payment_check_status', methods: ['GET'])]
     public function checkIndex(PaymentRepository $repository, int $id)
     {
@@ -43,4 +53,5 @@ class PaymentController extends AbstractController
         else
             return $this->json($status->getStatus());
     }
+
 }
