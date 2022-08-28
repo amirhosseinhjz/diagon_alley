@@ -22,3 +22,6 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    app.saman.portal.service:
+        class: App\Service\Payment\SamanPortalService
+    App\Interface\Payment\BankPortalInterface: '@app.saman.portal.service'

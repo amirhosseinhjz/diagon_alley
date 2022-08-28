@@ -6,25 +6,18 @@ use App\Interface\Payment\BankPortalInterface;
 use App\Repository\Payment\PaymentRepository;
 use App\DTO\Payment\PaymentDTO;
 use App\Entity\Payment\Payment;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 
 class SamanPortalService implements BankPortalInterface
 {
-    public function __construct(
-        private readonly PaymentRepository $repository,
-        // private HttpClientInterface $client
-    ) {
-    }
-
-    public function call(PaymentDTO $requestDto)
+    public function call(PaymentDTO $requestDto, PaymentRepository $repository)
     {
         //TODO -> http request to test bank
 
 
         //TODO: set new status and code
 
-        $this->DtoToEntity($requestDto);
+        $this->DtoToEntity($requestDto, $repository);
 
         //TODO: return payment
     }

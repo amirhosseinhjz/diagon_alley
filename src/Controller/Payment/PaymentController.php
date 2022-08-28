@@ -3,7 +3,9 @@
 namespace App\Controller\Payment;
 
 use App\DTO\Payment\PaymentDTO;
+use App\Entity\Payment\Payment;
 use App\Repository\Payment\PaymentRepository;
+use App\Service\Payment\PotalFactory;
 // use App\Repository\Order\OaymentRepository;
 use App\Service\Payment\PaymentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,28 +14,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/payment')]
+#[Route('/api/payment')]
 class PaymentController extends AbstractController
 {
     #[Route('/{id}/{type}', name: 'app_payment_new', methods: ['POST'])]
     public function new(
         ValidatorInterface $validator,
         PaymentRepository $repository,
-        // OrderRepository $orderRepository
-        // int $id,
+        int $cartId,
         string $type,
-        ) {
-        // $order = orderRepository->findById($id);
-        //for testing
-        $order = array("price" => 1000, "discount" => 3);
-        // $type = "SAMAN";
+    ) {
+        $requestDto = new PaymentDTO($cartId, $type, $validator);
 
-        $paymentService = new PaymentService($repository,$type);
+        $portalService = PotalFactory::create($type);
 
-        // $requestDto = new PaymentDTO(json_encode($order), $type, $validator);
-        $requestDto = new PaymentDTO($order, $type, $validator);
-
-        $payment = $paymentService->portal->call($requestDto);
+        $payment = $portalService->call($requestDto, $repository);
 
         return $this->json($payment);
     }
