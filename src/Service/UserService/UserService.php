@@ -64,7 +64,9 @@ class UserService
         return $userDTO;
     }
 
+
     public function createFromArray(array $array) : UserInterface
+
     {
         $userDTO = $this->createValidDTO($array);
         $user = $this->createUserFromDTO($userDTO, false);
@@ -95,6 +97,7 @@ class UserService
         return $user;
     }
 
+
     private function createDTOFromUser(UserInterface $user): UserDTOs\UserDTO
     {
         $role = $user->getRoles()[0];
@@ -117,6 +120,7 @@ class UserService
         }
         return $errorsArray;
     }
+
 
     public function getUserById(int $id): UserInterface
     {
