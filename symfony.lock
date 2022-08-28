@@ -84,7 +84,7 @@
         "files": [
             "config/packages/nelmio_alice.yaml"
         ]
-
+    },
     "nelmio/api-doc-bundle": {
         "version": "4.9",
         "recipe": {
@@ -97,8 +97,6 @@
             "config/packages/nelmio_api_doc.yaml",
             "config/routes/nelmio_api_doc.yaml"
         ]
-        }
-
     },
     "phpunit/phpunit": {
         "version": "9.5",
