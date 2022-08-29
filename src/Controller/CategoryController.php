@@ -109,7 +109,7 @@ class CategoryController extends AbstractController
             [$name, $updates] = $this->categoryManager->getRequestBody($req);
             $updatedCategory = $this->categoryManager->update($name, $updates);
             if (array_key_exists('error', $updatedCategory)) return $this->json(['message' => $updatedCategory['error']], 400);
-            $json = $serializer->serialize($updatedCategory, 'json', ['groups' => ['category_basic']]);
+            $json = $serializer->serialize($updatedCategory['category'], 'json', ['groups' => ['category_basic']]);
             return $this->json(['category' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
