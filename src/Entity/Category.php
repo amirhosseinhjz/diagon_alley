@@ -31,10 +31,6 @@ class Category
     #[MaxDepth(1)]
     private Collection $children;
 
-    #[ORM\ManyToMany(targetEntity: Brand::class, inversedBy: 'categories')]
-    #[Groups(['category_brands'])]
-    private Collection $brands;
-
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class)]
     #[Groups(['category_products'])]
     private Collection $products;
@@ -53,7 +49,6 @@ class Category
 
     public function __construct()
     {
-        $this->brands = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->products = new ArrayCollection();
         $this->features = new ArrayCollection();
@@ -84,30 +79,6 @@ class Category
     public function setParent(?self $parent): self
     {
         $this->parent = $parent;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Brand>
-     */
-    public function getBrands(): Collection
-    {
-        return $this->brands;
-    }
-
-    public function addBrand(Brand $brand): self
-    {
-        if (!$this->brands->contains($brand)) {
-            $this->brands->add($brand);
-        }
-
-        return $this;
-    }
-
-    public function removeBrand(Brand $brand): self
-    {
-        $this->brands->removeElement($brand);
 
         return $this;
     }

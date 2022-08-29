@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Brand;
 use App\Service\BrandManager;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/brand', name: 'app_brand_')]
 class BrandController extends AbstractController
@@ -39,40 +40,14 @@ class BrandController extends AbstractController
     }
 
     //TODO: admin auth
-    //TODO remove later
-    #[Route('/add/category', name: 'add_category', methods: ['PATCH'])]
-    public function addCategory(Request $req): Response
-    {
-        try {
-            [$brandName, $categoryName] = $this->brandManager->getRequestBody($req);
-            $this->brandManager->addRelationWithCategory($brandName, $categoryName);
-            return $this->json(['message' => "relation added"]);
-        } catch (Exception $exception) {
-            return $this->json(['message' => $exception->getMessage()], 500);
-        }
-    }
-
-    //TODO: admin auth
     #[Route('/delete', name: 'delete', methods: ['DELETE'])]
     public function delete(Request $req): Response
     {
         try {
             $name = $req->get('name');
-            $this->brandManager->removeUnusedByName($name);
-            return $this->json(['message' => 'removed brand']);
-        } catch (Exception $exception) {
-            return $this->json(['message' => $exception->getMessage()], 500);
-        }
-    }
-
-    //TODO: admin auth
-    #[Route('/remove/category', name: 'remove_category', methods: ['DELETE'])]
-    public function removeCategory(ManagerRegistry $doctrine, Request $req): Response
-    {
-        try {
-            [$brandName, $categoryName] = $this->brandManager->getRequestBody($req);
-            $this->brandManager->removeRelationWithCategory($brandName, $categoryName);
-            return $this->json(['message' => "relation removed"]);
+            $message = $this->brandManager->removeUnusedByName($name);
+            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
+            return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -84,21 +59,22 @@ class BrandController extends AbstractController
     {
         try {
             [$name, $updates] = $this->brandManager->getRequestBody($req);
-            $this->brandManager->update($name, $updates);
-            return $this->json([]);
+            $message = $this->brandManager->update($name, $updates);
+            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
+            return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
 
-    #[Route('/{name}/description', name: 'description', methods: ['GET'])]
-    public function description(ManagerRegistry $doctrine, string $name): Response
+    #[Route('/{name}', name: 'brand_details', methods: ['GET'])]
+    public function getBrand(ManagerRegistry $doctrine, string $name, SerializerInterface $serializer): Response
     {
         try {
             $brand = $doctrine->getRepository(Brand::class)->findOneByName($name);
-            return $this->json([
-                "description" => $brand->getDescription()
-            ]);
+            if (!$brand) return $this->json(['message' => 'brand not found'], 400);
+            $json = $serializer->serialize($brand, 'json', ['groups' => ['brand_basic']]);
+            return $this->json(['brand' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -108,7 +84,7 @@ class BrandController extends AbstractController
     public function search(ManagerRegistry $doctrine, Request $req): Response
     {
         try {
-            $q = $req->get('query');
+            $q = $req->query->get('query');
             $brands = $doctrine->getRepository(Brand::class)->findManyByQuery($q);
             return $this->json(['brands' => $brands]);
         } catch (Exception $exception) {
@@ -116,13 +92,5 @@ class BrandController extends AbstractController
         }
     }
 
-    #[Route('/products', name: 'products', methods: ['GET'])]
-    public function products(ManagerRegistry $doctrine, Request $req): Response
-    {
-        try {
-            //TODO brand-products dont have feature filters
-        } catch (Exception $exception) {
-            return $this->json(['message' => $exception->getMessage()], 500);
-        }
-    }
+    //TODO show brand products with filters
 }

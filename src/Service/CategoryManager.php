@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\ItemFeature;
+use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Exception;
@@ -60,13 +62,7 @@ class CategoryManager
 
     public function findBrandsByName(string $name): array
     {
-        $category = $this->em->getRepository(Category::class)->findOneByName($name);
-        $brands = $category->getBrands();
-        $brandNames = [];
-        foreach ($brands as $brand) {
-            $brandNames[] = $brand->getName();
-        }
-        return $brandNames;
+        return $this->em->getRepository(Product::class)->findBrandsByCategoryName($name);
     }
 
     public function findParents(string $name): array
@@ -85,13 +81,20 @@ class CategoryManager
     {
         try {
             $category = $this->em->getRepository(Category::class)->findOneByName($name);
-            if (array_key_exists('name', $updateInfo)) $category->setName($updateInfo['name']);
+            if (array_key_exists('name', $updateInfo)) {
+                $newName = trim($updateInfo['name']);
+                if (!$newName) throw new Exception('invalid name');
+                if (!$this->em->getRepository(Category::class)->findOneByName($newName)) throw new Exception('new name already exists');
+                $category->setName($newName);
+            }
+
             if (array_key_exists('parent', $updateInfo)) {
                 $parent = $this->em->getRepository(Category::class)->findOneByName($updateInfo['parent']);
                 if (!$parent) throw new Exception('invalid parent');
                 if ($parent->isLeaf()) throw new Exception('parent cant be leaf');
                 $category->setParent($parent);
             }
+
             if (array_key_exists('leaf', $updateInfo)) {
                 if ($updateInfo['leaf'] == true) {
                     if (count($category->getChildren()) != 0) throw new Exception('category has subcategories');
@@ -101,6 +104,7 @@ class CategoryManager
                 }
                 $category->setLeaf($updateInfo['leaf']);
             }
+
             $this->em->getRepository(Category::class)->add($category, true);
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
@@ -125,10 +129,16 @@ class CategoryManager
         $category->setActive($active);
         if ($category->isLeaf()) {
             $products = $category->getProducts();
-            foreach ($products as $key => $value) $products[$key]->setActive($active);
+            foreach ($products as $product) {
+                $product->setActive($active);
+                $this->em->getRepository(Product::class)->add($product, false);
+            }
         } else {
             $children = $category->getChildren();
-            foreach ($children as $key => $value) $this->disableCategory($children[$key]);
+            foreach ($children as $child) {
+                $this->toggleCategoryActivity($child, $active);
+                $this->em->getRepository(Category::class)->add($child);
+            }
         }
     }
 
@@ -136,5 +146,50 @@ class CategoryManager
     {
         $category = $this->em->getRepository(Category::class)->findOneByName($name);
         $this->toggleCategoryActivity($category, $active);
+        $this->em->getRepository(Category::class)->add($category, true);
+    }
+
+    public function getFeaturesByName(string $name): array
+    {
+        $features = $this->em->getRepository(Category::class)->findOneByName($name)->getFeatures();
+        $featureNames = [];
+        foreach ($features as $feature) {
+            $featureNames[] = $feature->getName();
+        }
+        return $featureNames;
+    }
+
+    public function addFeatures(array $features): array
+    {
+        try {
+            $category = $this->em->getRepository(Category::class)->findOneByName($features['name']);
+            $featureRepo = $this->em->getRepository(ItemFeature::class);
+            foreach ($features['features'] as $featureName) {
+                $feature = $featureRepo->findOneBy(['name' => $featureName]);
+                if (!$feature) throw new Exception('invalid feature');
+                $category->addFeature($feature);
+            }
+            $this->em->getRepository(Category::class)->add($category, true);
+            return ['message' => 'features added'];
+        } catch (Exception $exception) {
+            return ['error' => $exception->getMessage()];
+        }
+    }
+
+    public function removeFeatures(array $features): array
+    {
+        try {
+            $category = $this->em->getRepository(Category::class)->findOneByName($features['name']);
+            $featureRepo = $this->em->getRepository(ItemFeature::class);
+            foreach ($features['features'] as $featureName) {
+                $feature = $featureRepo->findOneBy(['name' => $featureName]);
+                if (!$feature) throw new Exception('invalid feature');
+                $category->removeFeature($feature);
+            }
+            $this->em->getRepository(Category::class)->add($category, true);
+            return ['message' => 'features removed'];
+        } catch (Exception $exception) {
+            return ['error' => $exception->getMessage()];
+        }
     }
 }
