@@ -7,55 +7,66 @@ use App\Repository\Payment\PaymentRepository;
 use App\DTO\Payment\PaymentDTO;
 use App\Entity\Payment\Payment;
 use App\Service\CartManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 abstract class BankPortalService implements BankPortalInterface
 {
-    protected $cartManager;
-    
-    private $terminalId;
-    private $token;
-    
-    public function makePaymentDTO($cartId,$type,$validator){
-        // $this->cartManager = new CartManager();
-        // $cart =  $this->cartManager->getCart($cartId,false);
-        // dd($cart);
-        $price = 2000;
 
-        $paymentDTO = new PaymentDTO($cartId,$price, $type, $validator);
+    public function __construct(
+        protected CartManager $cartManager,
+        private EntityManagerInterface $em){}
+    
+    public function makePaymentDTO($cartId,$type,$validator,$repository){
+
+        $cart =  $this->cartManager->getCart($cartId,false);
+
+        $paymentDTO = new PaymentDTO($cart, $type, $validator);
+
+        $this->DtoToEntity($paymentDTO,$repository);
 
         return $paymentDTO;
     }
 
     public function payCart(PaymentDTO $paymentDTO){
-        // if($paymentDTO->cart->getStatus()=="INIT")
-        // {
-            // $cartManager->updateStatus($paymentDTO->cart->getId(), "PENDING");
+        if($paymentDTO->cart->getStatus()=="INIT")
+        {
+            $this->cartManager->updateStatus($paymentDTO->cart->getId(), "PENDING");
 
             $this->setInitial();
     
             $token = $this->getToken($paymentDTO);
             
             return $this->directToPayment($token);
-        // }
-        // else
-        // {
-            // throw (new \Exception("Payment is not in the correct stage"));
-        // }
+        }
+        else
+        {
+            throw (new \Exception("Payment is not in the correct stage"));
+        }
     }
 
-    public function checkStatus($result)
+    public function changeStatus($result,$repository)
     {
-        // if($result["State"] == "OK")
-        // {
-            
-        //     $this->PaymentDTO->cart->updateStatus("SUCCESS");
-        //     $this->PaymentDTO->status="SUCCESS";
-        // }
-        return $result["State"];
+        $payment = $repository->findOneById($result['ResNum']);
+        
+        if($result["State"] == "OK")
+        {
+            $payment->setStatus("SUCCESS");
+            $payment->getCart()->setStatus("SUCCESS");
+        }
+        else
+        {
+            $payment->setStatus("FAILED");
+            $payment->getCart()->setStatus("INIT");
+        }
+        
+        $payment->setCode($result['TraceNo']);
+        $repository->getEntityManager()->flush();
+        
+        return [$payment->getCart()->getId(),$result["State"]];
     }
 
 
-    public function DtoToEntity(PaymentDTO $requestDto)
+    public function DtoToEntity(PaymentDTO $requestDto,PaymentRepository $repository)
     {
         $payment = new Payment();
         $payment->setType($requestDto->type);
@@ -63,6 +74,6 @@ abstract class BankPortalService implements BankPortalInterface
         $payment->setStatus($requestDto->status);
         $payment->setCode($requestDto->code);
 
-        $this->repository->add($payment, true);
+        $repository->add($payment, true);
     }
 }

@@ -3,8 +3,6 @@
 namespace App\DTO\Payment;
 
 use App\Entity\Cart;
-use App\Service\Payment\PaymentService;
-use App\Trait\PaymentTrait;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -20,23 +18,20 @@ class PaymentDTO
 
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    #TODO: ENUM
+    #[Assert\Choice(['PENDING', 'FAILED', 'SUCCESS'])]
     public readonly ?string $status;
 
-    
+    #[Assert\NotBlank]
+    #[Assert\NotNull]
     public readonly ?string $code;
 
-    public readonly ?int $c;
-
-    use PaymentTrait;
-
-    public function __construct($cartId,$price,$type, ValidatorInterface $validator)
+    public function __construct($cart,$type, ValidatorInterface $validator)
     {
         $this->type = $type;
-        $this->paidAmount = $price;
+        $this->paidAmount = $cart->getTotalPrice();
         $this->status = "PENDING";
-        $this->cartId = $cartId;
-
+        $this->code = "000000";
+        $this->cart = $cart;
 
         $this->validate($validator);
     }

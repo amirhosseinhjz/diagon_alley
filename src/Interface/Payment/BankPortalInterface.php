@@ -4,13 +4,10 @@ namespace App\Interface\Payment;
 
 use App\DTO\Payment\PaymentDTO;
 use App\Repository\Payment\PaymentRepository;
-use App\Service\CartManager;
 
 interface BankPortalInterface
 {
-    // public function __construct();
-
-    public function makePaymentDTO($cartId,$type,$validator);
+    public function makePaymentDTO($cartId,$type,$validator,PaymentRepository $repository);
     
     public function payCart(PaymentDTO $paymentDTO);
 
@@ -20,7 +17,7 @@ interface BankPortalInterface
 
     public function directToPayment($token);
 
-    public function checkStatus($result);
+    public function changeStatus($result,$repository);
 
-    public function DtoToEntity(PaymentDTO $requestDto);
+    public function DtoToEntity(PaymentDTO $requestDto,PaymentRepository $repository);
 }

@@ -39,13 +39,11 @@ class PaymentRepository extends ServiceEntityRepository
         }
     }
 
-    public function checkStatusById($id): ?Payment
+    public function findOneById($id): ?Payment
     {
         return $this->createQueryBuilder('p')
             ->andWhere('p.id = :val')
             ->setParameter('val', $id)
-            ->andWhere('p.status = :successVal')
-            ->setParameter('successVal', "SUCCESS")
             ->getQuery()
             ->getOneOrNullResult();
     }

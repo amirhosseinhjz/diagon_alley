@@ -15,26 +15,26 @@ class Payment
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 30)]
     private ?string $type = null;
 
-    #[ORM\Column]
-    private ?int $paidAmount = null;
+    // #[ORM\Column]
+    // private ?int $paidAmount = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 10)]
     private ?string $status = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 10)]
     private ?string $code = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Cart $cartId = null;
 
-    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -52,17 +52,17 @@ class Payment
         return $this;
     }
 
-    public function getPaidAmount(): ?int
-    {
-        return $this->paidAmount;
-    }
+    // public function getPaidAmount(): ?int
+    // {
+    //     return $this->paidAmount;
+    // }
 
-    public function setPaidAmount(int $paidAmount): self
-    {
-        $this->paidAmount = $paidAmount;
+    // public function setPaidAmount(int $paidAmount): self
+    // {
+    //     $this->paidAmount = $paidAmount;
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
