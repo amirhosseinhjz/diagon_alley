@@ -87,7 +87,7 @@ class VarientController extends AbstractController
     {
         $body = $request->toArray();
         try {
-            $varientManager->updateVarient($serial,$body['quantity'],$varientRepository);
+            $varientManager->updateVarient($serial,$body['quantity'],$body['price'],$varientRepository);
             return $this->json(
                 ["massage" => "Varient updated successfully"],
                 status: 200

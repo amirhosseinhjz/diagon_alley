@@ -49,9 +49,9 @@ class VarientManagement
         return $varient[0];
     }
 
-    public function updateVarient($serial,int $quantity,VarientRepository $varientRepository){
+    public function updateVarient($serial,int $quantity,int $price,VarientRepository $varientRepository){
         $varient = $this->readVarient($serial,$varientRepository);
-        $varient->setQuantity($quantity);
+        $varient->setQuantity($quantity)->setPrice($price);
         $this->em->flush();
         return $varient;
     }
