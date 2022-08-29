@@ -22,7 +22,7 @@ class BrandManager
         return json_decode($req->getContent(), true);
     }
 
-    public function validateBrandArray(array $unvalidatedArray)
+    public function validateBrandArray(array $unvalidatedArray): array
     {
         try {
             $name = trim($unvalidatedArray["name"]);
@@ -40,8 +40,7 @@ class BrandManager
         }
     }
 
-    public
-    function createEntityFromArray(array $validatedArray): Brand
+    public function createEntityFromArray(array $validatedArray): Brand
     {
         $brand = new Brand();
         $brand->setName($validatedArray["name"]);
@@ -49,44 +48,35 @@ class BrandManager
         return $brand;
     }
 
-    public
-    function addRelationWithCategory(string $brandName, string $categoryName): Brand
+    public function update(string $name, array $updateInfo)
     {
-        $brand = new Brand();
-        $brand->setName($brandName);
-        $category = $this->em->getRepository(Category::class)->findOneByName($categoryName);
-        $brand->addCategory($category);
-        $this->em->persist($brand);
-        $this->em->flush();
-        return $brand;
+        try {
+            $brand = $this->em->getRepository(Brand::class)->findOneByName($name);
+            if (!$brand) throw new Exception('brand not found');
+            if (array_key_exists('name', $updateInfo)) {
+                $newName = $updateInfo['name'];
+                if (!$newName) throw new Exception('invalid name');
+                if ($this->em->getRepository(Brand::class)->findOneByName($newName)) throw new Exception('name already exists');
+                $brand->setName($newName);
+            }
+            if (array_key_exists('description', $updateInfo)) $brand->setName($updateInfo['description']);
+            $this->em->getRepository(Brand::class)->add($brand, true);
+            return ['message' => 'brand updated'];
+        } catch (Exception $exception) {
+            return ['error' => $exception->getMessage()];
+        }
     }
 
-    public
-    function removeRelationWithCategory(string $brandName, string $categoryName)
+    public function removeUnusedByName($name): array
     {
-        $brand = new Brand();
-        $brand->setName($brandName);
-        $category = $this->em->getRepository(Category::class)->findOneByName($categoryName);
-        $brand->removeCategory($category);
-        $this->em->persist($brand);
-        $this->em->flush();
-        return $brand;
-    }
-
-    public
-    function update(string $name, array $updateInfo)
-    {
-        $brand = $this->em->getRepository(Brand::class)->findOneByName($name);
-        if (array_key_exists('name', $updateInfo)) $brand->setName($updateInfo['name']);
-        if (array_key_exists('description', $updateInfo)) $brand->setName($updateInfo['description']);
-        $this->em->getRepository(Brand::class)->add($brand, true);
-    }
-
-    public
-    function removeUnusedByName($name)
-    {
-        $brand = $this->em->getRepository(Brand::class)->findOneByName($name);
-        if ($brand->getProducts()->isEmpty() == false) throw new Exception("brand has existing products");
-        $this->em->getRepository(Brand::class)->remove($brand);
+        try {
+            $brand = $this->em->getRepository(Brand::class)->findOneByName($name);
+            if (!$brand) throw new Exception('brand not found');
+            if ($brand->getProducts()->isEmpty() == false) throw new Exception("brand has existing products");
+            $this->em->getRepository(Brand::class)->remove($brand, true);
+            return ['message' => 'brand deleted'];
+        } catch (Exception $exception) {
+            return ['error' => $exception->getMessage()];
+        }
     }
 }
