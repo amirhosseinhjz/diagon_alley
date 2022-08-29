@@ -66,7 +66,7 @@ class CategoryRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.name LIKE :pattern')
-            ->setParameter('pattern', '%'.$q.'%')
+            ->setParameter('pattern', '%' . $q . '%')
             ->getQuery()
             ->getResult();
     }
