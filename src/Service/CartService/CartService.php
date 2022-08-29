@@ -1,23 +1,22 @@
 <?php
 
-namespace App\Service\CartService;
+namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Exception;
-use App\Entity\Cart\Cart;
-use App\Entity\Cart\CartItem;
+use App\Entity\Cart;
+use App\Entity\CartItem;
 
 
-class CartService implements CartServiceInterface 
+class CartService
 {
     private EntityManagerInterface $entityManager;
 
     
     public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
-
+        $this->this->entityManager = $entityManager;
     }
 
     public function getRequestBody(Request $req)
@@ -42,11 +41,10 @@ class CartService implements CartServiceInterface
         }
     }
 
-    public function getCart(int $userId, bool $create = true):?cart
+    public function getCart(int $userId, bool $create = true)
     {
         try{
             $cartRepository = $this->entityManager->getRepository(Cart::class);    #ToDo: avoid repeating   
-            
             $cart = $cartRepository->findOneBy(['user_id'=> $userId, 'status'=>'init']); #check: is this a cart? should this be here?just init?
             #todo: validate user id, check if the user is logged in
             if($cart==null && $create){  #ToDo: check
@@ -58,21 +56,12 @@ class CartService implements CartServiceInterface
             }
             return $cart;
         } catch(Exception $exception){  #ToDo: return a safer message
-            // TODO: must return cart 
             return ['error' => $exception->getMessage()];
         }         
     }
 
-    public function getCartById(int $cartId):?cart
-    {
-        $cartRepository = $this->entityManager->getRepository(Cart::class); 
-        
-        $cart = $cartRepository->findOneBy(['id'=> $cartId, 'status'=>'init']);
 
-        return $cart;   
-    }
-
-    public function getTotalPrice($cartId): int
+    public function getTotalPrice($cartId)
     {
         try{
             $cartRepository = $this->entityManager->getRepository(Cart::class);    #ToDo: avoid repeating   
@@ -105,7 +94,7 @@ class CartService implements CartServiceInterface
     //ToDo: set up the event for automatic expiration
     public function updateStatus($cartId, $status)
     {
-        $cart = $this->entityManager->getRepository(Cart::class)->findOneBy(['id'=>$cartId]);
+        $cart = $this->this->entityManager->getRepository(Cart::class)->findOneBy(['id'=>$cartId]);
         try{
             //ToDo: if cart does not exist? if cart is empty?
             $cart->setStatus($status);

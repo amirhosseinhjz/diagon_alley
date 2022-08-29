@@ -20,9 +20,11 @@ services:
       - "../src/Entity/"
       - "../src/Kernel.php"
 
-    App\Service\UserService\UserService:
+
+    App\Service\CartService\CartService:
         public: true
-#        synthetic: true
+
+    App\Service\CartService\CartServiceInterface: '@App\Service\CartService\CartService'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     app.jwt.management:
@@ -32,7 +34,6 @@ services:
     App\Listener\AuthenticationProcesses\JWTDecodedEventListener:
         tags:
             - { name: kernel.event_listener, event: 'lexik_jwt_authentication.on_jwt_decoded', method: onJWTDecoded }
-            
+
     app.cart.service:
       class: App\Service\CartService\CartService
-    App\Service\CartService\CartServiceInterface: '@app.cart.service'

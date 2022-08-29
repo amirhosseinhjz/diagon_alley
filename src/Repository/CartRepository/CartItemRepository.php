@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\CartRepository;
+namespace App\Repository;
 
-use App\Entity\Cart\CartItem;
+use App\Entity\CartItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

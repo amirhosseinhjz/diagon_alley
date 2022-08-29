@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\Cart;
+namespace App\Entity;
 
 use App\Repository\CartItemRepository;
 use Doctrine\DBAL\Types\Types;
