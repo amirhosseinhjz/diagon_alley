@@ -21,11 +21,11 @@ class ItemValue
     private ?Varient $varient = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups('show')]
+    #[Groups('showVarient')]
     private ?string $value = null;
 
     #[ORM\ManyToOne(inversedBy: 'itemValues')]
-    #[Groups('show')]
+    #[Groups('showVarient')]
     private ?ItemFeature $itemFeature = null;
 
     public function __construct()

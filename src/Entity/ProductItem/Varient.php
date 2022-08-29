@@ -12,41 +12,45 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: VarientRepository::class)]
 class Varient
 {
+    public const STATUS_VALIDATE_SUCCESS = 1;
+    public const STATUS_VALIDATE_PENDING = 0;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('show')]
+    #[Groups('showVarient')]
     private ?string $serial = null;
 
     #[ORM\Column(type: Types::BIGINT)]
-    #[Groups('show')]
+    #[Groups('showVarient')]
     private ?int $price = null;
 
     #[ORM\Column]
-    #[Groups('show')]
+    #[Groups('showVarient')]
     private ?int $quantity = null;
 
     #[ORM\Column]
-    #[Groups('show')]
+    #[Groups('showVarient')]
     private ?bool $status = null;
 
-    #[Groups('show')]
+    #[Groups('showVarient')]
     #[ORM\OneToMany(mappedBy: 'varient', targetEntity: ItemValue::class, orphanRemoval: true)]
     private Collection $itemValues;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('show')]
+    #[Groups('showVarient')]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups('showVarient')]
     private ?\DateTimeImmutable $createdAt = null;
 
-    // #[ORM\ManyToOne(inversedBy: 'variants')]
-    // #[ORM\JoinColumn(nullable: false)]
-    // private ?Product $product = null;
+     #[ORM\ManyToOne(inversedBy: 'variants')]
+     #[ORM\JoinColumn(nullable: false)]
+     private ?Product $product = null;
 
     public function __construct()
     {
@@ -124,17 +128,17 @@ class Varient
         return $this;
     }
 
-    // public function getProduct(): ?Product
-    // {
-    //     return $this->product;
-    // }
+     public function getProduct(): ?Product
+     {
+         return $this->product;
+     }
 
-    // public function setProduct(?Product $product): self
-    // {
-    //     $this->product = $product;
+     public function setProduct(?Product $product): self
+     {
+         $this->product = $product;
 
-    //     return $this;
-    // }
+         return $this;
+     }
 
     public function isStatus(): ?bool
     {

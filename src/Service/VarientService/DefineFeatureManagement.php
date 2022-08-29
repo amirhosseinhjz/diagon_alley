@@ -28,10 +28,10 @@ class DefineFeatureManagement
     
     public function defineFeature($features){
         foreach($features as $feature => $value){
-            if(!$this->itemFeatureRepository->readFeature($feature)){
+            $itemfeature = $this->itemFeatureRepository->readFeatureById($feature);
+            if(!$itemfeature){
                 throw new \Exception("Invalid Feature ID");
             }
-            $itemfeature = $this->itemFeatureRepository->readFeature($feature);
             $definefeature = new DefineFeature();
             $definefeature->setValue($value);
             $definefeature->setStatus(true);
@@ -45,15 +45,15 @@ class DefineFeatureManagement
         return true;
     }
 
-    public function readFeatureDefined($id): DefineFeature{
+    public function readFeatureDefinedById($id): DefineFeature{
         if(!$this->defineFeatureRepository->find($id)){
             throw new \Exception("Feature value not found");
         }
         return $this->defineFeatureRepository->find($id);
     }
 
-    public function updFeatureDefined($id,$value){
-        $definefeature = $this->readFeatureDefined($id);
+    public function updateFeatureDefined($id, $value){
+        $definefeature = $this->readFeatureDefinedById($id);
         $definefeature->setValue($value[$id]);
         return $this->defineFeatureRepository->add($definefeature,true);
     }
@@ -63,6 +63,6 @@ class DefineFeatureManagement
     }
 
     public function deleteFeatureDefined($id){
-        return $this->readFeatureDefined($id)->setStatus(false);
+        return $this->readFeatureDefinedById($id)->setStatus(false);
     }
 }

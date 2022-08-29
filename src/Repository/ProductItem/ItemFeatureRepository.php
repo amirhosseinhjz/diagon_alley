@@ -65,12 +65,9 @@ class ItemFeatureRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-    public function readFeature($id){
-        $feature = $this->findBy(['id' => $id]);
-        if(count($feature) == 0){
-            return null;
-        }
-        return $feature[0];
+    public function readFeatureById($id){
+        $feature = $this->findOneBy(['id' => $id]);
+        return $feature;
     }
 
     public function showFeature(array $filters_eq){

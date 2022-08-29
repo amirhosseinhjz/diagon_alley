@@ -17,18 +17,19 @@ class ItemFeature
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups('show')]
+    #[Groups(['showDefineFeature' , 'showItemFeature'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups('show')]
+    #[Groups(['showVarient' , 'showDefineFeature' , 'showItemFeature'])]
     private ?string $label = null;
 
     #[ORM\Column]
+    #[Groups(['showItemFeature'])]
     private ?bool $status = null;
 
     #[ORM\OneToMany(mappedBy: 'itemFeature', targetEntity: DefineFeature::class)]
-    //#[Groups('showInItemFeatureController')]
+    #[Groups(['showItemFeature'])]
     private Collection $defineFeatures;
 
     #[ORM\OneToMany(mappedBy: 'itemFeature', targetEntity: ItemValue::class)]

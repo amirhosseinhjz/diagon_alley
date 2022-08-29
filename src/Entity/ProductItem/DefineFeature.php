@@ -12,19 +12,20 @@ class DefineFeature
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups('show')]
+    #[Groups(['showDefineFeature' , 'showItemFeature'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups('show')]
+    #[Groups(['showDefineFeature' , 'showItemFeature'])]
     private ?string $value = null;
 
     #[ORM\Column]
+    #[Groups(['showItemFeature'])]
     private ?bool $status = null;
 
     #[ORM\ManyToOne(targetEntity: ItemFeature::class , inversedBy: 'defineFeatures')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups('show')]
+    #[Groups('showDefineFeature')]
     private ?ItemFeature $itemFeature = null;
 
     public function getId(): ?int

@@ -2,14 +2,19 @@
 
 namespace App\Controller\ProductItem;
 
+use App\Entity\ProductItem\Varient;
 use App\Repository\ProductItem\VarientRepository;
 use App\Service\VarientService\VarientManagement;
 use App\Service\VarientService\ItemValueManagement;
+use phpDocumentor\Reflection\Types\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route("/api/varient")]
 class VarientController extends AbstractController
@@ -33,8 +38,9 @@ class VarientController extends AbstractController
             $varient = $itemValueManagement->addItemValueToVarient($body['feature'],$varient);
             
             return $this->json(
-                ["massage" => "Varient created successfully",
-                "status" => 200]
+                $varient,
+                status: 200,
+                context: [AbstractNormalizer::GROUPS => 'showVarient']
             );
         }
         catch(\Exception $e){
@@ -46,8 +52,8 @@ class VarientController extends AbstractController
     public function denied($serial,VarientRepository $varientRepository ,VarientManagement $varientManager){
         $varientManager->deleteVarient($serial,$varientRepository);
         return $this->json(
-                ["massage" => "Varient denied successfully",
-                "status" => 200]
+            ["massage" => "Varient denied successfully"],
+            status: 200
         );
     }
 
@@ -56,20 +62,21 @@ class VarientController extends AbstractController
     {
         $varientManager->confirmVarient($serial,$varientRepository);
         return $this->json(
-                ["massage" => "Varient confirmed successfully",
-                "status" => 200]
+            ["massage" => "Varient confirmed successfully"],
+            status: 200
         );
     }
 
     #[Route('/read/{serial}', name: 'app_varient_read', methods: ['GET'])]
-    public function read($serial,VarientRepository $varientRepository,VarientManagement $varientManager):Response
+    public function read($serial,VarientRepository $varientRepository,VarientManagement $varientManager,SerializerInterface $serializer):Response
     {
         try {
             $varient = $varientManager->readVarient($serial,$varientRepository);
-            return $this->json([
-                "data" => $varient,
-                "status" => 200
-            ]);
+            return $this->json(
+                $varient,
+                status: 200,
+                context: [AbstractNormalizer::GROUPS => 'showVarient']
+            );
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
@@ -82,8 +89,8 @@ class VarientController extends AbstractController
         try {
             $varientManager->updateVarient($serial,$body['quantity'],$varientRepository);
             return $this->json(
-                  ["massage" => "Varient updated successfully",
-                    "status" => 200]
+                ["massage" => "Varient updated successfully"],
+                status: 200
             );
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
@@ -95,27 +102,35 @@ class VarientController extends AbstractController
         try {
             $varientManager->updateVarient($serial, 0, $varientRepository);
             return $this->json(
-                ["massage" => "Varient deleted successfully",
-                    "status" => 200]
+                ["massage" => "Varient deleted successfully"],
+                status: 200
             );
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
     #[Route('/show', name: 'app_varient_show', methods: ['GET'])]
-    public function show(VarientRepository $varientRepository,VarientManagement $varientManager): Response
+    public function show(VarientRepository $varientRepository): Response
     {
-        $filters_eq = array("status" => 1);
+        $filters_eq = array(Varient::STATUS_VALIDATE_SUCCESS);
         $filters_gt = array("quantity" => 0);
         $varients = $varientRepository->showVarient($filters_eq,$filters_gt);
-        return $this->json($varients,context:['groups' => 'show']);
+        return $this->json(
+            $varients,
+            status: 200,
+            context:[AbstractNormalizer::GROUPS => 'showVarient']
+        );
     }
 
     #[Route('/create', name: 'app_varient_create_request', methods: ['GET'])]
-    public function createRequest(VarientRepository $varientRepository, VarientManagement $varientManager): Response
+    public function createRequest(VarientRepository $varientRepository): Response
     {
-        $filters_eq = array("status" => 0);
+        $filters_eq = array(Varient::STATUS_VALIDATE_PENDING);
         $varients = $varientRepository->showVarient($filters_eq,array());
-        return $this->json($varients,context:['groups' => 'show']);
+        return $this->json(
+            $varients,
+            status: 200,
+            context:[AbstractNormalizer::GROUPS => 'showVarient']
+        );
     }
 }

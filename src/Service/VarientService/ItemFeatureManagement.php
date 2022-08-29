@@ -25,14 +25,13 @@ class ItemFeatureManagement
 
     public function addLabelsToDB(array $features){
         foreach($features as $feature){
-            if($this->itemFeatureRepository->readFeature($feature) === null){
+            if($this->itemFeatureRepository->readFeatureById($feature) === null){
                 $temp = new ItemFeature();
                 $temp->setLabel($feature);
                 $temp->setStatus(true);
                 $this->itemFeatureRepository->add($temp,true);
             }
         }
-        return true;
     }
 
     public function readFeatureLabel($id){
@@ -42,7 +41,8 @@ class ItemFeatureManagement
         return $this->itemFeatureRepository->find($id);
     }
 
-    public function updFeatureLabel($id , $body){
+    public function updateFeatureLabel($id , $body){
+        if(!$body['status']  || !$body['label'])throw new \Exception("Wrong data type");
         $feature = $this->readFeatureLabel($id);
         $feature->setStatus($body['status']);
         $feature->setLabel($body['label']);

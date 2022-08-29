@@ -28,35 +28,28 @@ class ItemValueManagement
     }
     
     public function addItemValueToVarient(array $values,Varient $varient){
-        foreach($values as $featureId => $defineFeatureId){
+        foreach($values as $featureId => $defineFeatureId) {
             $itemValue = new ItemValue();
             $itemFeature = new ItemFeature();
-            $flag = true ;
+
+            //TODO
             //have to check is featureId valid?(base on productId)
 
             //defineFeatureId valid?
-            if(count($this->defineFeatureRepository->showFeature(array("id" => $defineFeatureId)))){
+            if (count($this->defineFeatureRepository->showFeature(array("id" => $defineFeatureId)))) {
                 $temp = $this->defineFeatureRepository->showOneFeature(array("id" => $defineFeatureId));
-                if($temp->getItemFeature()->getId() != $featureId) return Response::HTTP_BAD_REQUEST;
+                if ($temp->getItemFeature()->getId() != $featureId) return Response::HTTP_BAD_REQUEST;
                 $itemValue->setValue($temp->getValue());
                 $itemValue->setItemFeature($temp->getItemFeature());
-            }
-            else{
+            } else {
                 $this->em->remove($varient);
                 $this->em->flush();
                 throw new \Exception("Invalid Item feature value");
             }
 
-            if($flag){
-                $itemValue->setVarient($varient);
-                $this->itemValueRepository->add($itemValue);
-                $varient->addItemValue($itemValue);
-            }
-            else {
-                $this->em->remove($varient);
-                $this->em->flush();
-                throw new \Exception("Invalid Item feature value/feature");
-            }
+            $itemValue->setVarient($varient);
+            $this->itemValueRepository->add($itemValue);
+            $varient->addItemValue($itemValue);
         }
         $this->em->flush();
         return $varient;
