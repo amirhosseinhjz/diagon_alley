@@ -22,8 +22,8 @@ class CategoryController extends AbstractController
         $this->categoryManager = $categoryManager;
     }
 
-    #[Route('/main', name: 'main', methods: ['GET'])]
-    public function main(ManagerRegistry $doctrine, SerializerInterface $serializer): Response
+    #[Route('/main-categories', name: 'main_categories', methods: ['GET'])]
+    public function getMainCategories(ManagerRegistry $doctrine, SerializerInterface $serializer): Response
     {
         try {
             $mainCategories = $doctrine->getRepository(Category::class)->findMainCategories();
@@ -40,7 +40,7 @@ class CategoryController extends AbstractController
         try {
             $category = $doctrine->getRepository(Category::class)->findOneByName($name);
             $json = $serializer->serialize($category, 'json', [
-                'groups' => ['category_basic', 'category_children']
+                'groups' => ['category_basic', 'category_children', 'category_parent']
             ]);
             return $this->json(["category" => $json]);
         } catch (Exception $exception) {
@@ -48,8 +48,8 @@ class CategoryController extends AbstractController
         }
     }
 
-    #[Route('/{name}/parents', name: 'show_parents', methods: ['GET'])]
-    public function showParents(string $name): Response
+    #[Route('/{name}/parents', name: 'get_parents', methods: ['GET'])]
+    public function getParents(string $name): Response
     {
         try {
             $parents = $this->categoryManager->findParents($name);
@@ -59,9 +59,8 @@ class CategoryController extends AbstractController
         }
     }
 
-    #[Route('/{name}/brands', name: 'show_brands', methods: ['GET'])]
-    //TODO replace with joins (category <=> products <=> brands )
-    public function showBrands(string $name): Response
+    #[Route('/{name}/brands', name: 'get_brands', methods: ['GET'])]
+    public function getBrands(string $name): Response
     {
         try {
             $brands = $this->categoryManager->findBrandsByName($name);
@@ -82,7 +81,6 @@ class CategoryController extends AbstractController
             $category = $this->categoryManager->createEntityFromArray($validatedBody);
             $doctrine->getRepository(Category::class)->add($category, true);
             $json = $serializer->serialize($category, 'json', ["groups" => ["category_basic"]]);
-//            $json = $serializer->deserialize($json, Category::class, 'json');
             return $this->json(["category" => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -95,9 +93,9 @@ class CategoryController extends AbstractController
     {
         try {
             $name = $req->get('name');
-            $result = $this->categoryManager->removeUnusedByName($name);
-            if (array_key_exists('error', $result)) return $this->json(['message' => $result['error']], 400);
-            return $this->json(['message' => $result['message']]);
+            $message = $this->categoryManager->removeUnusedByName($name);
+            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
+            return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -107,7 +105,6 @@ class CategoryController extends AbstractController
     #[Route('/update', name: 'update', methods: ['PATCH'])]
     public function update(Request $req, SerializerInterface $serializer): Response
     {
-        //TODO change category parent
         try {
             [$name, $updates] = $this->categoryManager->getRequestBody($req);
             $updatedCategory = $this->categoryManager->update($name, $updates);
@@ -120,25 +117,55 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/toggleActivity', name: 'disable', methods: ['PATCH'])]
-    public function disable(ManagerRegistry $doctrine, Request $req): Response
+    #[Route('/toggle-activity', name: 'disable', methods: ['PATCH'])]
+    public function disable(Request $req): Response
     {
         try {
             $name = $req->get('name');
             $active = $req->get('active');
             $this->categoryManager->toggleCategoryActivityByName($name, $active);
+            return $this->json(['message' => 'activity updated']);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
 
-    #[Route('/products', name: 'products', methods: ['GET'])]
-    public function products(ManagerRegistry $doctrine, Request $req): Response
+    #[Route('/{name}/features', name: 'category_features', methods: ['GET'])]
+    public function getFeatures(string $name): Response
     {
         try {
-            //TODO category-prodcuts
+            $features = $this->categoryManager->getFeaturesByName($name);
+            return $this->json(['message' => $features]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
+
+    #[Route('/add-feature', name: 'add_feature', methods: ['PATCH'])]
+    public function addFeature(Request $req): Response
+    {
+        try {
+            $requestBody = $this->categoryManager->getRequestBody($req);
+            $message = $this->categoryManager->addFeatures($requestBody);
+            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
+            return $this->json(['message' => $message['message']]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
+
+    #[Route('/remove-feature', name: 'remove_feature', methods: ['PATCH'])]
+    public function removeFeature(Request $req): Response
+    {
+        try {
+            $requestBody = $this->categoryManager->getRequestBody($req);
+            $message = $this->categoryManager->removeFeatures($requestBody);
+            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
+            return $this->json(['message' => $message['message']]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
+
+    //TODO show brand products with filters
 }
