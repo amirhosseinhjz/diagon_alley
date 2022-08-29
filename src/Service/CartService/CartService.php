@@ -4,24 +4,19 @@ namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Security;
 use Exception;
 use App\Entity\Cart;
 use App\Entity\CartItem;
-use App\Security\Voter\CartVoter;
 
 
-class CartManager
+class CartService
 {
     private EntityManagerInterface $entityManager;
-    private Security $security;
 
     
-    public function __construct(EntityManagerInterface $entityManager, Security $security)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->this->entityManager = $entityManager;
-        $this->security = $security;
     }
 
     public function getRequestBody(Request $req)

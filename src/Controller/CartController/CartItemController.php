@@ -11,9 +11,9 @@ class CartItemController extends AbstractController
 {
     #[Route('/read/{id}', name: 'read_cart_item')]
     public function index(int $id): Response
-    {
-        return $this->render('cart_item/index.html.twig', [
-            'controller_name' => 'CartItemController',
+    {   #todo: fetch and return the item properties
+        return $this->json([
+            'id'=> $id
         ]);
     }
 }

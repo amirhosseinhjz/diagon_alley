@@ -7,9 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Service\CartManager;
+use App\Service\CartService;
 
 use App\Entity\Cart;
 use App\Entity\CartItem;
@@ -19,9 +18,9 @@ use App\Entity\CartItem;
 #[Route('/cart', name: 'app_cart')]
 class CartController extends AbstractController
 {
-    protected CartManager $cartManager;
+    protected CartService $cartManager;
 
-    public function __construct(CartManager $cartManager)
+    public function __construct(CartService $cartManager)
     {
         $this -> cartManager = $cartManager;
     }
