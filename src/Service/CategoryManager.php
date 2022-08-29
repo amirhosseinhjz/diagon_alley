@@ -77,7 +77,7 @@ class CategoryManager
         return $parents;
     }
 
-    public function update(string $name, array $updateInfo)
+    public function update(string $name, array $updateInfo): array
     {
         try {
             $category = $this->em->getRepository(Category::class)->findOneByName($name);
@@ -106,6 +106,7 @@ class CategoryManager
             }
 
             $this->em->getRepository(Category::class)->add($category, true);
+            return ['category' => $category];
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
         }
