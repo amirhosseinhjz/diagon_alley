@@ -7,8 +7,8 @@ use App\Repository\Payment\PaymentRepository;
 
 interface BankPortalInterface
 {
-    public function makePaymentDTO($cartId,$type,$validator,PaymentRepository $repository);
-    
+    public function makePaymentDTO($cartId, $type, $validator, PaymentRepository $repository);
+
     public function payCart(PaymentDTO $paymentDTO);
 
     public function setInitial();
@@ -17,7 +17,7 @@ interface BankPortalInterface
 
     public function directToPayment($token);
 
-    public function changeStatus($result,$repository);
+    public function changeStatus($result, $repository);
 
-    public function DtoToEntity(PaymentDTO $requestDto,PaymentRepository $repository);
+    public function DtoToEntity(PaymentDTO $requestDto, PaymentRepository $repository);
 }

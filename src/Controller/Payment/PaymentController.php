@@ -2,17 +2,14 @@
 
 namespace App\Controller\Payment;
 
-use App\DTO\Payment\PaymentDTO;
-use App\Entity\Payment\Payment;
 use App\Repository\Payment\PaymentRepository;
-use App\Service\Payment\PotalFactory;
-use App\Service\Payment\BankPortalService;
+use App\Service\CartService\CartServiceInterface;
+use App\Service\Payment\PortalFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function Symfony\Component\String\u;
 
 #[Route('/api/payment')]
 class PaymentController extends AbstractController
@@ -22,45 +19,39 @@ class PaymentController extends AbstractController
     public function new(
         ValidatorInterface $validator,
         PaymentRepository $repository,
+        CartServiceInterface $cartService,
         int $cartId,
         string $type,
     ) {
-        try 
-        {
-            $portalService = PotalFactory::create($type);
-            
-            $requestDto = $portalService->makePaymentDTO($cartId,$type,$validator,$repository);
+        try {
+            $portalService = PortalFactory::create($type, $cartService);
+
+            $requestDto = $portalService->makePaymentDTO($cartId, $type, $validator, $repository);
 
             $directToPayment = $portalService->payCart($requestDto);
 
             return $this->render('Payment/payment.html.twig', $directToPayment);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
     #[Route('/getStatus', name: 'app_payment_get_status', methods: ['POST'])]
     public function changeStatus(
-        Request $request, 
-        PaymentRepository $repository)
-    {
-        try 
-        {
+        Request $request,
+        PaymentRepository $repository,
+        CartServiceInterface $cartService
+    ) {
+        try {
             $requestToArray = $request->request->all();
 
-            $type = u($requestToArray['ResNum'])->before('-');
-            $requestToArray['ResNum'] = u($requestToArray['ResNum'])->after('-');
+            sscanf($requestToArray['ResNum'], "%d:%s", $requestToArray['ResNum'], $type);
 
-            $portalService = PotalFactory::create($type);
+            $portalService = PortalFactory::create($type, $cartService);
+            $responce = $portalService->changeStatus($requestToArray, $repository);
 
-            $responce = $portalService->changeStatus($requestToArray,$repository);
-            
             return $this->json($responce);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }

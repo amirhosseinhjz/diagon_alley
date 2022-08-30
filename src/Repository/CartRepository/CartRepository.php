@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\CartRepository;
 
-use App\Entity\Cart;
+use App\Entity\Cart\Cart;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,7 +14,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Cart[]    findAll()
  * @method Cart[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CartEntityRepository extends ServiceEntityRepository
+class CartRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

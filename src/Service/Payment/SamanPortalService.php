@@ -2,33 +2,29 @@
 
 namespace App\Service\Payment;
 
-use App\Interface\Payment\BankPortalInterface;
-use App\Repository\Payment\PaymentRepository;
 use App\DTO\Payment\PaymentDTO;
-use App\Entity\Payment\Payment;
-use App\Service\CartManager;
+
 use nusoap_client;
 
 class SamanPortalService extends BankPortalService
 {
     public function setInitial()
     {
-        $this->terminalId='kBkvJ7sq-zH8Z7r';
-        $this->userName='user2366';
-        $this->password='13472887';
+        $this->terminalId = 'kBkvJ7sq-zH8Z7r';
+        $this->userName = 'user2366';
+        $this->password = '13472887';
     }
 
     public function getToken(PaymentDTO $paymentDTO)
     {
         $data = [
-            'TermID'=> $this->terminalId,
-            'Amounts' =>$paymentDTO->paidAmount,
-            //TODO: change to Id
-            'ResNum'=>$paymentDTO->cartId,
+            'TermID' => $this->terminalId,
+            'Amounts' => $paymentDTO->paidAmount,
+            'ResNum' => $paymentDTO->cart->getId() . ":" . $paymentDTO->type,
         ];
 
-        $client = new nusoap_client('https://banktest.ir/gateway/saman/Payments/InitPayment?wsdl','wsdl');
-        $token = $client->call('RequestMultiSettleTypeToken',$data);
+        $client = new nusoap_client('https://banktest.ir/gateway/saman/Payments/InitPayment?wsdl', 'wsdl');
+        $token = $client->call('RequestMultiSettleTypeToken', $data);
 
         return $token;
     }
@@ -37,8 +33,26 @@ class SamanPortalService extends BankPortalService
     {
         return [
             'url' => "https://banktest.ir/gateway/saman/gate",
-            "token"=> $token,
-            "redirect_url"=> "http://localhost:70/api/payment/getStatus",
+            "token" => $token,
+            "redirect_url" => "http://localhost:70/api/payment/getStatus",
         ];
+    }
+
+    public function changeStatus($result, $repository)
+    {
+        $payment = $repository->findOneById($result['ResNum']);
+
+        if ($result["State"] == "OK") {
+            $payment->setStatus("SUCCESS");
+            $this->cartManager->updateStatus($payment->getCart()->getId(), "SUCCESS");
+        } else {
+            $payment->setStatus("FAILED");
+            $payment->getCart()->setStatus("INIT");
+        }
+
+        $payment->setCode($result['TraceNo']);
+        $repository->flush();
+
+        return [$payment->getCart()->getId(), $result["State"]];
     }
 }

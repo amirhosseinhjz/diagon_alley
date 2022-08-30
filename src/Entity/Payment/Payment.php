@@ -2,7 +2,7 @@
 
 namespace App\Entity\Payment;
 
-use App\Entity\Cart;
+use App\Entity\Cart\Cart;
 use App\Repository\Payment\PaymentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -18,8 +18,8 @@ class Payment
     #[ORM\Column(length: 30)]
     private ?string $type = null;
 
-    // #[ORM\Column]
-    // private ?int $paidAmount = null;
+    #[ORM\Column]
+    private ?int $paidAmount = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -30,9 +30,9 @@ class Payment
     #[ORM\Column(length: 10)]
     private ?string $code = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'payments')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Cart $cartId = null;
+    private ?Cart $cart = null;
 
 
     public function getId(): ?int
@@ -52,17 +52,17 @@ class Payment
         return $this;
     }
 
-    // public function getPaidAmount(): ?int
-    // {
-    //     return $this->paidAmount;
-    // }
+    public function getPaidAmount(): ?int
+    {
+        return $this->paidAmount;
+    }
 
-    // public function setPaidAmount(int $paidAmount): self
-    // {
-    //     $this->paidAmount = $paidAmount;
+    public function setPaidAmount(int $paidAmount): self
+    {
+        $this->paidAmount = $paidAmount;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -70,9 +70,8 @@ class Payment
     }
 
     #[ORM\PrePersist]
-    public function setCreatedAt(/*\DateTimeImmutable $createdAt*/): self
+    public function setCreatedAt(): self
     {
-        // $this->createdAt = $createdAt;
         $this->createdAt = new \DateTimeImmutable();
 
         return $this;
@@ -102,14 +101,14 @@ class Payment
         return $this;
     }
 
-    public function getCartId(): ?Cart
+    public function getCart(): ?Cart
     {
-        return $this->cartId;
+        return $this->cart;
     }
 
-    public function setCartId(?Cart $cartId): self
+    public function setCart(?Cart $cart): self
     {
-        $this->cartId = $cartId;
+        $this->cart = $cart;
 
         return $this;
     }

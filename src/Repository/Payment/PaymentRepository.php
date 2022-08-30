@@ -39,6 +39,11 @@ class PaymentRepository extends ServiceEntityRepository
         }
     }
 
+    public function flush(): void
+    {
+        $this->getEntityManager()->flush();
+    }
+
     public function findOneById($id): ?Payment
     {
         return $this->createQueryBuilder('p')

@@ -1,4 +1,4 @@
-<?php
+<!-- 
 
 use App\Service\UserService\UserService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -76,4 +76,4 @@ class UserTest extends KernelTestCase
         $this->assertEquals($phoneNumber, $user->getPhoneNumber());
     }
 
-}
+} -->
