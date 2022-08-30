@@ -5,10 +5,11 @@ namespace App\DataFixtures;
 use App\Entity\User\Customer;
 use App\Entity\User\Seller;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class AuthenticationFixture extends Fixture
+class AuthenticationFixture extends Fixture implements FixtureGroupInterface
 {
     protected $passHasher;
     public function __construct(UserPasswordHasherInterface $hasher)
@@ -37,5 +38,10 @@ class AuthenticationFixture extends Fixture
         $customer->setRoles(['ROLE_CUSTOMER']);
         $manager->persist($customer);
         $manager->flush();
+    }
+
+    public static function getGroups(): array
+    {
+        return ['authFixGroup'];
     }
 }
