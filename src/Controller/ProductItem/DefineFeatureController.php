@@ -42,7 +42,7 @@ class DefineFeatureController extends AbstractController
     }
 
     #[Route('/update/{id}', name: 'app_define_feature_update', methods:['POST'])]
-    public function upd(Request $request ,DefineFeatureManagement $defineFeatureManagement,$id){
+    public function update(Request $request ,DefineFeatureManagement $defineFeatureManagement,$id){
         $body = $request->toArray();
         try {
             $defineFeatureManagement->updateFeatureDefined($id,$body);

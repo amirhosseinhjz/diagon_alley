@@ -45,11 +45,12 @@ class VarientManagement
 
     public function readVarient($serial,VarientRepository $varientRepository){
         $varient = $varientRepository->findBy(['serial' => $serial]);
-        if($varient === null)throw new \Exception("Invalid serial number");
+        if(!$varient)throw new \Exception("Invalid serial number");
         return $varient[0];
     }
 
     public function updateVarient($serial,int $quantity,int $price,VarientRepository $varientRepository){
+        if($price < 1 || $quantity < 0)throw new \Exception('Invalid data');
         $varient = $this->readVarient($serial,$varientRepository);
         $varient->setQuantity($quantity)->setPrice($price);
         $this->em->flush();

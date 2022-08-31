@@ -42,7 +42,7 @@ class ItemFeatureManagement
     }
 
     public function updateFeatureLabel($id , $body){
-        if(!$body['status']  || !$body['label'])throw new \Exception("Wrong data type");
+        if($body['status'] === null  || !$body['label'])throw new \Exception("Wrong data type");
         $feature = $this->readFeatureLabel($id);
         $feature->setStatus($body['status']);
         $feature->setLabel($body['label']);
