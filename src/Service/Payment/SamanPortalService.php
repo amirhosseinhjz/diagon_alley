@@ -11,8 +11,6 @@ class SamanPortalService extends BankPortalService
     public function setInitial()
     {
         $this->terminalId = 'kBkvJ7sq-zH8Z7r';
-        $this->userName = 'user2366';
-        $this->password = '13472887';
     }
 
     public function getToken(PaymentDTO $paymentDTO)
