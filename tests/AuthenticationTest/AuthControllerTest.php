@@ -2,13 +2,13 @@
 
 namespace App\Tests\AuthenticationTest;
 
-use ApiTestCase\JsonApiTestCase;
+use App\Tests\Base\BaseJsonApiTestCase;
 
 
 /**
  * @group auth
  */
-class AuthControllerTest extends JsonApiTestCase
+class AuthControllerTest extends BaseJsonApiTestCase
 {
 
     protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789'];
@@ -21,7 +21,7 @@ class AuthControllerTest extends JsonApiTestCase
             'email'=>'cacvoaasfdsaqsgweo@gmail.com',
             'lastName'=>'coca',
             'phoneNumber'=>'09182836949',
-            'password'=>'123456789',
+            'password'=>'123456789W1',
             'roles'=>['ROLE_SELLER']
         ];
 
@@ -97,25 +97,6 @@ class AuthControllerTest extends JsonApiTestCase
         self::assertArrayHasKey('message',$data);
         self::assertSame($data['message'],"you logged out");
         self::assertSame($data['status'],200);
-    }
-
-    /**
-     * @return false|string
-     */
-    public function loginDefaultUserGetToken(): string|false
-    {
-        $this->client->request(
-            'POST',
-            'http://localhost:70/api/user/login',
-            [],
-            [],
-            [],
-            json_encode($this->defaultUser)
-        );
-
-        $response = $this->client->getResponse()->getContent();
-
-        return $response;
     }
 
 }
