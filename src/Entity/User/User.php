@@ -10,7 +10,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "type", type: "string" )]
@@ -19,6 +18,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const PAYLOAD_KEY_FOR_USERNAME = 'phoneNumber';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
