@@ -4,8 +4,8 @@ namespace App\Tests\AuthenticationTest;
 
 use App\Entity\User\User;
 use App\Service\Authentication\JWTManagement;
+use App\Tests\Base\BaseJsonApiTestCase;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @group jwt
  */
-class UserAuthenticationProcessTest extends TestCase
+class UserAuthenticationProcessTest extends BaseJsonApiTestCase
 {
 
     /**
@@ -95,48 +95,5 @@ class UserAuthenticationProcessTest extends TestCase
         return $this->getMockBuilder(
             TokenStorageInterface::class
         )->getMockForAbstractClass();
-    }
-
-     /**
-     * @return \PHPUnit\Framework\MockObject\MockObject|EventDispatcherInterface
-     */
-     public function getDispatchObject(): EventDispatcherInterface|\PHPUnit\Framework\MockObject\MockObject
-    {
-        $dispatcher = $this->getMockBuilder(
-            EventDispatcherInterface::class
-        )->getMockForAbstractClass();
-        return $dispatcher;
-    }
-
-    /**
-     * @return JWTTokenManagerInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    public function getJWTTokenManager(): \PHPUnit\Framework\MockObject\MockObject|JWTTokenManagerInterface
-    {
-        $tokenManagement = $this->getMockBuilder(
-            JWTTokenManagerInterface::class
-        )->getMockForAbstractClass();
-        return $tokenManagement;
-    }
-
-    /**
-     * @return \PHPUnit\Framework\MockObject\MockObject|TokenInterface
-     */
-    public function getTokenInterface(): TokenInterface|\PHPUnit\Framework\MockObject\MockObject
-    {
-        $tokenInterface = $this->getMockBuilder(
-            TokenInterface::class
-        )->getMockForAbstractClass();
-        return $tokenInterface;
-    }
-
-    /**
-     * @return \PHPUnit\Framework\MockObject\MockObject|UserPasswordHasherInterface
-     */
-    public function getUserPasswordHasher(): \PHPUnit\Framework\MockObject\MockObject|UserPasswordHasherInterface
-    {
-        $hasher = $this->getMockBuilder(UserPasswordHasherInterface::class)
-            ->getMockForAbstractClass();
-        return $hasher;
     }
 }
