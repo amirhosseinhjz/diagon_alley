@@ -1,24 +1,22 @@
 <?php
 
-namespace App\Tests\ProductItem;
+namespace App\Tests\Variant;
 
-use App\Controller\ProductItem\VarientController;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * @group ProductTest
  */
-class VarientControllerTest extends WebTestCase
+class VariantControllerTest extends WebTestCase
 {
-    protected const ROUTE = "/api/varient/";
+    protected const ROUTE = "/api/variant/";
 
     public function testCreate()
     {
         $client = static::createClient();
 
         $body = [
-            'varient' => [
+            'variant' => [
                 'quantity' => 40,
                 'price' => 55,
                 'description' => 'This is first Valid variant'
@@ -51,7 +49,7 @@ class VarientControllerTest extends WebTestCase
 
         //Invalid feature value for a feature
         $body = [
-            'varient' => [
+            'variant' => [
                 'quantity' => 40,
                 'price' => 55,
             ],
@@ -85,7 +83,7 @@ class VarientControllerTest extends WebTestCase
         $response = $client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("Varient confirmed successfully",$data['massage']);
+        $this->assertEquals("Variant confirmed successfully",$data['message']);
     }
 
     public function testDenied()
@@ -98,7 +96,7 @@ class VarientControllerTest extends WebTestCase
         $response = $client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals("Varient denied successfully",$data['massage']);
+        $this->assertEquals("Variant denied successfully",$data['message']);
     }
 
     public function testRead()
@@ -147,7 +145,7 @@ class VarientControllerTest extends WebTestCase
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(),true);
-        $this->assertEquals('Varient updated successfully',$data['massage']);
+        $this->assertEquals('Variant updated successfully',$data['message']);
         $this->assertEquals(200, $response->getStatusCode());
 
         //Invalid Update

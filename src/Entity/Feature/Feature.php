@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity\ProductItem;
+namespace App\Entity\Feature;
 
-use App\Entity\ProductItem\DefineFeature;
-use App\Repository\ProductItem\ItemFeatureRepository;
+use App\Entity\Feature\DefineFeature;
+use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
@@ -11,28 +11,28 @@ use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: ItemFeatureRepository::class)]
-class ItemFeature
+#[ORM\Entity(repositoryClass: FeatureRepository::class)]
+class Feature
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['showDefineFeature' , 'showItemFeature'])]
+    #[Groups(['showDefineFeature' , 'showFeature'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['showVarient' , 'showDefineFeature' , 'showItemFeature'])]
+    #[Groups(['showVariant' , 'showDefineFeature' , 'showFeature'])]
     private ?string $label = null;
 
     #[ORM\Column]
-    #[Groups(['showItemFeature'])]
+    #[Groups(['showFeature'])]
     private ?bool $status = null;
 
-    #[ORM\OneToMany(mappedBy: 'itemFeature', targetEntity: DefineFeature::class)]
-    #[Groups(['showItemFeature'])]
+    #[ORM\OneToMany(mappedBy: 'feature', targetEntity: DefineFeature::class)]
+    #[Groups(['showFeature'])]
     private Collection $defineFeatures;
 
-    #[ORM\OneToMany(mappedBy: 'itemFeature', targetEntity: ItemValue::class)]
+    #[ORM\OneToMany(mappedBy: 'feature', targetEntity: ItemValue::class)]
     private Collection $itemValues;
 
 //     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'features')]
@@ -116,7 +116,7 @@ class ItemFeature
     {
         if (!$this->defineFeatures->contains($defineFeature)) {
             $this->defineFeatures->add($defineFeature);
-            $defineFeature->setItemFeature($this);
+            $defineFeature->setFeature($this);
         }
         return $this;
     }
@@ -125,8 +125,8 @@ class ItemFeature
     {
         if ($this->defineFeatures->removeElement($defineFeature)) {
             // set the owning side to null (unless already changed)
-            if ($defineFeature->getItemFeature() === $this) {
-                $defineFeature->setItemFeature(null);
+            if ($defineFeature->getFeature() === $this) {
+                $defineFeature->setFeature(null);
             }
         }
 
@@ -145,7 +145,7 @@ class ItemFeature
     {
         if (!$this->itemValues->contains($itemValue)) {
             $this->itemValues->add($itemValue);
-            $itemValue->setItemFeature($this);
+            $itemValue->setFeature($this);
         }
 
         return $this;
@@ -155,8 +155,8 @@ class ItemFeature
     {
         if ($this->itemValues->removeElement($itemValue)) {
             // set the owning side to null (unless already changed)
-            if ($itemValue->getItemFeature() === $this) {
-                $itemValue->setItemFeature(null);
+            if ($itemValue->getFeature() === $this) {
+                $itemValue->setFeature(null);
             }
         }
 

@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Entity\ProductItem;
+namespace App\Entity\Variant;
 
-use App\Repository\ProductItem\VarientRepository;
+use App\Entity\Feature\ItemValue;
+use App\Repository\VariantRepository\VariantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: VarientRepository::class)]
-class Varient
+#[ORM\Entity(repositoryClass: VariantRepository::class)]
+class Variant
 {
     public const STATUS_VALIDATE_SUCCESS = 1;
     public const STATUS_VALIDATE_PENDING = 0;
@@ -21,31 +22,31 @@ class Varient
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('showVarient')]
+    #[Groups('showVariant')]
     private ?string $serial = null;
 
     #[ORM\Column(type: Types::BIGINT)]
-    #[Groups('showVarient')]
+    #[Groups('showVariant')]
     private ?int $price = null;
 
     #[ORM\Column]
-    #[Groups('showVarient')]
+    #[Groups('showVariant')]
     private ?int $quantity = null;
 
     #[ORM\Column]
-    #[Groups('showVarient')]
+    #[Groups('showVariant')]
     private ?bool $status = null;
 
-    #[Groups('showVarient')]
-    #[ORM\OneToMany(mappedBy: 'varient', targetEntity: ItemValue::class, orphanRemoval: true)]
+    #[Groups('showVariant')]
+    #[ORM\OneToMany(mappedBy: 'variant', targetEntity: ItemValue::class, orphanRemoval: true)]
     private Collection $itemValues;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('showVarient')]
+    #[Groups('showVariant')]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups('showVarient')]
+    #[Groups('showVariant')]
     private ?\DateTimeImmutable $createdAt = null;
 
 //     #[ORM\ManyToOne(inversedBy: 'variants')]
@@ -110,7 +111,7 @@ class Varient
     {
         if (!$this->itemValues->contains($itemValue)) {
             $this->itemValues->add($itemValue);
-            $itemValue->setVarient($this);
+            $itemValue->setVariant($this);
         }
 
         return $this;
@@ -120,8 +121,8 @@ class Varient
     {
         if ($this->itemValues->removeElement($itemValue)) {
             // set the owning side to null (unless already changed)
-            if ($itemValue->getVarient() === $this) {
-                $itemValue->setVarient(null);
+            if ($itemValue->getVariant() === $this) {
+                $itemValue->setVariant(null);
             }
         }
 

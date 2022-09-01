@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller\ProductItem;
+namespace App\Controller\Feature;
 
-use App\Service\VarientService\DefineFeatureManagement;
+use App\Service\FeatureService\DefineFeatureManagement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +19,7 @@ class DefineFeatureController extends AbstractController
         try {
             $defineFeatureManagement->defineFeature($body);
             return $this->json(
-                ["massage" => "Feature values have been defiend!"],
+                ["message" => "Feature values have been defiend!"],
                 status: 200
             );
         } catch (\Exception $e){
@@ -47,7 +47,7 @@ class DefineFeatureController extends AbstractController
         try {
             $defineFeatureManagement->updateFeatureDefined($id,$body);
             return $this->json(
-                ["massage" => "Feature Value updated successfully"],
+                ["message" => "Feature Value updated successfully"],
                 status: 200
             );
         }
@@ -61,7 +61,7 @@ class DefineFeatureController extends AbstractController
         try {
             $defineFeatureManagement->deleteFeatureDefined($id);
             return $this->json(
-                ["massage" => "Feature Value deleted successfully"],
+                ["message" => "Feature Value deleted successfully"],
                 status: 200
             );
         }catch (\Exception $e){

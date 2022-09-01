@@ -1,44 +1,40 @@
 <?php
 
-namespace App\Service\VarientService;
+namespace App\Service\FeatureService;
 
-use \App\Repository\ProductItem\ItemFeatureRepository;
-use \App\Entity\ProductItem\ItemFeature;
-use \App\Entity\ProductItem\DefineFeature;
-use \App\Service\VarientService\DefineFeatureManagement;
+use App\Entity\Feature\Feature;
+use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use mysql_xdevapi\Exception;
-use function PHPUnit\Framework\throwException;
 
-class ItemFeatureManagement
+class FeatureManagement
 {
     private $em;
-    private $itemFeatureRepository;
+    private $featureRepository;
     private $defineFeatureManagement;
 
-    public function __construct(EntityManagerInterface $em , ItemFeatureRepository $itemFeatureRepository , DefineFeatureManagement $defineFeatureManagement)
+    public function __construct(EntityManagerInterface $em , FeatureRepository $featureRepository , DefineFeatureManagement $defineFeatureManagement)
     {
         $this->em = $em;
-        $this->itemFeatureRepository = $itemFeatureRepository;
+        $this->featureRepository = $featureRepository;
         $this->defineFeatureManagement = $defineFeatureManagement;
     }
 
     public function addLabelsToDB(array $features){
         foreach($features as $feature){
-            if($this->itemFeatureRepository->readFeatureById($feature) === null){
-                $temp = new ItemFeature();
+            if($this->featureRepository->readFeatureById($feature) === null){
+                $temp = new Feature();
                 $temp->setLabel($feature);
                 $temp->setStatus(true);
-                $this->itemFeatureRepository->add($temp,true);
+                $this->featureRepository->add($temp,true);
             }
         }
     }
 
     public function readFeatureLabel($id){
-        if(!$this->itemFeatureRepository->find($id)){
+        if(!$this->featureRepository->find($id)){
             throw new \Exception("Feature not found");
         }
-        return $this->itemFeatureRepository->find($id);
+        return $this->featureRepository->find($id);
     }
 
     public function updateFeatureLabel($id , $body){
@@ -58,6 +54,6 @@ class ItemFeatureManagement
     }
 
     public function showFeatureLabel(){
-        return $this->itemFeatureRepository->showFeature(array('status' => true));
+        return $this->featureRepository->showFeature(array('status' => true));
     }
 }

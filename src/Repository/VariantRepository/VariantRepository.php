@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository\ProductItem;
+namespace App\Repository\VariantRepository;
 
-use App\Entity\ProductItem\Varient;
+use App\Entity\Variant\Variant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Varient>
+ * @extends ServiceEntityRepository<Variant>
  *
- * @method Varient|null find($id, $lockMode = null, $lockVersion = null)
- * @method Varient|null findOneBy(array $criteria, array $orderBy = null)
- * @method Varient[]    findAll()
- * @method Varient[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Variant|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Variant|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Variant[]    findAll()
+ * @method Variant[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class VarientRepository extends ServiceEntityRepository
+class VariantRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Varient::class);
+        parent::__construct($registry, Variant::class);
     }
 
-    public function add(Varient $entity, bool $flush = false): void
+    public function add(Variant $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -31,7 +31,7 @@ class VarientRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(Varient $entity, bool $flush = false): void
+    public function remove(Variant $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -41,7 +41,7 @@ class VarientRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return Varient[] Returns an array of Varient objects
+//     * @return Variant[] Returns an array of Variant objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -55,7 +55,7 @@ class VarientRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Varient
+//    public function findOneBySomeField($value): ?Variant
 //    {
 //        return $this->createQueryBuilder('v')
 //            ->andWhere('v.exampleField = :val')
@@ -64,7 +64,7 @@ class VarientRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
-    public function showVarient(array $filters_eq,array $filters_gt){
+    public function showVariant(array $filters_eq, array $filters_gt){
         $criteria = Criteria::create();
         $expr = array();
         foreach($filters_eq as $filter => $value){

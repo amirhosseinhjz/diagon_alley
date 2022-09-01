@@ -1,28 +1,28 @@
 <?php
 
-namespace App\Repository\ProductItem;
+namespace App\Repository\FeatureRepository;
 
-use App\Entity\ProductItem\ItemFeature;
+use App\Entity\Feature\Feature;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Common\Collections\Criteria;
 
 /**
- * @extends ServiceEntityRepository<ItemFeature>
+ * @extends ServiceEntityRepository<Feature>
  *
- * @method ItemFeature|null find($id, $lockMode = null, $lockVersion = null)
- * @method ItemFeature|null findOneBy(array $criteria, array $orderBy = null)
- * @method ItemFeature[]    findAll()
- * @method ItemFeature[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Feature|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Feature|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Feature[]    findAll()
+ * @method Feature[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ItemFeatureRepository extends ServiceEntityRepository
+class FeatureRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, ItemFeature::class);
+        parent::__construct($registry, Feature::class);
     }
 
-    public function add(ItemFeature $entity, bool $flush = false): void
+    public function add(Feature $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -31,7 +31,7 @@ class ItemFeatureRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(ItemFeature $entity, bool $flush = false): void
+    public function remove(Feature $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -41,7 +41,7 @@ class ItemFeatureRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return ItemFeature[] Returns an array of ItemFeature objects
+//     * @return Feature[] Returns an array of Feature objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -55,7 +55,7 @@ class ItemFeatureRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?ItemFeature
+//    public function findOneBySomeField($value): ?Feature
 //    {
 //        return $this->createQueryBuilder('i')
 //            ->andWhere('i.exampleField = :val')

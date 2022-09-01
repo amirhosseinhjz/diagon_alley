@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Entity\ProductItem;
+namespace App\Entity\Feature;
 
-use App\Repository\ProductItem\ItemValueRepository;
+use App\Entity\Variant\Variant;
+use App\Repository\FeatureRepository\ItemValueRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -18,34 +18,34 @@ class ItemValue
 
     #[ORM\ManyToOne(inversedBy: 'itemValues')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Varient $varient = null;
+    private ?Variant $variant = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups('showVarient')]
+    #[Groups('showVariant')]
     private ?string $value = null;
 
     #[ORM\ManyToOne(inversedBy: 'itemValues')]
-    #[Groups('showVarient')]
-    private ?ItemFeature $itemFeature = null;
+    #[Groups('showVariant')]
+    private ?Feature $feature = null;
 
-    public function __construct()
-    {
-        $this->itemFeatures = new ArrayCollection();
-    }
+//    public function __construct()
+//    {
+//        $this->itemFeatures = new ArrayCollection();
+//    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getVarient(): ?Varient
+    public function getVariant(): ?Variant
     {
-        return $this->varient;
+        return $this->variant;
     }
 
-    public function setVarient(?Varient $varient): self
+    public function setVariant(?Variant $variant): self
     {
-        $this->varient = $varient;
+        $this->variant = $variant;
 
         return $this;
     }
@@ -62,14 +62,14 @@ class ItemValue
         return $this;
     }
 
-    public function getItemFeature(): ?ItemFeature
+    public function getFeature(): ?Feature
     {
-        return $this->itemFeature;
+        return $this->feature;
     }
 
-    public function setItemFeature(?ItemFeature $itemFeature): self
+    public function setFeature(?Feature $feature): self
     {
-        $this->itemFeature = $itemFeature;
+        $this->feature = $feature;
 
         return $this;
     }

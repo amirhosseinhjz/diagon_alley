@@ -2,10 +2,10 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\ProductItem\ItemFeature;
-use App\Entity\ProductItem\DefineFeature;
-use App\Entity\ProductItem\ItemValue;
-use App\Entity\ProductItem\Varient;
+use App\Entity\Feature\DefineFeature;
+use App\Entity\Feature\Feature;
+use App\Entity\Feature\ItemValue;
+use App\Entity\Variant\Variant;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -20,32 +20,32 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
     public function loadItemFeature(ObjectManager $manager)
     {
         for ($i = 0; $i < 3; $i++) {
-            $itemFeature = new ItemFeature();
-            $itemFeature->setLabel("Color$i");
-            $itemFeature->setStatus(1);
-            $manager->persist($itemFeature);
+            $feature = new Feature();
+            $feature->setLabel("Color$i");
+            $feature->setStatus(1);
+            $manager->persist($feature);
 
             $defineFeature = new DefineFeature();
             $defineFeature->setValue("RED$i");
             $defineFeature->setStatus(1);
-            $defineFeature->setItemFeature($itemFeature);
+            $defineFeature->setFeature($feature);
             $manager->persist($defineFeature);
 
-            $varient = new Varient();
-            $varient
+            $variant = new Variant();
+            $variant
                 ->setStatus(1)
                 ->setPrice($i*5)
                 ->setDescription("some $i hj")
                 ->setQuantity(8*$i+1)
                 ->setCreatedAt(new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran')))
                 ->setSerial(md5($i));
-            $manager->persist($varient);
+            $manager->persist($variant);
 
             $itemValue = new ItemValue();
             $itemValue
-                ->setItemFeature($itemFeature)
+                ->setFeature($feature)
                 ->setValue($defineFeature->getValue())
-                ->setVarient($varient);
+                ->setVariant($variant);
             $manager->persist($itemValue);
         }
         $manager->flush();

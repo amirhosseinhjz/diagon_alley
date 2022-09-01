@@ -1,41 +1,40 @@
 <?php
 
-namespace App\Service\VarientService;
+namespace App\Service\FeatureService;
 
-use App\Entity\ProductItem\DefineFeature;
-use App\Repository\ProductItem\DefineFeatureRepository;
+use App\Entity\Feature\DefineFeature;
+use App\Repository\FeatureRepository\DefineFeatureRepository;
+use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Repository\ProductItem\ItemFeatureRepository;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class DefineFeatureManagement
 {
     private $em;
     private $defineFeatureRepository;
-    private $itemFeatureRepository;
+    private $featureRepository;
     private $serializer;
 
-    public function __construct(EntityManagerInterface $em , DefineFeatureRepository $defineFeatureRepository , ItemFeatureRepository $itemFeatureRepository)
+    public function __construct(EntityManagerInterface $em , DefineFeatureRepository $defineFeatureRepository , FeatureRepository $featureRepository)
     {
         $this->em = $em;
         $this->defineFeatureRepository = $defineFeatureRepository;
-        $this->itemFeatureRepository = $itemFeatureRepository;
+        $this->featureRepository = $featureRepository;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
     }
     
     public function defineFeature($features){
         foreach($features as $feature => $value){
-            $itemfeature = $this->itemFeatureRepository->readFeatureById($feature);
+            $itemfeature = $this->featureRepository->readFeatureById($feature);
             if(!$itemfeature){
                 throw new \Exception("Invalid Feature ID");
             }
             $definefeature = new DefineFeature();
             $definefeature->setValue($value);
             $definefeature->setStatus(true);
-            $definefeature->setItemFeature($itemfeature);
+            $definefeature->setFeature($itemfeature);
             $this->defineFeatureRepository->add($definefeature,true);
 
             $itemfeature->addDefineFeature($definefeature);

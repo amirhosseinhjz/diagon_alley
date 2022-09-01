@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity\ProductItem;
+namespace App\Entity\Feature;
 
-use App\Repository\ProductItem\DefineFeatureRepository;
+use App\Repository\FeatureRepository\DefineFeatureRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -12,21 +12,21 @@ class DefineFeature
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['showDefineFeature' , 'showItemFeature'])]
+    #[Groups(['showDefineFeature' , 'showFeature'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['showDefineFeature' , 'showItemFeature'])]
+    #[Groups(['showDefineFeature' , 'showFeature'])]
     private ?string $value = null;
 
     #[ORM\Column]
-    #[Groups(['showItemFeature'])]
+    #[Groups(['showFeature'])]
     private ?bool $status = null;
 
-    #[ORM\ManyToOne(targetEntity: ItemFeature::class , inversedBy: 'defineFeatures')]
+    #[ORM\ManyToOne(targetEntity: Feature::class , inversedBy: 'defineFeatures')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups('showDefineFeature')]
-    private ?ItemFeature $itemFeature = null;
+    private ?Feature $feature = null;
 
     public function getId(): ?int
     {
@@ -57,14 +57,14 @@ class DefineFeature
         return $this;
     }
 
-    public function getItemFeature(): ?ItemFeature
+    public function getFeature(): ?Feature
     {
-        return $this->itemFeature;
+        return $this->feature;
     }
 
-    public function setItemFeature(?ItemFeature $itemFeature): self
+    public function setFeature(?Feature $feature): self
     {
-        $this->itemFeature = $itemFeature;
+        $this->feature = $feature;
 
         return $this;
     }

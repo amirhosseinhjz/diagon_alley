@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\ProductItem;
+namespace App\Repository\FeatureRepository;
 
-use App\Entity\ProductItem\ItemValue;
+use App\Entity\Feature\ItemValue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
