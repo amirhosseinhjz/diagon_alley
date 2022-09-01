@@ -99,4 +99,30 @@ class AuthControllerTest extends BaseJsonApiTestCase
         self::assertSame($data['status'],200);
     }
 
+    public function testUserSetNewPassword()
+    {
+
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
+
+        $this->client->request(
+            'POST',
+            'http://localhost:70/api/user/new-password',
+            [],
+            [],
+            [],
+            json_encode(['password'=>'Zz*123456789'])
+        );
+
+        $response = $this->client->getResponse();
+        $data = json_decode($response->getContent(),true);
+
+        self::assertArrayHasKey('message',$data);
+        self::assertSame($data['message'],"password changed successfully");
+        self::assertSame($response->getStatusCode(),200);
+        dd($data);
+    }
 }

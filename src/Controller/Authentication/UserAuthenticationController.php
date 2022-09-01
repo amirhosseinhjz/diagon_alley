@@ -6,6 +6,7 @@ use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Entity\User\Seller;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Repository\UserRepository\UserRepository;
+use App\Service\Authentication\JWTManagement;
 use App\Service\UserService\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -78,8 +79,43 @@ class UserAuthenticationController extends AbstractController
                 ]);
             }
         } catch(Exception $e) {
-
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/user/new-password', name: 'app_user_new_password',methods: ['POST'])]
+    public function newPassword(Request $request,UserService $userService, JWTManagement $jWTManagement): Response
+    {
+        try{
+            $body = $request->toArray();
+            $user = $jWTManagement->authenticatedUser();
+            $userId = $userService->getUserBy(['phoneNumber' => $user->getUserIdentifier()])->getId();
+            $userService->updatePasswordById($userId,$body['password']);
+            $this->JWTManager->invalidateToken();
+            return $this->json(
+                ['message'=>'password changed successfully'],
+                status: 200
+            );
+        } catch (Exception $e){
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/user/new-phone-number', name: 'app_user_new_phone_number',methods: ['POST'])]
+    public function newUserName(Request $request,UserService $userService, JWTManagement $jWTManagement): Response
+    {
+        try{
+            $body = $request->toArray();
+            $user = $jWTManagement->authenticatedUser();
+            $userId = $userService->getUserBy(['phoneNumber' => $user->getUserIdentifier()])->getId();
+            $userService->updatePhoneNumberById($userId,$body['phone number']);
+            $this->JWTManager->invalidateToken();
+            return $this->json(
+                ['message'=>'phone number changed successfully'],
+                status: 200
+            );
+        } catch (Exception $e){
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }
