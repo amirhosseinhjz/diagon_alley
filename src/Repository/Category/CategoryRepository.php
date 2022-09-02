@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Category;
 
-use App\Entity\Category;
+use App\Entity\Category\Category;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -39,6 +39,24 @@ class CategoryRepository extends ServiceEntityRepository
         }
     }
 
+    public function findOneByName(string $name): ?Category
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.name = :val')
+            ->setParameter('val', $name)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findOneById(int $id): ?Category
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * @return Category[]
      */
@@ -48,15 +66,6 @@ class CategoryRepository extends ServiceEntityRepository
             ->andWhere('c.parent IS NULL')
             ->getQuery()
             ->getResult();
-    }
-
-    public function findOneByName(string $name): ?Category
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.name = :val')
-            ->setParameter('val', $name)
-            ->getQuery()
-            ->getOneOrNullResult();
     }
 
     /**

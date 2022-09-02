@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Brand;
 
-use App\Entity\Brand;
+use App\Entity\Brand\Brand;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -39,7 +39,7 @@ class BrandRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneByName($name): ?Brand
+    public function findOneByName(string $name): ?Brand
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.name = :name')
@@ -48,10 +48,19 @@ class BrandRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findOneById(int $id): ?Brand
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * @return Brand[]
      */
-    public function findManyByQuery($q): array
+    public function findManyByQuery(string $q): array
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.name LIKE :pattern')
