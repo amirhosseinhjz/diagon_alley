@@ -40,6 +40,22 @@ class FeatureRepository extends ServiceEntityRepository
         }
     }
 
+    public function readFeatureById($id){
+        $feature = $this->findOneBy(['id' => $id]);
+        return $feature;
+    }
+
+    public function showFeature(array $filters_eq){
+        $criteria = Criteria::create();
+        $expr = array();
+        foreach($filters_eq as $filter => $value){
+            $expr[] = $criteria->expr()->eq($filter,$value);
+        }
+        $criteria->where(call_user_func_array(array( $criteria->expr(), 'andX' ),$expr));
+        return $this->matching($criteria)->toArray();
+    }
+
+
 //    /**
 //     * @return Feature[] Returns an array of Feature objects
 //     */
@@ -64,19 +80,4 @@ class FeatureRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
-
-    public function readFeatureById($id){
-        $feature = $this->findOneBy(['id' => $id]);
-        return $feature;
-    }
-
-    public function showFeature(array $filters_eq){
-        $criteria = Criteria::create();
-        $expr = array();
-        foreach($filters_eq as $filter => $value){
-            $expr[] = $criteria->expr()->eq($filter,$value);
-        }
-        $criteria->where(call_user_func_array(array( $criteria->expr(), 'andX' ),$expr));
-        return $this->matching($criteria)->toArray();
-    }
 }

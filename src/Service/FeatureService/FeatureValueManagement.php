@@ -48,7 +48,7 @@ class FeatureValueManagement
             //TODO
             //have to check is featureId valid?(base on productId)
 
-            //FeatureValueId valid?
+            //FeatureValueId validation
             if (count($this->featureValueRepository->showFeature(array("id" => $FeatureValueId)))) {
                 $temp = $this->featureValueRepository->showOneFeature(array("id" => $FeatureValueId));
                 if ($temp->getFeature()->getId() != $featureId) throw new \Exception("Invalid Item feature value");
@@ -60,8 +60,6 @@ class FeatureValueManagement
             }
             
             $variant->addFeatureValue($featureValue);
-//            $this->itemValueRepository->add($featureValue);
-//            $variant->addItemValue($featureValue);
         }
         $this->em->flush();
         return $variant;

@@ -53,9 +53,9 @@ class Variant
     #[ORM\Column]
     private ?int $soldNumber = null;
 
-//     #[ORM\ManyToOne(inversedBy: 'variants')]
-//     #[ORM\JoinColumn(nullable: false)]
-//     private ?Product $product = null;
+     #[ORM\ManyToOne(inversedBy: 'variants')]
+     #[ORM\JoinColumn(nullable: false)]
+     private ?Product $product = null;
 
     public function __construct()
     {
@@ -166,17 +166,17 @@ class Variant
         return $this;
     }
 
-//     public function getProduct(): ?Product
-//     {
-//         return $this->product;
-//     }
-//
-//     public function setProduct(?Product $product): self
-//     {
-//         $this->product = $product;
-//
-//         return $this;
-//     }
+     public function getProduct(): ?Product
+     {
+         return $this->product;
+     }
+
+     public function setProduct(?Product $product): self
+     {
+         $this->product = $product;
+
+         return $this;
+     }
 
 public function getSoldNumber(): ?int
 {

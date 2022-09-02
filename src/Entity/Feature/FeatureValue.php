@@ -34,13 +34,13 @@ class FeatureValue
     #[ORM\ManyToMany(targetEntity: Variant::class, inversedBy: 'featureValues')]
     private Collection $variants;
 
-//    #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'featureValues')]
-//    private Collection $products;
+    #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'featureValues')]
+    private Collection $products;
 
     public function __construct()
     {
         $this->variants = new ArrayCollection();
-//        $this->products = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -107,28 +107,28 @@ class FeatureValue
 
         return $this;
     }
-//
-//    /**
-//     * @return Collection<int, Product>
-//     */
-//    public function getProducts(): Collection
-//    {
-//        return $this->products;
-//    }
-//
-//    public function addProduct(Product $product): self
-//    {
-//        if (!$this->products->contains($product)) {
-//            $this->products->add($product);
-//        }
-//
-//        return $this;
-//    }
-//
-//    public function removeProduct(Product $product): self
-//    {
-//        $this->variants->removeElement($product);
-//
-//        return $this;
-//    }
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products->add($product);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        $this->variants->removeElement($product);
+
+        return $this;
+    }
 }

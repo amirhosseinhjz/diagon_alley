@@ -42,13 +42,6 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
                 ->setSoldNumber(0)
                 ->addFeatureValue($featureValue);
             $manager->persist($variant);
-
-//            $itemValue = new ItemValue();
-//            $itemValue
-//                ->setFeature($feature)
-//                ->setValue($featureValue->getValue())
-//                ->setVariant($variant);
-//            $manager->persist($itemValue);
         }
         $manager->flush();
     }

@@ -32,13 +32,13 @@ class Feature
     #[Groups(['showFeature'])]
     private Collection $featureValues;
 
-//     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'features')]
-//     private Collection $categories;
+     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'features')]
+     private Collection $categories;
 
     public function __construct()
     {
         $this->featureValues = new ArrayCollection();
-//        $this->categories = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -104,30 +104,30 @@ class Feature
         return $this;
     }
 
-    //     /**
-//      * @return Collection<int, Category>
-//      */
-//     public function getCategories(): Collection
-//     {
-//         return $this->categories;
-//     }
-//
-//     public function addCategory(Category $category): self
-//     {
-//         if (!$this->categories->contains($category)) {
-//             $this->categories->add($category);
-//             $category->addFeature($this);
-//         }
-//
-//         return $this;
-//     }
-//
-//     public function removeCategory(Category $category): self
-//     {
-//         if ($this->categories->removeElement($category)) {
-//             $category->removeFeature($this);
-//         }
-//
-//         return $this;
-//     }
+     /**
+      * @return Collection<int, Category>
+      */
+     public function getCategories(): Collection
+     {
+         return $this->categories;
+     }
+
+     public function addCategory(Category $category): self
+     {
+         if (!$this->categories->contains($category)) {
+             $this->categories->add($category);
+             $category->addFeature($this);
+         }
+
+         return $this;
+     }
+
+     public function removeCategory(Category $category): self
+     {
+         if ($this->categories->removeElement($category)) {
+             $category->removeFeature($this);
+         }
+
+         return $this;
+     }
 }

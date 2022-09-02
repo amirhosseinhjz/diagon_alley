@@ -41,8 +41,23 @@ class FeatureValueRepository extends ServiceEntityRepository
         }
     }
 
+    public function showFeature(array $filters_eq){
+        $criteria = Criteria::create();
+        $expr = array();
+        foreach($filters_eq as $filter => $value){
+            $expr[] = $criteria->expr()->eq($filter,$value);
+        }
+        $criteria->where(call_user_func_array(array( $criteria->expr(), 'andX' ),$expr));
+        return ($this->matching($criteria)->toArray());
+    }
 
-//    /**
+    public function showOneFeature(array $filters_eq):FeatureValue{
+        $temp = $this->showFeature($filters_eq);
+        if($temp)return $temp[0];
+        throw new \Exception('Invalid Operation');
+    }
+
+    //    /**
 //     * @return FeatureValue[] Returns an array of FeatureValue objects
 //     */
 //    public function findByExampleField($value): array
@@ -66,20 +81,4 @@ class FeatureValueRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
-
-    public function showFeature(array $filters_eq){
-        $criteria = Criteria::create();
-        $expr = array();
-        foreach($filters_eq as $filter => $value){
-            $expr[] = $criteria->expr()->eq($filter,$value);
-        }
-        $criteria->where(call_user_func_array(array( $criteria->expr(), 'andX' ),$expr));
-        return ($this->matching($criteria)->toArray());
-    }
-
-    public function showOneFeature(array $filters_eq):FeatureValue{
-        $temp = $this->showFeature($filters_eq);
-        if($temp)return $temp[0];
-        throw new \Exception('Invalid Operation');
-    }
 }
