@@ -1,17 +1,23 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Category;
 
-use App\Repository\CategoryRepository;
-use Doctrine\ORM\Mapping as ORM;
+use App\Entity\ItemFeature;
+use App\Entity\Product\Product;
+use App\Repository\Category\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 class Category
 {
+    const validTypes = ['digital', 'physical'];
+    const defaultType = 'physical';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -20,6 +26,7 @@ class Category
 
     #[ORM\Column(length: 255, unique: true, nullable: false)]
     #[Groups(['category_basic'])]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
@@ -43,6 +50,12 @@ class Category
     #[Groups(['category_basic'])]
     private ?bool $leaf = false;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['product_basic'])]
+    #[Assert\NotBlank]
+    #[Assert\Choice(self::validTypes)]
+    private ?string $type = null;
+
     #[ORM\Column(nullable: false)]
     #[Groups(['category_basic'])]
     private ?bool $active = true;
@@ -52,6 +65,12 @@ class Category
         $this->children = new ArrayCollection();
         $this->products = new ArrayCollection();
         $this->features = new ArrayCollection();
+    }
+
+    public function setWithKeyValue(string $key, $value)
+    {
+        $method = 'set'.ucfirst($key);
+        $this->$method($value);
     }
 
     public function getId(): ?int
@@ -66,6 +85,7 @@ class Category
 
     public function setName(string $name): self
     {
+        $name = trim($name);
         $this->name = $name;
 
         return $this;
@@ -76,8 +96,9 @@ class Category
         return $this->parent;
     }
 
-    public function setParent(?self $parent): self
+    public function setParent(?self $parent): ?self
     {
+        if ($parent->isLeaf()) return null;
         $this->parent = $parent;
 
         return $this;
@@ -172,9 +193,26 @@ class Category
         return $this->leaf;
     }
 
-    public function setLeaf(bool $leaf): self
+    public function setLeaf(bool $leaf): ?self
     {
+        if ($leaf == true && $this->parent == null) return null;
+        if ($leaf == true && $this->children->count() != 0) return null;
+        if ($leaf == false && $this->products->count() != 0) return null;
+
         $this->leaf = $leaf;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): ?self
+    {
+        if ($this->isLeaf() == false && $type == null) return null;
+        $this->type = $type;
 
         return $this;
     }
