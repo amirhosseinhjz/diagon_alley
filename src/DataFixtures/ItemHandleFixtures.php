@@ -39,6 +39,7 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
                 ->setQuantity(8*$i+1)
                 ->setCreatedAt(new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran')))
                 ->setSerial(md5($i))
+                ->setSoldNumber(0)
                 ->addFeatureValue($featureValue);
             $manager->persist($variant);
 

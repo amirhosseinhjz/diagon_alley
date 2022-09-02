@@ -50,6 +50,9 @@ class Variant
     #[ORM\ManyToMany(targetEntity: FeatureValue::class, mappedBy: 'variants')]
     private Collection $featureValues;
 
+    #[ORM\Column]
+    private ?int $soldNumber = null;
+
 //     #[ORM\ManyToOne(inversedBy: 'variants')]
 //     #[ORM\JoinColumn(nullable: false)]
 //     private ?Product $product = null;
@@ -174,4 +177,16 @@ class Variant
 //
 //         return $this;
 //     }
+
+public function getSoldNumber(): ?int
+{
+    return $this->soldNumber;
+}
+
+public function setSoldNumber(int $soldNumber): self
+{
+    $this->soldNumber = $soldNumber;
+
+    return $this;
+}
 }

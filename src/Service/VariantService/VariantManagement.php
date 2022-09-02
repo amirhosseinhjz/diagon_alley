@@ -34,6 +34,7 @@ class VariantManagement
         $variant->setSerial("0");
         $variant->setStatus(false);
         $variant->setDescription($dto->description);
+        $variant->setSoldNumber(0);
         $this->em->persist($variant);
         if ($flush) {
             $this->em->flush();
