@@ -4,6 +4,7 @@ namespace App\Controller\Variant;
 
 use App\Entity\Variant\Variant;
 use App\Repository\VariantRepository\VariantRepository;
+use App\Service\FeatureService\FeatureValueManagement;
 use App\Service\FeatureService\ItemValueManagement;
 use App\Service\VariantService\VariantManagement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class VariantController extends AbstractController
 {
     #[Route('/create', name: 'app_variant_create', methods: ['POST'])]
-    public function create(Request $request, VariantManagement $variantManager, ItemValueManagement $itemValueManagement , ValidatorInterface $validator): Response
+    public function create(Request $request, VariantManagement $variantManager, FeatureValueManagement $featureValueManagement , ValidatorInterface $validator): Response
     {
         $body = $request->toArray();
         $variantDto = $variantManager->arrayToDTO($body['variant']);
@@ -33,7 +34,7 @@ class VariantController extends AbstractController
 
             $variant = $variantManager->createVariantFromDTO($variantDto);
 
-            $variant = $itemValueManagement->addItemValueToVariant($body['feature'],$variant);
+            $variant = $featureValueManagement->addFeatureValueToVariant($body['feature'],$variant);
             
             return $this->json(
                 $variant,
@@ -123,7 +124,7 @@ class VariantController extends AbstractController
     #[Route('/create', name: 'app_variant_create_request', methods: ['GET'])]
     public function createRequest(VariantRepository $variantRepository): Response
     {
-        $filters_eq = array(Variant::STATUS_VALIDATE_PENDING);
+        $filters_eq = array("status" => Variant::STATUS_VALIDATE_PENDING);
         $variants = $variantRepository->showVariant($filters_eq,array());
         return $this->json(
             $variants,

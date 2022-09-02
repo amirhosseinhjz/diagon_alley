@@ -2,7 +2,7 @@
 
 namespace App\Entity\Feature;
 
-use App\Entity\Feature\DefineFeature;
+use App\Entity\Feature\FeatureValue;
 use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,31 +17,28 @@ class Feature
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['showDefineFeature' , 'showFeature'])]
+    #[Groups(['showFeatureValue' , 'showFeature'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['showVariant' , 'showDefineFeature' , 'showFeature'])]
+    #[Groups(['showVariant' , 'showFeatureValue' , 'showFeature'])]
     private ?string $label = null;
 
     #[ORM\Column]
     #[Groups(['showFeature'])]
     private ?bool $status = null;
 
-    #[ORM\OneToMany(mappedBy: 'feature', targetEntity: DefineFeature::class)]
+    #[ORM\OneToMany(mappedBy: 'feature', targetEntity: FeatureValue::class)]
     #[Groups(['showFeature'])]
-    private Collection $defineFeatures;
-
-    #[ORM\OneToMany(mappedBy: 'feature', targetEntity: ItemValue::class)]
-    private Collection $itemValues;
+    private Collection $featureValues;
 
 //     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'features')]
 //     private Collection $categories;
 
     public function __construct()
     {
-        $this->itemValues = new ArrayCollection();
-        $this->defineFeatures = new ArrayCollection();
+        $this->featureValues = new ArrayCollection();
+//        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -77,7 +74,37 @@ class Feature
         $this->status = $status;
     }
 
-//     /**
+    /**
+     * @return Collection<int, FeatureValue>
+     */
+    public function getFeatureValues(): Collection
+    {
+        return $this->featureValues;
+    }
+
+    public function addFeatureValue(FeatureValue $featureValue): self
+    {
+        if (!$this->featureValues->contains($featureValue)) {
+            $this->featureValues->add($featureValue);
+            $featureValue->setFeature($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeatureValue(FeatureValue $featureValue): self
+    {
+        if ($this->featureValues->removeElement($featureValue)) {
+            // set the owning side to null (unless already changed)
+            if ($featureValue->getFeature() === $this) {
+                $featureValue->setFeature(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //     /**
 //      * @return Collection<int, Category>
 //      */
 //     public function getCategories(): Collection
@@ -103,63 +130,4 @@ class Feature
 //
 //         return $this;
 //     }
-
-    /**
-     * @return Collection<int, DefineFeature>
-     */
-    public function getDefineFeatures(): Collection
-    {
-        return $this->defineFeatures;
-    }
-
-    public function addDefineFeature(DefineFeature $defineFeature): self
-    {
-        if (!$this->defineFeatures->contains($defineFeature)) {
-            $this->defineFeatures->add($defineFeature);
-            $defineFeature->setFeature($this);
-        }
-        return $this;
-    }
-
-    public function removeDefineFeature(DefineFeature $defineFeature): self
-    {
-        if ($this->defineFeatures->removeElement($defineFeature)) {
-            // set the owning side to null (unless already changed)
-            if ($defineFeature->getFeature() === $this) {
-                $defineFeature->setFeature(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, ItemValue>
-     */
-    public function getItemValues(): Collection
-    {
-        return $this->itemValues;
-    }
-
-    public function addItemValue(ItemValue $itemValue): self
-    {
-        if (!$this->itemValues->contains($itemValue)) {
-            $this->itemValues->add($itemValue);
-            $itemValue->setFeature($this);
-        }
-
-        return $this;
-    }
-
-    public function removeItemValue(ItemValue $itemValue): self
-    {
-        if ($this->itemValues->removeElement($itemValue)) {
-            // set the owning side to null (unless already changed)
-            if ($itemValue->getFeature() === $this) {
-                $itemValue->setFeature(null);
-            }
-        }
-
-        return $this;
-    }
 }

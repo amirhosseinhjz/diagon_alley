@@ -2,28 +2,28 @@
 
 namespace App\Repository\FeatureRepository;
 
-use App\Entity\Feature\DefineFeature;
+use App\Entity\Feature\FeatureValue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Common\Collections\Criteria;
 
 /**
- * @extends ServiceEntityRepository<DefineFeature>
+ * @extends ServiceEntityRepository<FeatureValue>
  *
- * @method DefineFeature|null find($id, $lockMode = null, $lockVersion = null)
- * @method DefineFeature|null findOneBy(array $criteria, array $orderBy = null)
- * @method DefineFeature[]    findAll()
- * @method DefineFeature[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method FeatureValue|null find($id, $lockMode = null, $lockVersion = null)
+ * @method FeatureValue|null findOneBy(array $criteria, array $orderBy = null)
+ * @method FeatureValue[]    findAll()
+ * @method FeatureValue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class DefineFeatureRepository extends ServiceEntityRepository
+class FeatureValueRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, DefineFeature::class);
+        parent::__construct($registry, FeatureValue::class);
     }
 
-    public function add(DefineFeature $entity, bool $flush = false): void
+    public function add(FeatureValue $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -32,7 +32,7 @@ class DefineFeatureRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(DefineFeature $entity, bool $flush = false): void
+    public function remove(FeatureValue $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -43,7 +43,7 @@ class DefineFeatureRepository extends ServiceEntityRepository
 
 
 //    /**
-//     * @return DefineFeature[] Returns an array of DefineFeature objects
+//     * @return FeatureValue[] Returns an array of FeatureValue objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -57,7 +57,7 @@ class DefineFeatureRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?DefineFeature
+//    public function findOneBySomeField($value): ?FeatureValue
 //    {
 //        return $this->createQueryBuilder('d')
 //            ->andWhere('d.exampleField = :val')
@@ -77,13 +77,9 @@ class DefineFeatureRepository extends ServiceEntityRepository
         return ($this->matching($criteria)->toArray());
     }
 
-    public function showOneFeature(array $filters_eq):DefineFeature{
-        $criteria = Criteria::create();
-        $expr = array();
-        foreach($filters_eq as $filter => $value){
-            $expr[] = $criteria->expr()->eq($filter,$value);
-        }
-        $criteria->where(call_user_func_array(array( $criteria->expr(), 'andX' ),$expr));
-        return ($this->matching($criteria)->toArray())[0];
+    public function showOneFeature(array $filters_eq):FeatureValue{
+        $temp = $this->showFeature($filters_eq);
+        if($temp)return $temp[0];
+        throw new \Exception('Invalid Operation');
     }
 }

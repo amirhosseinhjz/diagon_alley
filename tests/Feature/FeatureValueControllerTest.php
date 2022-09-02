@@ -5,9 +5,9 @@ namespace App\Tests\Feature;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * @group ProductTest
+ * @group ItemHandleTest
  */
-class DefineFeatureControllerTest extends WebTestCase
+class FeatureValueControllerTest extends WebTestCase
 {
     protected const ROUTE = "/api/feature/value/";
 

@@ -5,11 +5,11 @@ namespace App\Tests\Feature;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * @group ProductTest
+ * @group ItemHandleTest
  */
 class FeatureControllerTest extends WebTestCase
 {
-    protected const ROUTE = "/api/feature/label/";
+    protected const ROUTE = "/api/feature/";
 
     public function testDefine()
     {

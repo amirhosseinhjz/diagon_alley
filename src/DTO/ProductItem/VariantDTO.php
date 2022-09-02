@@ -15,11 +15,6 @@ class VariantDTO{
 
     public ?string $description = null;
 
-    public function setSerial(string $serial): self{
-        $this->serial = $serial;
-        return $this;
-    }
-
     public function setPrice(int $price): self{
         $this->price = $price;
         return $this;

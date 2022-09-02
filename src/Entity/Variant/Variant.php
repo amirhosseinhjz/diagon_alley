@@ -2,6 +2,7 @@
 
 namespace App\Entity\Variant;
 
+use App\Entity\Feature\FeatureValue;
 use App\Entity\Feature\ItemValue;
 use App\Repository\VariantRepository\VariantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -37,10 +38,6 @@ class Variant
     #[Groups('showVariant')]
     private ?bool $status = null;
 
-    #[Groups('showVariant')]
-    #[ORM\OneToMany(mappedBy: 'variant', targetEntity: ItemValue::class, orphanRemoval: true)]
-    private Collection $itemValues;
-
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups('showVariant')]
     private ?string $description = null;
@@ -49,13 +46,17 @@ class Variant
     #[Groups('showVariant')]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[Groups('showVariant')]
+    #[ORM\ManyToMany(targetEntity: FeatureValue::class, mappedBy: 'variants')]
+    private Collection $featureValues;
+
 //     #[ORM\ManyToOne(inversedBy: 'variants')]
 //     #[ORM\JoinColumn(nullable: false)]
 //     private ?Product $product = null;
 
     public function __construct()
     {
-        $this->itemValues = new ArrayCollection();
+        $this->featureValues = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,48 +100,6 @@ class Variant
         return $this;
     }
 
-    /**
-     * @return Collection<int, ItemValue>
-     */
-    public function getItemValues(): Collection
-    {
-        return $this->itemValues;
-    }
-
-    public function addItemValue(ItemValue $itemValue): self
-    {
-        if (!$this->itemValues->contains($itemValue)) {
-            $this->itemValues->add($itemValue);
-            $itemValue->setVariant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeItemValue(ItemValue $itemValue): self
-    {
-        if ($this->itemValues->removeElement($itemValue)) {
-            // set the owning side to null (unless already changed)
-            if ($itemValue->getVariant() === $this) {
-                $itemValue->setVariant(null);
-            }
-        }
-
-        return $this;
-    }
-
-//     public function getProduct(): ?Product
-//     {
-//         return $this->product;
-//     }
-//
-//     public function setProduct(?Product $product): self
-//     {
-//         $this->product = $product;
-//
-//         return $this;
-//     }
-
     public function isStatus(): ?bool
     {
         return $this->status;
@@ -176,4 +135,43 @@ class Variant
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, FeatureValue>
+     */
+    public function getFeatureValues(): Collection
+    {
+        return $this->featureValues;
+    }
+
+    public function addFeatureValue(FeatureValue $featureValue): self
+    {
+        if (!$this->featureValues->contains($featureValue)) {
+            $this->featureValues->add($featureValue);
+            $featureValue->addVariant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeatureValue(FeatureValue $featureValue): self
+    {
+        if ($this->featureValues->removeElement($featureValue)) {
+            $featureValue->removeVariant($this);
+        }
+
+        return $this;
+    }
+
+//     public function getProduct(): ?Product
+//     {
+//         return $this->product;
+//     }
+//
+//     public function setProduct(?Product $product): self
+//     {
+//         $this->product = $product;
+//
+//         return $this;
+//     }
 }

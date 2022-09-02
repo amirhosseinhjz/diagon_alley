@@ -2,7 +2,7 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Feature\DefineFeature;
+use App\Entity\Feature\FeatureValue;
 use App\Entity\Feature\Feature;
 use App\Entity\Feature\ItemValue;
 use App\Entity\Variant\Variant;
@@ -25,11 +25,11 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
             $feature->setStatus(1);
             $manager->persist($feature);
 
-            $defineFeature = new DefineFeature();
-            $defineFeature->setValue("RED$i");
-            $defineFeature->setStatus(1);
-            $defineFeature->setFeature($feature);
-            $manager->persist($defineFeature);
+            $featureValue = new FeatureValue();
+            $featureValue->setValue("RED$i");
+            $featureValue->setStatus(1);
+            $featureValue->setFeature($feature);
+            $manager->persist($featureValue);
 
             $variant = new Variant();
             $variant
@@ -38,15 +38,16 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
                 ->setDescription("some $i hj")
                 ->setQuantity(8*$i+1)
                 ->setCreatedAt(new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran')))
-                ->setSerial(md5($i));
+                ->setSerial(md5($i))
+                ->addFeatureValue($featureValue);
             $manager->persist($variant);
 
-            $itemValue = new ItemValue();
-            $itemValue
-                ->setFeature($feature)
-                ->setValue($defineFeature->getValue())
-                ->setVariant($variant);
-            $manager->persist($itemValue);
+//            $itemValue = new ItemValue();
+//            $itemValue
+//                ->setFeature($feature)
+//                ->setValue($featureValue->getValue())
+//                ->setVariant($variant);
+//            $manager->persist($itemValue);
         }
         $manager->flush();
     }

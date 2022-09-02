@@ -12,7 +12,7 @@ class FeatureManagement
     private $featureRepository;
     private $defineFeatureManagement;
 
-    public function __construct(EntityManagerInterface $em , FeatureRepository $featureRepository , DefineFeatureManagement $defineFeatureManagement)
+    public function __construct(EntityManagerInterface $em , FeatureRepository $featureRepository , FeatureValueManagement $defineFeatureManagement)
     {
         $this->em = $em;
         $this->featureRepository = $featureRepository;

@@ -5,7 +5,7 @@ namespace App\Tests\Variant;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * @group ProductTest
+ * @group ItemHandleTest
  */
 class VariantControllerTest extends WebTestCase
 {
@@ -39,8 +39,8 @@ class VariantControllerTest extends WebTestCase
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(),true);
-        $this->assertEquals('RED1',$data['itemValues'][1]['value']);
-        $this->assertEquals('RED2',$data['itemValues'][2]['value']);
+        $this->assertEquals('RED1',$data['featureValues'][1]['value']);
+        $this->assertEquals('RED2',$data['featureValues'][2]['value']);
         $this->assertEquals(55,$data['price']);
         $this->assertEquals(40,$data['quantity']);
         $this->assertEquals(false,$data['status']);
@@ -117,7 +117,7 @@ class VariantControllerTest extends WebTestCase
         );
         $response = $client->getResponse();
         $data = json_decode($response->getContent(),true);
-        $this->assertEquals('RED1',$data['itemValues'][0]['value']);
+        $this->assertEquals('RED1',$data['featureValues'][0]['value']);
         $this->assertEquals(5,$data['price']);
         $this->assertEquals(9,$data['quantity']);
         $this->assertEquals(true,$data['status']);
