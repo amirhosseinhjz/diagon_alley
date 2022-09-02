@@ -32,3 +32,7 @@ services:
     App\Listener\AuthenticationProcesses\JWTDecodedEventListener:
         tags:
             - { name: kernel.event_listener, event: 'lexik_jwt_authentication.on_jwt_decoded', method: onJWTDecoded }
+
+    app.email.management:
+        class: App\Service\Email\EmailManagement
+    App\Interface\Email\EmailManagementInterface: '@app.email.management'

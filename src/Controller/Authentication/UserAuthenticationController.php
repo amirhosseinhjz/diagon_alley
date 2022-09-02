@@ -3,11 +3,9 @@
 namespace App\Controller\Authentication;
 
 use App\DTO\AuthenticationDTO\LoginDTO;
-use App\Entity\User\Seller;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
