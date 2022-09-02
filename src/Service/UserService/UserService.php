@@ -6,7 +6,6 @@ namespace App\Service\UserService;
 use App\Entity\User;
 use App\DTO\UserDTOs;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -64,7 +63,9 @@ class UserService
         return $userDTO;
     }
 
-    public function createFromArray(array $array) : UserInterface
+
+    public function createFromArray(array $array) : User\User
+
     {
         $userDTO = $this->createValidDTO($array);
         $user = $this->createUserFromDTO($userDTO, false);
@@ -76,7 +77,7 @@ class UserService
         return $user;
     }
 
-    public function createUserFromDTO(UserDTOs\UserDTO $dto, $flush = true): UserInterface
+    public function createUserFromDTO(UserDTOs\UserDTO $dto, $flush = true): User\User
     {
         $role = $dto->roles[0];
         $userClass = self::UserRoles[$role];
@@ -95,7 +96,8 @@ class UserService
         return $user;
     }
 
-    private function createDTOFromUser(UserInterface $user): UserDTOs\UserDTO
+
+    private function createDTOFromUser(User\User $user): UserDTOs\UserDTO
     {
         $role = $user->getRoles()[0];
         $userDTOClass = self::UserDTOs[$role];
@@ -118,7 +120,8 @@ class UserService
         return $errorsArray;
     }
 
-    public function getUserById(int $id): UserInterface
+
+    public function getUserById(int $id): User\User
     {
         $user = $this->em->getRepository(User\User::class)->find($id);
         if (!$user) {
@@ -127,7 +130,7 @@ class UserService
         return $user;
     }
 
-    public function getUserBy(array $criteria): UserInterface
+    public function getUserBy(array $criteria): User\User
     {
         $user = $this->em->getRepository(User\User::class)->findOneBy($criteria);
         if (!$user) {
@@ -150,7 +153,7 @@ class UserService
         return $this->em->getRepository(User\User::class)->findAll();
     }
 
-    private function updateUser(UserInterface $user, array $criteria): UserInterface
+    private function updateUser(User\User $user, array $criteria): User\User
     {
         foreach (self::importantFields as $key) {
             if (array_key_exists($key, $criteria)) {
@@ -182,7 +185,7 @@ class UserService
         return $this->updateEmail($user, $email);
     }
 
-    private function updateEmail(UserInterface $user, string $email)
+    private function updateEmail(User\User $user, string $email)
     {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw (new \Exception("Invalid email"));
@@ -202,7 +205,7 @@ class UserService
         return $this->updatePhoneNumber($user, $phoneNumber);
     }
 
-    private function updatePhoneNumber(UserInterface $user, string $phoneNumber)
+    private function updatePhoneNumber(User\User $user, string $phoneNumber)
     {
         if (!preg_match('/^(\+989|09)\d{9}$/', $phoneNumber)) {
             throw (new \Exception("Invalid phone number"));
@@ -222,7 +225,7 @@ class UserService
         return $this->updatePassword($user, $password);
     }
 
-    private function updatePassword(UserInterface $user, string $password)
+    private function updatePassword(User\User $user, string $password)
     {
         if (!preg_match('/^(?=.*[0-9])(?=.*[A-Z]).{8,20}$/', $password)) {
             throw (new \Exception("The password is not a strong password."));
