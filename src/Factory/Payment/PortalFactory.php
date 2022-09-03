@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Payment;
+namespace App\Factory\Payment;
 
 use App\Service\CartService\CartServiceInterface;
 

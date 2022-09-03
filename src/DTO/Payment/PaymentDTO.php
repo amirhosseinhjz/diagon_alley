@@ -14,21 +14,21 @@ class PaymentDTO
 
     #[Assert\PositiveOrZero]
     #[Assert\NotNull]
-    public readonly ?int $paidAmount;
+    public ?int $paidAmount=0;
 
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    #[Assert\Choice(['PENDING', 'FAILED', 'SUCCESS'])]
+    #[Assert\Choice(['pending', 'failed', 'success'])]
     public readonly ?string $status;
 
     #[Assert\NotNull]
-    public readonly ?Cart $cart;
+    public ?Cart $cart=null;
 
     public function __construct($cart, $price, $type, ValidatorInterface $validator)
     {
         $this->type = $type;
         $this->paidAmount = $price;
-        $this->status = "PENDING";
+        $this->status = "pending";
         $this->code = "000000";
         $this->cart = $cart;
 

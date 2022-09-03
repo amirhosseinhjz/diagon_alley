@@ -11,9 +11,7 @@ use App\Service\CartService\CartServiceInterface;
 abstract class BankPortalService implements BankPortalInterface
 {
     protected CartServiceInterface $cartManager;
-    private $terminalId;
-    private $userName;
-    private $password;
+    protected $terminalId;
 
     public function __construct(CartServiceInterface $cartManager)
     {
