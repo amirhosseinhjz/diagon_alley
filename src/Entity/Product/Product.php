@@ -4,8 +4,8 @@ namespace App\Entity\Product;
 
 use App\Entity\Brand\Brand;
 use App\Entity\Category\Category;
-use App\Entity\ItemValue;
-use App\Entity\Variant;
+use App\Entity\Variant\Variant;
+use App\Entity\Feature\FeatureValue;
 use App\Repository\Product\ProductRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -60,20 +60,26 @@ class Product
     #[Groups(['product_brand'])]
     private ?Brand $brand = null;
 
-    #[ORM\ManyToMany(targetEntity: ItemValue::class, mappedBy: 'products')]
-    #[Groups(['product_itemValues'])]
-    private Collection $itemValues;
+    #[ORM\ManyToMany(targetEntity: FeatureValue::class, mappedBy: 'products')]
+    #[Groups(['product_featureValues'])]
+    private Collection $featureValues;
 
     #[ORM\PrePersist]
-    public function updateTimestamp(): void
+    public function createTimestamp(): void
     {
         $this->setCreatedAt(new DateTimeImmutable('now'));
+    }
+
+    #[ORM\PrePersist]
+    public function createInitialViewCount(): void
+    {
+        $this->setViewCount(0);
     }
 
     public function __construct()
     {
         $this->variants = new ArrayCollection();
-        $this->itemValues = new ArrayCollection();
+        $this->featureValues = new ArrayCollection();
     }
 
     public function setWithKeyValue(string $key, $value)
@@ -204,27 +210,27 @@ class Product
     }
 
     /**
-     * @return Collection<int, ItemValue>
+     * @return Collection<int, FeatureValue>
      */
-    public function getItemValues(): Collection
+    public function getFeatureValues(): Collection
     {
-        return $this->itemValues;
+        return $this->featureValues;
     }
 
-    public function addItemValue(ItemValue $itemValue): self
+    public function addFeatureValue(FeatureValue $featureValue): self
     {
-        if (!$this->itemValues->contains($itemValue)) {
-            $this->itemValues->add($itemValue);
-            $itemValue->addProduct($this);
+        if (!$this->featureValues->contains($featureValue)) {
+            $this->featureValues->add($featureValue);
+            $featureValue->addProduct($this);
         }
 
         return $this;
     }
 
-    public function removeItemValue(ItemValue $itemValue): self
+    public function removeFeatureValue(FeatureValue $featureValue): self
     {
-        if ($this->itemValues->removeElement($itemValue)) {
-            $itemValue->removeProduct($this);
+        if ($this->featureValues->removeElement($featureValue)) {
+            $featureValue->removeProduct($this);
         }
 
         return $this;

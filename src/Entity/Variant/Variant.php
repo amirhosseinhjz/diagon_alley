@@ -3,7 +3,7 @@
 namespace App\Entity\Variant;
 
 use App\Entity\Feature\FeatureValue;
-use App\Entity\Feature\ItemValue;
+use App\Entity\Product\Product;
 use App\Repository\VariantRepository\VariantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -171,7 +171,7 @@ class Variant
          return $this->product;
      }
 
-     public function setProduct(?Product $product): self
+     public function setProduct(Product $product): self
      {
          $this->product = $product;
 

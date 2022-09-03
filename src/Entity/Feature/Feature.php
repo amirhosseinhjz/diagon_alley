@@ -2,12 +2,10 @@
 
 namespace App\Entity\Feature;
 
-use App\Entity\Feature\FeatureValue;
+use App\Entity\Category\Category;
 use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
-use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 

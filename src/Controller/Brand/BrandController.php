@@ -24,7 +24,7 @@ class BrandController extends AbstractController
 
     //TODO: admin auth
     #[Route('/create', name: 'create', methods: ['POST'])]
-    public function create(ManagerRegistry $doctrine, Request $req): Response
+    public function create(Request $req): Response
     {
         try {
             $requestBody = $this->brandManager->getRequestBody($req);
@@ -39,11 +39,13 @@ class BrandController extends AbstractController
 
     //TODO: admin auth
     #[Route('/delete', name: 'delete', methods: ['DELETE'])]
-    public function delete(Request $req): Response
+    public function delete(Request $req, ManagerRegistry $doctrine): Response
     {
         try {
-            $id = $req->get('id');
-            $message = $this->brandManager->removeUnusedById($id);
+            $body = $this->brandManager->getRequestBody($req);
+            $brand = $doctrine->getRepository(Brand::class)->findOneById($body['id']);
+            if (!$brand) return $this->json(['message' => "brand not found"], 400);
+            $message = $this->brandManager->removeUnused($brand);
             if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
@@ -57,25 +59,12 @@ class BrandController extends AbstractController
     {
         try {
             //TODO serialize
-            [$id, $updates] = $this->brandManager->getRequestBody($req);
-            $brand = $doctrine->getRepository(Brand::class)->findOneById($id);
+            $body = $this->brandManager->getRequestBody($req);
+            $brand = $doctrine->getRepository(Brand::class)->findOneById($body['id']);
             if (!$brand) return $this->json(['message' => 'brand not found'], 400);
-            $updatedBrand = $this->brandManager->updateEntity($brand, $updates);
+            $updatedBrand = $this->brandManager->updateEntity($brand, $body['updates']);
             if (array_key_exists('error', $updatedBrand)) return $this->json(['message' => $updatedBrand['error']], 400);
             return $this->json(['brand' => $updatedBrand['entity']]);
-        } catch (Exception $exception) {
-            return $this->json(['message' => $exception->getMessage()], 500);
-        }
-    }
-
-    #[Route('/{id}', name: 'brand_details', methods: ['GET'])]
-    public function getBrand(ManagerRegistry $doctrine, int $id, SerializerInterface $serializer): Response
-    {
-        try {
-            $brand = $doctrine->getRepository(Brand::class)->findOneById($id);
-            if (!$brand) return $this->json(['message' => 'brand not found'], 400);
-            $json = $serializer->serialize($brand, 'json', ['groups' => ['brand_basic']]);
-            return $this->json(['brand' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -89,6 +78,19 @@ class BrandController extends AbstractController
             $q = $req->query->get('query');
             $brands = $doctrine->getRepository(Brand::class)->findManyByQuery($q);
             return $this->json(['brands' => $brands]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
+
+    #[Route('/{id}', name: 'brand_details', methods: ['GET'])]
+    public function getBrand(ManagerRegistry $doctrine, int $id): Response
+    {
+        try {
+            $brand = $doctrine->getRepository(Brand::class)->findOneById($id);
+            if (!$brand) return $this->json(['message' => 'brand not found'], 400);
+            $json = $this->brandManager->serialize($brand, ['brand_basic']);
+            return $this->json(['brand' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }

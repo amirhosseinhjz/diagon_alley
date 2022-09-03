@@ -2,6 +2,7 @@
 
 namespace App\Entity\Feature;
 
+use App\Entity\Product\Product;
 use App\Entity\Variant\Variant;
 use App\Repository\FeatureRepository\FeatureValueRepository;
 use Doctrine\Common\Collections\ArrayCollection;
