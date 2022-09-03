@@ -6,8 +6,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class CartItemDTO
 {
-    
-
 //public?int $Cart_Id = null;
 
 private ?int $varientId = null;

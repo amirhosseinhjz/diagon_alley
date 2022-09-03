@@ -35,8 +35,8 @@ class ItemFeature
     #[ORM\OneToMany(mappedBy: 'itemFeature', targetEntity: ItemValue::class)]
     private Collection $itemValues;
 
-     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'features')]
-     private Collection $categories;
+//     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'features')]
+//     private Collection $categories;
 
     public function __construct()
     {
