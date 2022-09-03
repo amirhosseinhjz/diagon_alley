@@ -18,7 +18,7 @@ class PaymentDTO
 
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    #[Assert\Choice(['pending', 'failed', 'success'])]
+    #[Assert\Choice(['PENDING', 'FAILED', 'SUCCESS'])]
     public readonly ?string $status;
 
     #[Assert\NotNull]
@@ -28,7 +28,7 @@ class PaymentDTO
     {
         $this->type = $type;
         $this->paidAmount = $price;
-        $this->status = "pending";
+        $this->status = "PENDING";
         $this->code = "000000";
         $this->cart = $cart;
 

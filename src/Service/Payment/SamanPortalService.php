@@ -41,10 +41,10 @@ class SamanPortalService extends BankPortalService
         $payment = $repository->findOneById($result['ResNum']);
 
         if ($result["State"] == "OK") {
-            $payment->setStatus("success");
+            $payment->setStatus("SUCCESS");
             $this->cartManager->updateStatus($payment->getCart()->getId(), "SUCCESS");
         } else {
-            $payment->setStatus("failed");
+            $payment->setStatus("FAILED");
             $payment->getCart()->setStatus("INIT");
         }
 

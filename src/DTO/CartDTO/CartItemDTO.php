@@ -1,10 +1,10 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTO\CartDTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CartItembDTO
+class CartItemDTO
 {
     
 
