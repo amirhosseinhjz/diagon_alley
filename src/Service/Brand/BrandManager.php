@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use App\Interface\Brand\BrandManagerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class BrandManager implements BrandManagerInterface
 {
@@ -14,14 +15,22 @@ class BrandManager implements BrandManagerInterface
 
     private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em)
+    private SerializerInterface $serializer;
+
+    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer)
     {
         $this->em = $em;
+        $this->serializer = $serializer;
     }
 
     public function getRequestBody(Request $req)
     {
         return json_decode($req->getContent(), true);
+    }
+
+    public function serialize(array $data, array $groups)
+    {
+         return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
 
     public function normalizeArray(array $array): array
@@ -48,7 +57,7 @@ class BrandManager implements BrandManagerInterface
     {
         try {
             foreach ($updates as $key => $value) {
-                if (array_key_exists($key, self::validUpdates) == false) throw new Exception('invalid operation');
+                if (in_array($key, self::validUpdates) == false) throw new Exception('invalid operation');
                 $brand->setWithKeyValue($key, $value);
             }
             $this->em->persist($brand);
@@ -59,10 +68,9 @@ class BrandManager implements BrandManagerInterface
         }
     }
 
-    public function removeUnusedById(int $id): array
+    public function removeUnused(Brand $brand): array
     {
         try {
-            $brand = $this->em->getRepository(Brand::class)->findOneById($id);
             if ($brand->getProducts()->isEmpty() == false) throw new Exception("brand has existing products");
             $this->em->getRepository(Brand::class)->remove($brand, true);
             return ['message' => 'brand deleted'];

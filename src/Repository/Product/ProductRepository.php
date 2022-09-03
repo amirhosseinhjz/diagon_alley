@@ -3,12 +3,12 @@
 namespace App\Repository\Product;
 
 use App\Entity\Brand\Brand;
-use App\Entity\ItemValue;
+use App\Entity\Feature\FeatureValue;
+use App\Entity\Variant\Variant;
 use App\Entity\Product\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Entity\Variant;
 
 /**
  * @extends ServiceEntityRepository<Product>
@@ -63,11 +63,11 @@ class ProductRepository extends ServiceEntityRepository
 
     public function findBrandsByCategoryId(int $id): array
     {
-        $qb = $this->createQueryBuilder('p');
+        $qb = $this->createQueryBuilder('product');
 
-        return $qb->select('b.name')
-            ->innerJoin(Brand::class, 'b', Join::ON, 'p.brand = b.id')
-            ->andWhere('p.category = :category')
+        return $qb->select('brand.name')
+            ->innerJoin(Brand::class, 'brand', Join::WITH, 'product.brand = brand.id')
+            ->andWhere('product.category = :category')
             ->setParameter('category', $id)
             ->getQuery()
             ->getResult();
@@ -75,7 +75,7 @@ class ProductRepository extends ServiceEntityRepository
 
 //TODO separate filter file
 
-    public function findProductsByCategoryId(int $categoryId, array $options): array
+    public function findProductsByCategoryId(array $options): array
     {
         $qb = $this->createQueryBuilder('p');
         $qb = self::addBaseFilters($qb, $options);
@@ -84,7 +84,7 @@ class ProductRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findProductByBrandId(int $brandId, array $options): array
+    public function findProductByBrandId(array $options): array
     {
         $qb = $this->createQueryBuilder('p');
         $qb = self::addBaseFilters($qb, $options);
@@ -95,7 +95,7 @@ class ProductRepository extends ServiceEntityRepository
     private function addBaseFilters($qb, array $options)
     {
         $qb->select('p.name, MIN(v.price) AS price')
-            ->innerJoin(Variant::class, 'v', Join::ON, 'p.id = v.product_id')
+            ->innerJoin(Variant::class, 'v', Join::WITH, 'p.id = v.product_id')
             ->groupBy('p.id')
             ->andWhere('p.active = 1')//or true
             ->setFirstResult($options['offset'])
@@ -143,7 +143,7 @@ class ProductRepository extends ServiceEntityRepository
 
     private function addFeaturesFilter($qb, array $options)
     {
-        $qb->innerJoin(ItemValue::class, 'iv', Join::ON, 'p.id = iv.product_id');
+        $qb->innerJoin(FeatureValue::class, 'iv', Join::WITH, 'p.id = iv.product_id');
         foreach ($options['features'] as $featureValue) {
                 $qb->andWhere('iv.id = :featureValueId')->setParameter('featureValueId', $featureValue);
         }

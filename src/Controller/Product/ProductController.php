@@ -10,13 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/product', name: 'app_product_')]
 class ProductController extends AbstractController
 {
-    //TODO add viewCount, created_at to product
-
     protected ProductManager $productManager;
 
     public function __construct(ProductManager $productManager)
@@ -29,12 +26,12 @@ class ProductController extends AbstractController
     public function create(Request $req): Response
     {
         try {
-            //TODO serialize
             $requestBody = $this->productManager->getRequestBody($req);
             $productArray = $this->productManager->normalizeArray($requestBody);
             $product = $this->productManager->createEntityFromArray($productArray);
             if (array_key_exists('error', $product)) return $this->json(['message' => $product['error']], 400);
-            return $this->json(['product' => $product]);
+            $json = $this->productManager->serialize($product, ['product_basic']);
+            return $this->json(['product' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -42,15 +39,15 @@ class ProductController extends AbstractController
 
     //TODO: auth
     #[Route('/update', name: 'update', methods: ['PATCH'])]
-    public function update(Request $req, SerializerInterface $serializer, ManagerRegistry $doctrine): Response
+    public function update(Request $req, ManagerRegistry $doctrine): Response
     {
         try {
-            [$id, $updates] = $this->productManager->getRequestBody($req);
-            $product = $doctrine->getRepository(Product::class)->findOneById($id);
+            $body = $this->productManager->getRequestBody($req);
+            $product = $doctrine->getRepository(Product::class)->findOneById($body['id']);
             if (!$product) return $this->json(['message' => 'category not found'], 400);
-            $updatedProduct = $this->productManager->updateEntity($product, $updates);
+            $updatedProduct = $this->productManager->updateEntity($product, $body['updates']);
             if (array_key_exists('error', $updatedProduct)) return $this->json(['message' => $updatedProduct['error']], 400);
-            $json = $serializer->serialize($updatedProduct['product'], 'json', ['groups' => ['product_basic']]);
+            $json = $this->productManager->serialize($updatedProduct, ['product_basic']);
             return $this->json(['product' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -62,8 +59,8 @@ class ProductController extends AbstractController
     public function delete(Request $req): Response
     {
         try {
-            $id = $req->get('id');
-            $message = $this->productManager->deleteById($id);
+            $body = $this->productManager->getRequestBody($req);
+            $message = $this->productManager->deleteById($body['id']);
             if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
@@ -72,13 +69,13 @@ class ProductController extends AbstractController
     }
 
     #[Route('/{id}', name: 'get_one_product', methods: ['GET'])]
-    public function getOneProduct(ManagerRegistry $doctrine, int $id, SerializerInterface $serializer): Response
+    public function getOneProduct(ManagerRegistry $doctrine, int $id ): Response
     {
         try {
             //TODO update view count find best solution
             $product = $doctrine->getRepository(Product::class)->findOneByName($id);
             if (!$product) return $this->json(['message' => 'product not found']);
-            $json = $serializer->serialize($product, 'json', ['groups' => ['product_basic']]);
+            $json = $this->productManager->serialize($product, ['product_basic']);
             return $this->json(['product' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -90,8 +87,8 @@ class ProductController extends AbstractController
     public function addFeature(Request $req): Response
     {
         try {
-            [$id, $features] = $this->productManager->getRequestBody($req);
-            $message = $this->productManager->addFeature($id, $features);
+            $body = $this->productManager->getRequestBody($req);
+            $message = $this->productManager->addFeature($body['id'], $body['features']);
             if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => 'feature added']);
         } catch (Exception $exception) {
@@ -104,8 +101,8 @@ class ProductController extends AbstractController
     public function removeFeature(Request $req): Response
     {
         try {
-            [$id, $features] = $this->productManager->getRequestBody($req);
-            $message = $this->productManager->removeFeature($id, $features);
+            $body = $this->productManager->getRequestBody($req);
+            $message = $this->productManager->removeFeature($body['id'], $body['features']);
             if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => 'feature removed']);
         } catch (Exception $exception) {
@@ -118,8 +115,8 @@ class ProductController extends AbstractController
     public function toggleActivity(Request $req): Response
     {
         try {
-            [$id, $active] = $this->productManager->getRequestBody($req);
-            $message = $this->productManager->toggleActivity($id, $active);
+            $body = $this->productManager->getRequestBody($req);
+            $message = $this->productManager->toggleActivity($body['id'], $body['active']);
             if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
@@ -131,6 +128,9 @@ class ProductController extends AbstractController
     public function getBrandProducts(Request $req): Response
     {
         try {
+            $body = $this->productManager->getRequestBody($req);
+            $products = $this->productManager->findBrandProducts($body['options']);
+            return $this->json(['products' => $products]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -140,6 +140,9 @@ class ProductController extends AbstractController
     public function getCategoryProducts(Request $req): Response
     {
         try {
+            $body = $this->productManager->getRequestBody($req);
+            $products = $this->productManager->findCategoryProducts($body['options']);
+            return $this->json(['products' => $products]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }

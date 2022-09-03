@@ -2,7 +2,7 @@
 
 namespace App\Entity\Category;
 
-use App\Entity\ItemFeature;
+use App\Entity\Feature\Feature;
 use App\Entity\Product\Product;
 use App\Repository\Category\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -42,23 +42,22 @@ class Category
     #[Groups(['category_products'])]
     private Collection $products;
 
-    #[ORM\ManyToMany(targetEntity: ItemFeature::class, inversedBy: 'categories')]
+    #[ORM\ManyToMany(targetEntity: Feature::class, inversedBy: 'categories')]
     #[Groups(['category_features'])]
     private Collection $features;
+
+    #[ORM\Column(nullable: false)]
+    #[Groups(['category_basic'])]
+    private ?bool $active = true;
 
     #[ORM\Column]
     #[Groups(['category_basic'])]
     private ?bool $leaf = false;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['product_basic'])]
-    #[Assert\NotBlank]
     #[Assert\Choice(self::validTypes)]
+    #[Groups(['product_basic'])]
     private ?string $type = null;
-
-    #[ORM\Column(nullable: false)]
-    #[Groups(['category_basic'])]
-    private ?bool $active = true;
 
     public function __construct()
     {
@@ -98,7 +97,7 @@ class Category
 
     public function setParent(?self $parent): ?self
     {
-        if ($parent->isLeaf()) return null;
+        if ($parent && $parent->isLeaf()) return null;
         $this->parent = $parent;
 
         return $this;
@@ -135,14 +134,14 @@ class Category
     }
 
     /**
-     * @return Collection<int, ItemFeature>
+     * @return Collection<int, Feature>
      */
     public function getFeatures(): Collection
     {
         return $this->features;
     }
 
-    public function addFeature(ItemFeature $feature): self
+    public function addFeature(Feature $feature): self
     {
         if (!$this->features->contains($feature)) {
             $this->features->add($feature);
@@ -151,7 +150,7 @@ class Category
         return $this;
     }
 
-    public function removeFeature(ItemFeature $feature): self
+    public function removeFeature(Feature $feature): self
     {
         $this->features->removeElement($feature);
 
@@ -188,6 +187,18 @@ class Category
         return $this;
     }
 
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
     public function isLeaf(): ?bool
     {
         return $this->leaf;
@@ -213,18 +224,6 @@ class Category
     {
         if ($this->isLeaf() == false && $type == null) return null;
         $this->type = $type;
-
-        return $this;
-    }
-
-    public function isActive(): ?bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): self
-    {
-        $this->active = $active;
 
         return $this;
     }

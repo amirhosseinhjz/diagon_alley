@@ -11,6 +11,7 @@ use App\Interface\Product\ProductManagerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class ProductManager implements ProductManagerInterface
 {
@@ -18,14 +19,22 @@ class ProductManager implements ProductManagerInterface
 
     private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em)
+    private SerializerInterface $serializer;
+
+    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer)
     {
         $this->em = $em;
+        $this->serializer = $serializer;
     }
 
     public function getRequestBody(Request $req)
     {
         return json_decode($req->getContent(), true);
+    }
+
+    public function serialize(array $data, array $groups)
+    {
+        return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
 
     public function normalizeArray(array $array): array
@@ -49,7 +58,7 @@ class ProductManager implements ProductManagerInterface
             if ($brand != null) $brand = $this->em->getRepository(Brand::class)->findOneById($brand);
             $product->setBrand($brand);
             $category = $validatedArray['category'];
-            if ($brand != null) $category = $this->em->getRepository(Category::class)->findOneById($validatedArray['category']);
+            if ($category != null) $category = $this->em->getRepository(Category::class)->findOneById($validatedArray['category']);
             $product->setCategory($category);
             $this->em->getRepository(Product::class)->add($product, true);
             return ['entity' => $product];
@@ -61,14 +70,14 @@ class ProductManager implements ProductManagerInterface
     public function updateEntity(Product $product, array $updates): array
     {
         try {
-            if ($updates['category'] != null) {
+            if (array_key_exists('category', $updates) == true) {
                 $updates['category'] = $this->em->getRepository(Category::class)->findOneById($updates['category']);
             }
-            if ($updates['brand'] != null) {
+            if (array_key_exists('brand', $updates) == true) {
                 $updates['brand'] = $this->em->getRepository(Category::class)->findOneById($updates['brand']);
             }
             foreach ($updates as $key => $value) {
-                if (array_key_exists($key, self::validUpdates) == false) throw new Exception('invalid operation');
+                if (in_array($key, self::validUpdates) == false) throw new Exception('invalid operation');
                 $product->setWithKeyValue($key, $value);
             }
             $this->em->persist($product);
@@ -163,5 +172,15 @@ class ProductManager implements ProductManagerInterface
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
         }
+    }
+
+    public function findBrandProducts(array $options): array
+    {
+        return $this->em->getRepository(Product::class)->findProductByBrandId($options);
+    }
+
+    public function findCategoryProducts(array $options): array
+    {
+        return $this->em->getRepository(Product::class)->findProductsByCategoryId($options);
     }
 }

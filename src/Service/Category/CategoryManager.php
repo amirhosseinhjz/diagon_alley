@@ -3,12 +3,13 @@
 namespace App\Service\Category;
 
 use App\Entity\Category\Category;
-use App\Entity\ItemFeature;
 use App\Entity\Product\Product;
+use App\Entity\Feature\Feature;
 use App\Interface\Category\CategoryManagerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class CategoryManager implements CategoryManagerInterface
 {
@@ -16,14 +17,22 @@ class CategoryManager implements CategoryManagerInterface
 
     private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em)
+    private SerializerInterface $serializer;
+
+    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer)
     {
         $this->em = $em;
+        $this->serializer = $serializer;
     }
 
     public function getRequestBody(Request $req)
     {
         return json_decode($req->getContent(), true);
+    }
+
+    public function serialize(array $data, array $groups)
+    {
+         return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
 
     public function normalizeArray(array $array): array
@@ -40,13 +49,13 @@ class CategoryManager implements CategoryManagerInterface
         try {
             $category = new Category();
             $category->setName($validatedArray['name']);
-                        $category->setType($validatedArray['type']);
-            $category->setLeaf($validatedArray['leaf']);
+            $category->setType($validatedArray['type']);
             $parent = $validatedArray['parent'];
             if ($parent != null) {
                 $parent = $this->em->getRepository(Category::class)->findOneById($parent);
             }
             $category->setParent($parent);
+            $category->setLeaf($validatedArray['leaf']);
             $this->em->getRepository(Category::class)->add($category, true);
             return ['entity' => $category];
         } catch (Exception $exception) {
@@ -74,12 +83,12 @@ class CategoryManager implements CategoryManagerInterface
     public function updateEntity(Category $category, array $updates): array
     {
         try {
-            if ($updates['parent'] != null) {
+            if (array_key_exists('parent', $updates) == true) {
                 $updates['parent'] = $this->em->getRepository(Category::class)->findOneById($updates['parent']);
             }
 
             foreach ($updates as $key => $value) {
-                if (array_key_exists($key, self::validUpdates) == false) throw new Exception('invalid operation');
+                if (in_array($key, self::validUpdates) == false) throw new Exception('invalid operation');
                 $category->setWithKeyValue($key, $value);
             }
             $this->em->persist($category);
@@ -90,10 +99,9 @@ class CategoryManager implements CategoryManagerInterface
         }
     }
 
-    public function removeUnusedById(string $id): array
+    public function removeUnused(Category $category): array
     {
         try {
-            $category = $this->em->getRepository(Category::class)->findOneById($id);
             if (count($category->getChildren()) != 0) throw new Exception('category has existing children');
             if (count($category->getProducts()) != 0) throw new Exception('category has existing products');
             $this->em->getRepository(Category::class)->remove($category, true);
@@ -148,7 +156,7 @@ class CategoryManager implements CategoryManagerInterface
     public function addFeatures(Category $category, array $features): array
     {
         try {
-            $featureRepo = $this->em->getRepository(ItemFeature::class);
+            $featureRepo = $this->em->getRepository(Feature::class);
             foreach ($features['features'] as $featureId) {
                 $feature = $featureRepo->findOneBy(['id' => $featureId]);
                 if (!$feature) throw new Exception('invalid feature');
@@ -165,7 +173,7 @@ class CategoryManager implements CategoryManagerInterface
     public function removeFeatures(Category $category, array $features): array
     {
         try {
-            $featureRepo = $this->em->getRepository(ItemFeature::class);
+            $featureRepo = $this->em->getRepository(Feature::class);
             foreach ($features['features'] as $featureId) {
                 $feature = $featureRepo->findOneBy(['id' => $featureId]);
                 if (!$feature) throw new Exception('invalid feature');
