@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<form id="goto_bank" method="post" action="{{ url }}">
+    <input type="hidden" name="Token" value="{{token}}" />
+    <input type="hidden" name="RedirectURL" value="{{ redirect_url }}">
+</form>
+<script type="text/javascript">
+    var f=document.getElementById('goto_bank');
+    f.submit();
+</script>
+
+
