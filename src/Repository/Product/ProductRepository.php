@@ -73,80 +73,20 @@ class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-//TODO separate filter file
-
     public function findProductsByCategoryId(array $options): array
     {
         $qb = $this->createQueryBuilder('p');
-        $qb = self::addBaseFilters($qb, $options);
-        $qb = self::addBrandsFilter($qb, $options);
-        $qb = self::addFeaturesFilter($qb, $options);
+        $qb = Filters::addBaseFilters($qb, $options);
+        $qb = Filters::addBrandsFilter($qb, $options);
+        $qb = Filters::addFeaturesFilter($qb, $options);
         return $qb->getQuery()->getResult();
     }
 
     public function findProductByBrandId(array $options): array
     {
         $qb = $this->createQueryBuilder('p');
-        $qb = self::addBaseFilters($qb, $options);
-        $qb = self::addCategoriesFilter($qb, $options);
+        $qb = Filters::addBaseFilters($qb, $options);
+        $qb = Filters::addCategoriesFilter($qb, $options);
         return $qb->getQuery()->getResult();
-    }
-
-    private function addBaseFilters($qb, array $options)
-    {
-        $qb->select('p.name, MIN(v.price) AS price')
-            ->innerJoin(Variant::class, 'v', Join::WITH, 'p.id = v.product_id')
-            ->groupBy('p.id')
-            ->andWhere('p.active = 1')//or true
-            ->setFirstResult($options['offset'])
-            ->setMaxResults($options['limit']);
-        if ($options['availableOnly']) $qb->andWhere('v.quantity > 0');
-        if (array_key_exists('minPrice', $options)) $qb->andWhere('v.price > :minPrice')->setParameter('minPrice', $options['minPrice']);
-        if (array_key_exists('maxPrice', $options)) $qb->andWhere('v.price < :maxPrice')->setParameter('maxPrice', $options['maxPrice']);
-        $qb = self::addSortFilter($qb, $options['sortedBy']);
-        return $qb;
-    }
-
-    private function addSortFilter($qb, string $sort)
-    {
-        switch ($sort) {
-            case 'view':
-                $qb->orderBy('p.views', 'DESC');
-                break;
-            case 'sold':
-                $qb->orderBy('v.sold', 'DESC');
-                break;
-            case 'price_low':
-                $qb->orderBy('price', 'ASC');
-                break;
-            case 'price_high':
-                $qb->orderBy('price', 'DESC');
-                break;
-            case 'newest':
-                $qb->orderBy('p.created_at', 'DESC');
-                break;
-        }
-        return $qb;
-    }
-
-    private function addCategoriesFilter($qb, array $options)
-    {
-        $qb->andWhere($qb->expr()->in('p.category_id', $options['categories']));
-        return $qb;
-    }
-
-    private function addBrandsFilter($qb, array $options)
-    {
-        $qb->andWhere($qb->expr()->in('p.brand_id', $options['brands']));
-        return $qb;
-    }
-
-    private function addFeaturesFilter($qb, array $options)
-    {
-        $qb->innerJoin(FeatureValue::class, 'iv', Join::WITH, 'p.id = iv.product_id');
-        foreach ($options['features'] as $featureValue) {
-                $qb->andWhere('iv.id = :featureValueId')->setParameter('featureValueId', $featureValue);
-        }
-        return $qb;
     }
 }
