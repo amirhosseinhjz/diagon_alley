@@ -31,7 +31,7 @@ class FeatureManagement
     }
 
     public function readFeatureLabel($id){
-        if(!$this->featureRepository->find($id)){
+        if(!$this->featureRepository->find($id) || !$this->featureRepository->find($id)->getStatus()){
             throw new \Exception("Feature not found");
         }
         return $this->featureRepository->find($id);
