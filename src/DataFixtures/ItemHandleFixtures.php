@@ -19,7 +19,7 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
 
     public function loadItemFeature(ObjectManager $manager)
     {
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 4; $i++) {
             $feature = new Feature();
             $feature->setLabel("Color$i");
             $feature->setStatus(1);
