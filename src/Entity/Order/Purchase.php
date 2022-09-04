@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Order;
 
 use App\Entity\Payment\Payment;
 use App\Entity\User\Customer;
-use App\Repository\PurchaseRepository;
+use App\Repository\OrderRepository\PurchaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

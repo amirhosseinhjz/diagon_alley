@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Order;
 
 use App\Entity\Variant\Variant;
-use App\Repository\PurchaseItemRepository;
+use App\Repository\OrderRepository\PurchaseItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PurchaseItemRepository::class)]

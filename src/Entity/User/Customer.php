@@ -2,7 +2,7 @@
 
 namespace App\Entity\User;
 
-use App\Entity\Purchase;
+use App\Entity\Order\Purchase;
 use App\Repository\UserRepository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

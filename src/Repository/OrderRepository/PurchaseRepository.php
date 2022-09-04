@@ -1,27 +1,27 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\OrderRepository;
 
-use App\Entity\PurchaseItem;
+use App\Entity\Order\Purchase;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<PurchaseItem>
+ * @extends ServiceEntityRepository<Purchase>
  *
- * @method PurchaseItem|null find($id, $lockMode = null, $lockVersion = null)
- * @method PurchaseItem|null findOneBy(array $criteria, array $orderBy = null)
- * @method PurchaseItem[]    findAll()
- * @method PurchaseItem[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Purchase|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Purchase|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Purchase[]    findAll()
+ * @method Purchase[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class PurchaseItemRepository extends ServiceEntityRepository
+class PurchaseRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, PurchaseItem::class);
+        parent::__construct($registry, Purchase::class);
     }
 
-    public function add(PurchaseItem $entity, bool $flush = false): void
+    public function add(Purchase $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class PurchaseItemRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(PurchaseItem $entity, bool $flush = false): void
+    public function remove(Purchase $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -40,7 +40,7 @@ class PurchaseItemRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return PurchaseItem[] Returns an array of PurchaseItem objects
+//     * @return Purchase[] Returns an array of Purchase objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -54,7 +54,7 @@ class PurchaseItemRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?PurchaseItem
+//    public function findOneBySomeField($value): ?Purchase
 //    {
 //        return $this->createQueryBuilder('p')
 //            ->andWhere('p.exampleField = :val')
