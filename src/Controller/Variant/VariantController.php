@@ -5,15 +5,14 @@ namespace App\Controller\Variant;
 use App\Entity\Variant\Variant;
 use App\Repository\VariantRepository\VariantRepository;
 use App\Service\FeatureService\FeatureValueManagement;
-use App\Service\FeatureService\ItemValueManagement;
 use App\Service\VariantService\VariantManagement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
 
 #[Route("/api/variant")]
 class VariantController extends AbstractController

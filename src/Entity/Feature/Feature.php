@@ -21,11 +21,11 @@ class Feature
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['showVariant' , 'showFeatureValue' , 'showFeature'])]
+    #[Groups(['showVariant' , 'showFeatureValue' , 'showFeature' ,'FeatureOA'])]
     private ?string $label = null;
 
     #[ORM\Column]
-    #[Groups(['showFeature'])]
+    #[Groups(['showFeature','FeatureOA'])]
     private ?bool $status = null;
 
     #[ORM\OneToMany(mappedBy: 'feature', targetEntity: FeatureValue::class)]
