@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Cart;
 use Exception;
-use App\Repository\CartRepository;
+use App\Repository\CartRepository\CartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -76,8 +76,7 @@ class Cart
             $this->items->add($item);
             $item->setCart($this);
         }
-        else{ #todo: check the stocks in the manager and increase the count
-        }
+        else; #todo: check the stocks in the manager and increase the count
 
         return $this;
     }

@@ -1,12 +1,12 @@
 <?php
-#ToDo: write transformer
-namespace App\DTO;
+namespace App\DTO\CartDTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CartDTO
 {
 
+    private ?int $id= null;
     public ?int $User_Id = null;
 
     #[Assert\DateTime]

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\CartController;
 
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -8,10 +8,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Service\CartService;
 
-use App\Entity\Cart;
-use App\Entity\CartItem;
+use App\Service\CartService\CartService;
+
+use App\Entity\Cart\Cart;
+use App\Entity\Cart\CartItem;
 
 //____validation
 
@@ -22,7 +23,7 @@ class CartController extends AbstractController
 
     public function __construct(CartService $cartManager)
     {
-        $this -> cartManager = $cartManager;
+        $this->cartManager = $cartManager;
     }
 
 
@@ -30,14 +31,14 @@ class CartController extends AbstractController
     public function create(): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        try{
+        try {
             $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());
-            $this->denyAccessUnlessGranted('_EDIT',$cart);
+            $this->denyAccessUnlessGranted('_EDIT', $cart);
             return $this->json([
                 'cart' => $cart
             ]);
-        } catch(Exception $exception){  
-            return $this->json(['m'=> $exception->getMessage()],500);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
         }
     }
 
@@ -46,46 +47,41 @@ class CartController extends AbstractController
     public function delete(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        try{
+        try {
             $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());  #check
-            $this->denyAccessUnlessGranted('_EDIT',$cart);
+            $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->removeCart($cart);
             return $this->json([
-                'm'=>'removed cart'
+                'm' => 'removed cart'
             ]);
 
-        } catch(Exception $exception){  
-            return $this->json(['m'=> $exception->getMessage()],500);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
         }
     }
 
-
-    
 
     #[Route('/{id}', name: 'get_cart', methods: ['GET'])]
     public function show(ManagerRegistry $doctrine, int $id): Response  #DTO
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        try{
+        try {
             $entityManager = $doctrine->getManager();
             $cartRepository = $entityManager->getRepository(Cart::class);
-            $cart = $cartRepository->findOneBy(['id'=>$id]); #check: is this a cart?
-            #ToDo: check
-            if($cart)
-            {
-                $this->denyAccessUnlessGranted('_VIEW',$cart);
+            $cart = $cartRepository->findOneBy(['id' => $id]); #check: is this a cart?
+            #T: check
+            if ($cart) {
+                $this->denyAccessUnlessGranted('_VIEW', $cart);
                 return $this->json([
-                    'cart'=>$cart
+                    'cart' => $cart
+                ]);
+            } else {
+                return $this->json([
+                    'm' => 'cart not found'
                 ]);
             }
-            else
-            {
-                return $this->json([
-                'm'=>'cart not found'
-            ]);
-            }   
-        } catch(Exception $exception){  
-            return $this->json(['m'=> $exception->getMessage()],500);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
         }
     }
 
@@ -95,7 +91,7 @@ class CartController extends AbstractController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
             $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());
-            $this->denyAccessUnlessGranted('_EDIT',$cart);
+            $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->updateStatus($cart, 'PENDING');
             return $this->json([
                 'm' => 'Status changed'
@@ -111,7 +107,7 @@ class CartController extends AbstractController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
             $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());
-            $this->denyAccessUnlessGranted('_EDIT',$cart);
+            $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->updateStatus($cart, 'SUCCESS');
             return $this->json([
                 'm' => 'Status changed'
@@ -127,7 +123,7 @@ class CartController extends AbstractController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
             $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());
-            $this->denyAccessUnlessGranted('_BACK',$cart);
+            $this->denyAccessUnlessGranted('_BACK', $cart);
             $this->cartManager->updateStatus($cart, 'INIT');
             return $this->json([
                 'm' => 'Status changed'
@@ -137,37 +133,37 @@ class CartController extends AbstractController
         }
     }
 
-    #[Route('/add', name: 'add_item_to_cart', methods:['POST'])]
-    public function addItem(Request $request):Response
+    #[Route('/add', name: 'add_item_to_cart', methods: ['POST'])]
+    public function addItem(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
             $array = $this->cartManager->getRequestBody($request);
             $cart = $this->cartManager->getCart($array['userid']);
-            $this->denyAccessUnlessGranted('_EDIT',$cart);
+            $this->denyAccessUnlessGranted('_EDIT', $cart);
             $cart = $this->cartManager->addItemToCart($array);
             return $this->json([
                 'm' => "item added"
             ]);
-        } catch (Exception $exception){
-            return $this->json(['m'=>$exception->getMessage()],500);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
         }
     }
 
-    #[Route('/remove', name: 'remove_item_from_cart', methods:['POST'])]
-    public function removeItem(Request $request):Response
+    #[Route('/remove', name: 'remove_item_from_cart', methods: ['POST'])]
+    public function removeItem(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
-            $array = $this->cartManager->getRequestBody($request);  #ToDo: DTO
+            $array = $this->cartManager->getRequestBody($request);  #T: DTO
             $cart = $this->cartManager->getCart($array['userid']);
-            $this->denyAccessUnlessGranted('_EDIT',$cart);
+            $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->removeItemFromCart($array);
             return $this->json([
                 'm' => 'item removed'
             ]);
-        } catch (Exception $exception){
-            return $this->json(['m'=>$exception->getMessage()],500);
+        } catch (Exception $exception) {
+            return $this->json(['m' => $exception->getMessage()], 500);
         }
     }
 

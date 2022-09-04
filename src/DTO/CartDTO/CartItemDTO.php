@@ -8,7 +8,7 @@ class CartItembDTO
 {
     
 
-//public?int $Cart_Id = null;
+private ?int $Cart_Id = null;
 
 private ?int $varientId = null;
 
@@ -27,7 +27,7 @@ public function getId(): ?int
     return $this->id;
 }
 
-#todo: remove cartid
+#t: remove cartid
 public function getCartId(): ?int
 {
     return $this->Cart_Id;

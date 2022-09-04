@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\CartService;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Exception;
-use App\Entity\Cart;
-use App\Entity\CartItem;
+use App\Entity\Cart\Cart;
+use App\Entity\Cart\CartItem;
+use App\Interface\Cart\CartServiceInterface;
 
-
-class CartService
+class CartService implements CartServiceInterface
 {
     private EntityManagerInterface $entityManager;
 
     
     public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->this->entityManager = $entityManager;
+        $this->entityManager = $entityManager;
     }
 
     public function getRequestBody(Request $req)
@@ -24,16 +24,13 @@ class CartService
         return json_decode($req->getContent(), true);
     }
 
-    #ToDo: add checking if the user exists and is logged on
-    #ToDo: ensure user_id is a number
-    #ToDo: remove extra comments, change name
     public function validateCartArray(array $unvalidatedArray)
     {
         try {
             if(!array_key_exists("user_id",$unvalidatedArray)) 
                 throw new Exception("user_id is required"); 
             $user_id = $unvalidatedArray["user_id"];
-            #todo: one item or more? what to do is items is empty?
+            #t: one item or more? what to do is items is empty?
             #$items = array_key_exists("items",$unvalidatedArray)?$unvalidatedArray["items"]:array();
             return ["user_id"=> $user_id, /*'items' => $items ,*/ "status" => 'init'];
         } catch(Exception $exception) {
@@ -44,10 +41,10 @@ class CartService
     public function getCart(int $userId, bool $create = true)
     {
         try{
-            $cartRepository = $this->entityManager->getRepository(Cart::class);    #ToDo: avoid repeating   
+            $cartRepository = $this->entityManager->getRepository(Cart::class);
             $cart = $cartRepository->findOneBy(['user_id'=> $userId, 'status'=>'init']); #check: is this a cart? should this be here?just init?
-            #todo: validate user id, check if the user is logged in
-            if($cart==null && $create){  #ToDo: check
+
+            if($cart==null && $create){  #T: check
                 $cart = new Cart();
                 $cart->setUserId($userId);
                 $cart->setStatus('init');
@@ -55,16 +52,30 @@ class CartService
                 $this->entityManager->flush();
             }
             return $cart;
-        } catch(Exception $exception){  #ToDo: return a safer message
+        } catch(Exception $exception){
             return ['error' => $exception->getMessage()];
         }         
+    }
+
+    public function getCartById(int $cartId)
+    {
+        try{
+            $cartRepository = $this->entityManager->getRepository(Cart::class);
+            $cart = $cartRepository->findOneBy(['id'=> $cartId, 'status'=>'init']);
+            if($cart==null){
+                #T ?
+            }
+            return $cart;
+        } catch(Exception $exception){
+            #T?
+        }
     }
 
 
     public function getTotalPrice($cartId)
     {
         try{
-            $cartRepository = $this->entityManager->getRepository(Cart::class);    #ToDo: avoid repeating   
+            $cartRepository = $this->entityManager->getRepository(Cart::class);
             $cart = $cartRepository->findOneBy(['id'=>$cartId]); 
             //$this->security->denyAccessUnlessGranted('view',$cart);
             $total = 0;
@@ -74,7 +85,7 @@ class CartService
             }
             return $total;
         }
-        catch(Exception $exception){  #ToDo: return a safer message
+        catch(Exception $exception){
             return ['error' => $exception->getMessage()];
         }
     }
@@ -83,7 +94,7 @@ class CartService
     public function removeCart($cart)
     {
         try{
-            #ToDo: remove all cart items??
+            #T: remove all cart items?? isn't it automatically done?
             $this->entityManager->remove($cart);
             $this->entityManager->flush();
         } catch(Exception $exception){
@@ -91,17 +102,17 @@ class CartService
         }
     }
 
-    //ToDo: set up the event for automatic expiration
+    //T: set up the event for automatic expiration
     public function updateStatus($cartId, $status)
     {
-        $cart = $this->this->entityManager->getRepository(Cart::class)->findOneBy(['id'=>$cartId]);
+        $cart = $this->entityManager->getRepository(Cart::class)->findOneBy(['id'=>$cartId]);
         try{
-            //ToDo: if cart does not exist? if cart is empty?
+            //T: if cart does not exist? if cart is empty?
             $cart->setStatus($status);
-            if($status === "PENDING")  #todo: define constants
+            if($status === "PENDING")  #t: define constants
             {
                 $cart->setFinalizedAt(new \DateTime("now")); 
-                #ToDo
+                #T: setup automatic exp.
             }
 
             $this->entityManager.flush();
@@ -116,7 +127,7 @@ class CartService
         if(array_key_exists('varient',$array) && array_key_exists('userid',$array))  #camelCase? add multiple items?
         {
             $cart = $this->getCart($array['userid']);
-            $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$cart->id, 'varient_id'=>$array['varient']['id']]);
+            $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$cart->getId(), 'varient_id'=>$array['varient']['id']]);
             if(!empty($item)){
                 $item->increaseCount();
                 $this->entityManager->flush(); 
@@ -128,9 +139,9 @@ class CartService
                 $item->setCartId($cart->getId());
                 $item->setCount(1);
                 $item->setVarientId($array['varient']['id']);
-                $item->setPrice($array['varient']['price']); #todo
-                $item->setTitle($array['varient']['Title']); #todo
-                #ToDo #important fill!!! check varient validity
+                $item->setPrice($array['varient']['price']); #t
+                $item->setTitle($array['varient']['Title']); #t
+                #T #important fill!!! check varient validity
                 $cart->addItem($item);
                 $this->entityManager->persist($item);
                 $this->entityManager->flush();
@@ -145,10 +156,10 @@ class CartService
         if(array_key_exists('varient',$array) && array_key_exists('userid',$array))  #camelCase? add multiple items?
         {
             $cart = $this->getCart($array['userid']);
-            $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$cart->id, 'varient_id'=>$array['varient']['id']]);
+            $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$cart->getId(), 'varient_id'=>$array['varient']['id']]);
             if(!empty($item)){
                 $item->decreaseCount();
-                if($item->count <= 0)
+                if($item->getCount() <= 0)
                 {
                     $item->getCart()->removeItem($item);
                     $this->entityManager->remove($item);

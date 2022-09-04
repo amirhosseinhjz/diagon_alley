@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Security\Voter\CartVoter;
 
+#use App\Interface\Authentication\JWTManagmentInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\Cart\Cart;
+
 
 class CartVoter extends Voter
 {
@@ -15,7 +18,7 @@ class CartVoter extends Voter
     protected function supports(string $attribute, $subject): bool
     {
         return in_array($attribute, [self::EDIT, self::VIEW])
-            && $subject instanceof \App\Entity\Cart;
+            && $subject instanceof \App\Entity\Cart\Cart;
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
