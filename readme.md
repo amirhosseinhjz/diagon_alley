@@ -14,15 +14,15 @@ Swagger configuration:
 4. Read https://symfony.com/bundles/NelmioApiDocBundle/current/index.html for more details.
 
 Set Database environment:
-1. To configure the database for testing run, `bin/console test:prepare-test-database`.
-   It will remove and remake the whole test-database.
+1. To configure the database for testing run, `bin/console test:prepare-test-database`. 
+It will remove and remake the whole test-database.
 2. Extends created base class for testing,The base class is --> `BaseJsonApiTestCase`
 
 JWT ssl keys:
 1. Generate the SSL keys:
-   `php bin/console lexik:jwt:generate-keypair --overwrite`
-   use --overwrite option to overwrite keys because they already exist
-
+`php bin/console lexik:jwt:generate-keypair --overwrite`
+ use --overwrite option to overwrite keys because they already exist 
+ 
 Structure:
 1. Logics should be in your services and should be called from your controllers.
 2. Use DTOs for validating and converting data for entities.
