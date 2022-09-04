@@ -2,7 +2,7 @@
 
 namespace App\Interface\Cart;
 
-use App\DTO\CartDTO\CartDTO;
+use App\DTO\Cart\CartDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Cart\Cart;

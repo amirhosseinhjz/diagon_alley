@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\CartService;
+namespace App\Service\Cart;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;

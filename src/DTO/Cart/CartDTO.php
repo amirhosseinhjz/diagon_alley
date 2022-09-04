@@ -1,5 +1,5 @@
 <?php
-namespace App\DTO\CartDTO;
+namespace App\DTO\Cart;
 
 use Symfony\Component\Validator\Constraints as Assert;
 

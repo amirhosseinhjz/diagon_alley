@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\CartController;
+namespace App\Controller\Cart;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
