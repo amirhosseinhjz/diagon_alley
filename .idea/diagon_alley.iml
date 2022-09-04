@@ -155,8 +155,20 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/theofidry/alice-data-fixtures" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/zircote/swagger-php" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/nelmio/api-doc-bundle" />
+<<<<<<< HEAD
       <excludeFolder url="file://$MODULE_DIR$/vendor/econea/nusoap" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/melipayamak/php" />
+=======
+      <excludeFolder url="file://$MODULE_DIR$/vendor/phpspec/php-diff" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/fakerphp/faker" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/coduo/php-matcher" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/coduo/php-to-string" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/lchrusciel/api-test-case" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/theofidry/alice-data-fixtures" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/nelmio/alice" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/openlss/lib-array2xml" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/aeon-php/calendar" />
+>>>>>>> uselessFeature
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

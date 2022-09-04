@@ -1,25 +1,26 @@
 <?php
 
-namespace App\Controller\ProductItem;
+namespace App\Controller\Feature;
 
-use App\Service\VarientService\ItemFeatureManagement;
+use App\Service\FeatureService\FeatureManagement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use OpenApi\Attributes as OA;
 
-#[Route("/api/feature/label")]
-class ItemFeatureController extends AbstractController
+#[Route("/api/feature")]
+class FeatureController extends AbstractController
 {
     #[Route('/define', name: 'app_feature_label_define', methods:['POST'])]
-    public function define(Request $request , ItemFeatureManagement $itemFeatureManagement)
+    public function define(Request $request , FeatureManagement $featureManagement)
     {
         try {
             $body = $request->toArray();
-            $itemFeatureManagement->addLabelsToDB($body['features']);
+            $featureManagement->addLabelsToDB($body['features']);
             return $this->json(
-                ["massage" => "Features have been added!"],
+                ["message" => "Features have been added!"],
                 status: 200
             );
         }catch (\Exception $e){
@@ -28,13 +29,13 @@ class ItemFeatureController extends AbstractController
     }
 
     #[Route('/read/{id}', name: 'app_feature_label_read', methods:['GET'])]
-    public function read(ItemFeatureManagement $itemFeatureManagement,$id){
+    public function read(FeatureManagement $featureManagement, $id){
         try {
-            $temp = $itemFeatureManagement->readFeatureLabel($id);
+            $temp = $featureManagement->readFeatureLabel($id);
             return $this->json(
                 $temp,
                 status: 200,
-                context: [AbstractNormalizer::GROUPS => 'showItemFeature']
+                context: [AbstractNormalizer::GROUPS => 'showFeature']
             );
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
@@ -42,14 +43,14 @@ class ItemFeatureController extends AbstractController
     }
 
     #[Route('/update/{id}', name: 'app_feature_label_update', methods:['POST'])]
-    public function update(Request $request ,ItemFeatureManagement $itemFeatureManagement,$id){
+    public function update(Request $request , FeatureManagement $featureManagement, $id){
         $body = $request->toArray();
         try {
-            $temp = $itemFeatureManagement->updateFeatureLabel($id,$body);
+            $temp = $featureManagement->updateFeatureLabel($id,$body);
             return $this->json(
                 $temp,
                 status: 200,
-                context: [AbstractNormalizer::GROUPS => 'showItemFeature']
+                context: [AbstractNormalizer::GROUPS => 'showFeature']
             );
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
@@ -57,11 +58,11 @@ class ItemFeatureController extends AbstractController
     }
 
     #[Route('/delete/{id}', name: 'app_feature_label_delete', methods:['GET'])]
-    public function delete(ItemFeatureManagement $itemFeatureManagement,$id){
+    public function delete(FeatureManagement $featureManagement, $id){
         try{
-            $itemFeatureManagement->deleteFeatureLabel($id);
+            $featureManagement->deleteFeatureLabel($id);
             return $this->json(
-                ["massage" => "Feature have been deleted"],
+                ["message" => "Feature have been deleted"],
                 status: 200
             );
         } catch(\Exception $e){
@@ -70,16 +71,11 @@ class ItemFeatureController extends AbstractController
     }
 
     #[Route('/show', name: 'app_feature_label_show', methods:['GET'])]
-    public function show(ItemFeatureManagement $itemFeatureManagement){
+    public function show(FeatureManagement $featureManagement){
         return $this->json(
-            $itemFeatureManagement->showFeatureLabel(),
+            $featureManagement->showFeatureLabel(),
             status: 200,
-            context: [AbstractNormalizer::GROUPS => 'showItemFeature']
+            context: [AbstractNormalizer::GROUPS => 'showFeature']
         );
     }
 }
-//return $this->json(
-//    $varients,
-//    status: 200,
-//    context:[AbstractNormalizer::GROUPS => 'showVarient']
-//);

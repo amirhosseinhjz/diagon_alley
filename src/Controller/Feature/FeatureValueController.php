@@ -1,25 +1,26 @@
 <?php
 
-namespace App\Controller\ProductItem;
+namespace App\Controller\Feature;
 
-use App\Service\VarientService\DefineFeatureManagement;
+use App\Service\FeatureService\FeatureValueManagement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use OpenApi\Attributes as OA;
 
 #[Route("/api/feature/value")]
-class DefineFeatureController extends AbstractController
+class FeatureValueController extends AbstractController
 {
     #[Route('/define', name: 'app_define_feature_define', methods:['POST'])]
-    public function define(Request $request , DefineFeatureManagement $defineFeatureManagement)
+    public function define(Request $request , FeatureValueManagement $defineFeatureManagement)
     {
         $body = $request->toArray();
         try {
-            $defineFeatureManagement->defineFeature($body);
+            $defineFeatureManagement->defineFeatureValue($body);
             return $this->json(
-                ["massage" => "Feature values have been defiend!"],
+                ["message" => "Feature values have been defiend!"],
                 status: 200
             );
         } catch (\Exception $e){
@@ -28,13 +29,13 @@ class DefineFeatureController extends AbstractController
     }
 
     #[Route('/read/{id}', name: 'app_define_feature_read', methods:['GET'])]
-    public function read(DefineFeatureManagement $defineFeatureManagement,$id){
+    public function read(FeatureValueManagement $featureValueManagement, $id){
         try {
-            $temp = $defineFeatureManagement->readFeatureDefinedById($id);
+            $temp = $featureValueManagement->readFeatureValueById($id);
             return $this->json(
                 $temp,
                 status: 200,
-                context:[AbstractNormalizer::GROUPS => 'showDefineFeature']
+                context:[AbstractNormalizer::GROUPS => 'showFeatureValue']
             );
         } catch (\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
@@ -42,12 +43,12 @@ class DefineFeatureController extends AbstractController
     }
 
     #[Route('/update/{id}', name: 'app_define_feature_update', methods:['POST'])]
-    public function upd(Request $request ,DefineFeatureManagement $defineFeatureManagement,$id){
+    public function update(Request $request , FeatureValueManagement $defineFeatureManagement, $id){
         $body = $request->toArray();
         try {
-            $defineFeatureManagement->updateFeatureDefined($id,$body);
+            $defineFeatureManagement->updateFeatureValue($id,$body);
             return $this->json(
-                ["massage" => "Feature Value updated successfully"],
+                ["message" => "Feature Value updated successfully"],
                 status: 200
             );
         }
@@ -57,11 +58,11 @@ class DefineFeatureController extends AbstractController
     }
 
     #[Route('/delete/{id}', name: 'app_define_feature_delete', methods:['GET'])]
-    public function delete(DefineFeatureManagement $defineFeatureManagement,$id){
+    public function delete(FeatureValueManagement $defineFeatureManagement, $id){
         try {
-            $defineFeatureManagement->deleteFeatureDefined($id);
+            $defineFeatureManagement->deleteFeatureValue($id);
             return $this->json(
-                ["massage" => "Feature Value deleted successfully"],
+                ["message" => "Feature Value deleted successfully"],
                 status: 200
             );
         }catch (\Exception $e){
@@ -70,12 +71,12 @@ class DefineFeatureController extends AbstractController
     }
 
     #[Route('/show', name: 'app_define_features_show', methods:['GET'])]
-    public function show(DefineFeatureManagement $defineFeatureManagement){
-        $temp = $defineFeatureManagement->showFeaturesDefined();
+    public function show(FeatureValueManagement $defineFeatureManagement){
+        $temp = $defineFeatureManagement->showFeaturesValue();
         return $this->json(
             $temp,
             status: 200,
-            context:[AbstractNormalizer::GROUPS => 'showDefineFeature']
+            context:[AbstractNormalizer::GROUPS => 'showFeatureValue']
         );
     }
 }

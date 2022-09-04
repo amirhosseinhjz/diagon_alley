@@ -4,7 +4,7 @@ namespace App\DTO\ProductItem;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class VarientDTO{
+class VariantDTO{
     #[Assert\GreaterThan(1)]
     #[Assert\Type(type:'int')]
     public ?int $price = null;
@@ -14,11 +14,6 @@ class VarientDTO{
     public ?int $quantity = null;
 
     public ?string $description = null;
-
-    public function setSerial(string $serial): self{
-        $this->serial = $serial;
-        return $this;
-    }
 
     public function setPrice(int $price): self{
         $this->price = $price;
