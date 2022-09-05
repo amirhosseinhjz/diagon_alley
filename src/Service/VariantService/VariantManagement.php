@@ -5,20 +5,23 @@ namespace App\Service\VariantService;
 use App\DTO\ProductItem\VariantDTO;
 use App\Entity\Variant\Variant;
 use App\Repository\VariantRepository\VariantRepository;
+use App\Interface\Variant\VariantManagementInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
-class VariantManagement
+class VariantManagement implements VariantManagementInterface
 {
     private $em;
     private $serializer;
+    private $varientRepository;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em , VariantRepository $variantRepository )
     {
         $this->em = $em;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
+        $this->varientRepository = $variantRepository;
     }
 
     public function arrayToDTO(array $array)
@@ -44,29 +47,29 @@ class VariantManagement
         return $variant;
     }
 
-    public function readVariant($serial, VariantRepository $varientRepository){
-        $variant = $varientRepository->findBy(['serial' => $serial]);
+    public function readVariant($serial){
+        $variant = $this->varientRepository->findBy(['serial' => $serial]);
         if(!$variant)throw new \Exception("Invalid serial number");
         return $variant[0];
     }
 
-    public function updateVariant($serial, int $quantity, int $price, VariantRepository $variantRepository){
+    public function updateVariant($serial, int $quantity, int $price){
         if($price < 1 || $quantity < 0)throw new \Exception('Invalid data');
-        $variant = $this->readVariant($serial,$variantRepository);
+        $variant = $this->readVariant($serial);
         $variant->setQuantity($quantity)->setPrice($price);
         $this->em->flush();
         return $variant;
     }
 
-    public function deleteVariant($serial, VariantRepository $variantRepository){
-        $variant = $this->readVariant($serial,$variantRepository);
+    public function deleteVariant($serial){
+        $variant = $this->readVariant($serial);
         $this->em->remove($variant);
         $this->em->flush();
         return $variant;
     }
 
-    public function confirmVariant($serial, VariantRepository $variantRepository){
-        $variant = $this->readVariant($serial,$variantRepository);
+    public function confirmVariant($serial){
+        $variant = $this->readVariant($serial);
         $time = new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran'));
         $variant->setStatus(true);
         $variant->setCreatedAt($time);
