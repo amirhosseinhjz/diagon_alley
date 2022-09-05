@@ -6,7 +6,6 @@ use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Entity\User\Seller;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Repository\UserRepository\UserRepository;
-use App\Service\Authentication\JWTManagement;
 use App\Service\UserService\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -63,7 +62,7 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/user/login', name: 'app_user_login',methods: ['POST'])]
-    public function default(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
+    public function login(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
     {
         try{
             (new LoginDTO($request->toArray(),$validator))->doValidate();
@@ -84,13 +83,14 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/user/new-password', name: 'app_user_new_password',methods: ['POST'])]
-    public function newPassword(Request $request,UserService $userService, JWTManagement $jWTManagement): Response
+    public function newPassword(Request $request): Response
     {
+        $body = $request->toArray();
+        $user = $this->JWTManager->authenticatedUser();
         try{
-            $body = $request->toArray();
-            $user = $jWTManagement->authenticatedUser();
-            $userId = $userService->getUserBy(['phoneNumber' => $user->getUserIdentifier()])->getId();
-            $userService->updatePasswordById($userId,$body['password']);
+            $userId = $this->userService->getUserBy(['phoneNumber' => $user->getUserIdentifier()])->getId();
+            if(! array_key_exists('password',$body))throw new Exception("Password field is empty");
+            $this->userService->updatePasswordById($userId,$body['password']);
             $this->JWTManager->invalidateToken();
             return $this->json(
                 ['message'=>'password changed successfully'],
@@ -102,13 +102,14 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/user/new-phone-number', name: 'app_user_new_phone_number',methods: ['POST'])]
-    public function newUserName(Request $request,UserService $userService, JWTManagement $jWTManagement): Response
+    public function newUserName(Request $request): Response
     {
+        $body = $request->toArray();
+        $user = $this->JWTManager->authenticatedUser();
         try{
-            $body = $request->toArray();
-            $user = $jWTManagement->authenticatedUser();
-            $userId = $userService->getUserBy(['phoneNumber' => $user->getUserIdentifier()])->getId();
-            $userService->updatePhoneNumberById($userId,$body['phone number']);
+            $userId = $this->userService->getUserBy(['phoneNumber' => $user->getUserIdentifier()])->getId();
+            if(! array_key_exists('phone number',$body))throw new Exception("phone number field is empty");
+            $this->userService->updatePhoneNumberById($userId,$body['phone number']);
             $this->JWTManager->invalidateToken();
             return $this->json(
                 ['message'=>'phone number changed successfully'],
