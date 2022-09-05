@@ -29,7 +29,7 @@ class AddressService
             throw (new \Exception(json_encode("This province has already been defined")));
         }
 
-        return 200;
+        return ["status"=>200,"message"=>"Province has been added."];
     }
 
     public function createCity(array $array)
@@ -45,7 +45,7 @@ class AddressService
         $this->em->flush();
 
         $province->addAddressCity($city);
-        return 200;
+        return ["status"=>200,"message"=>"City has been added."];
     }
 
     public function addAddress(array $array, int $userId)
@@ -67,7 +67,7 @@ class AddressService
 
         $city->addAddress($address);
         $user->addAddress($address);
-        return 200;
+        return ["status"=>200,"message"=>"Address has been added."];
     }
 
     public function makeProvinceFromArray(array $array): Address\AddressProvince

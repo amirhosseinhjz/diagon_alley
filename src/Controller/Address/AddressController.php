@@ -21,8 +21,8 @@ class AddressController extends AbstractController
         Request $request,
     ): Response {
         try {
-            $status = $this->addressService->createProvince($request->toArray());
-            return $this->json(["Status" => $status]);
+            $response = $this->addressService->createProvince($request->toArray());
+            return $response;
         } catch (\Exception $e) {
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
         }
@@ -33,8 +33,8 @@ class AddressController extends AbstractController
         Request $request,
     ): Response {
         try {
-            $status = $this->addressService->createCity($request->toArray());
-            return $this->json(["Status" => $status]);
+            $response = $this->addressService->createCity($request->toArray());
+            return $response;
         } catch (\Exception $e) {
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
         }
@@ -46,8 +46,8 @@ class AddressController extends AbstractController
         int $userId,
     ): Response {
         try {
-            $status = $this->addressService->addAddress($request->toArray(), $userId);
-            return $this->json(["Status" => $status]);
+            $response = $this->addressService->addAddress($request->toArray(), $userId);
+            return $response;
         } catch (\Exception $e) {
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
         }
