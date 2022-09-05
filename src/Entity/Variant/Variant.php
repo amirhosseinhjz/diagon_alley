@@ -23,34 +23,35 @@ class Variant
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     private ?string $serial = null;
 
     #[ORM\Column(type: Types::BIGINT)]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant' , 'VariantOAUpdate'])]
     private ?int $price = null;
 
     #[ORM\Column]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant' , 'VariantOAUpdate'])]
     private ?int $quantity = null;
 
     #[ORM\Column]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     private ?bool $status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     #[ORM\ManyToMany(targetEntity: FeatureValue::class, mappedBy: 'variants')]
     private Collection $featureValues;
 
     #[ORM\Column]
+    #[Groups(['showVariant'])]
     private ?int $soldNumber = null;
 
 //    #[ORM\ManyToOne(inversedBy: 'variants')]

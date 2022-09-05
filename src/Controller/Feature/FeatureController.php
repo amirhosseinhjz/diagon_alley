@@ -2,15 +2,16 @@
 
 namespace App\Controller\Feature;
 
-use App\Entity\Feature\Feature;
+use App\Entity\Feature\Feature as FeatureEntity;
 use App\Service\FeatureService\FeatureManagement;
+use App\Utils\Swagger\Feature\Feature;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use OpenApi\Attributes as OA;
 
 #[Route("/api/feature")]
 class FeatureController extends AbstractController
@@ -22,16 +23,13 @@ class FeatureController extends AbstractController
     )]
     #[OA\Response(
         response: 400,
-        description: 'Invalid Requests',
+        description: 'Invalid Request',
     )]
     #[OA\RequestBody(
         description: "Define Features",
         required: true,
         content: new OA\JsonContent(
-            //ref: new Model(type: Feature::class , groups: ['FeatureOA'])//???***********************************
-        ref: new OA\Schema(
-
-            )
+            ref: new Model(type: Feature::class)
         )
     )]
     #[OA\Tag(name: 'Feature')]
@@ -52,11 +50,15 @@ class FeatureController extends AbstractController
     #[Route('/read/{id}', name: 'app_feature_label_read', methods:['GET'])]
     #[OA\Response(
         response: 200,
-        description: 'Returns the feature informations',
+        description: 'Returns the feature information',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: FeatureEntity::class, groups: ['showFeature']))
+        ),
     )]
     #[OA\Response(
         response: 400,
-        description: 'Invalid Requests',
+        description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Feature')]
     public function read(FeatureManagement $featureManagement, $id){
@@ -75,16 +77,20 @@ class FeatureController extends AbstractController
     #[Route('/update/{id}', name: 'app_feature_label_update', methods:['POST'])]
     #[OA\Response(
         response: 200,
-        description: 'Returns the token and refresh token of an user',
+        description: 'Updates the feature and returns it',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: FeatureEntity::class, groups: ['showFeature']))
+        ),
     )]
     #[OA\Response(
         response: 400,
-        description: 'Invalid Requests',
+        description: 'Invalid Request',
     )]
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            ref: new Model(type: Feature::class , groups: ['FeatureOA'])//???***********************************
+            ref: new Model(type: FeatureEntity::class , groups: ['FeatureOA'])
         )
     )]
     #[OA\Tag(name: 'Feature')]
@@ -103,14 +109,13 @@ class FeatureController extends AbstractController
     }
 
     #[Route('/delete/{id}', name: 'app_feature_label_delete', methods:['GET'])]
-    #[Route('/read/{id}', name: 'app_feature_label_read', methods:['GET'])]
     #[OA\Response(
         response: 200,
-        description: 'Returns the token and refresh token of an user',
+        description: 'Returns success message on deletion',
     )]
     #[OA\Response(
         response: 400,
-        description: 'Invalid Requests',
+        description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Feature')]
     public function delete(FeatureManagement $featureManagement, $id){
@@ -125,17 +130,20 @@ class FeatureController extends AbstractController
         }
     }
 
-    #[Route('/read/{id}', name: 'app_feature_label_read', methods:['GET'])]
+    #[Route('/show', name: 'app_feature_label_show', methods:['GET'])]
     #[OA\Response(
         response: 200,
-        description: 'Returns the token and refresh token of an user',
+        description: 'Returns all features',
+        content: new OA\JsonContent(
+        type: 'array',
+        items: new OA\Items(ref: new Model(type: FeatureEntity::class, groups: ['showFeature']))
+        ),
     )]
     #[OA\Response(
         response: 400,
-        description: 'Invalid Requests',
+        description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Feature')]
-    #[Route('/show', name: 'app_feature_label_show', methods:['GET'])]
     public function show(FeatureManagement $featureManagement){
         return $this->json(
             $featureManagement->showFeatureLabel(),

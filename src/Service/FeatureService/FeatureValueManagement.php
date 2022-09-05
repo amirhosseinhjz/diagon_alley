@@ -74,7 +74,7 @@ class FeatureValueManagement
 
     public function updateFeatureValue($id, $value){
         $featureValue = $this->readFeatureValueById($id);
-        $featureValue->setValue($value[$id]);
+        $featureValue->setValue($value);
         return $this->featureValueRepository->add($featureValue,true);
     }
 
@@ -83,6 +83,7 @@ class FeatureValueManagement
     }
 
     public function deleteFeatureValue($id){
-        return $this->readFeatureValueById($id)->setStatus(false);
+        $this->readFeatureValueById($id)->setStatus(false);
+        $this->em->flush();
     }
 }

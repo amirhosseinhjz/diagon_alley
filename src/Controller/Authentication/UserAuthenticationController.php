@@ -77,7 +77,7 @@ class UserAuthenticationController extends AbstractController
     )]
     #[OA\Response(
         response: 400,
-        description: 'Invalid Requests',
+        description: 'Invalid Request',
     )]
     #[OA\RequestBody(
         required: true,
