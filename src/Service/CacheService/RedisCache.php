@@ -13,16 +13,22 @@ class RedisCache extends BaseCache implements CacheInterface
     {
         return new RedisAdapter(RedisAdapter::createConnection("redis://redis:6379"));
     }
-    public function remember($key, $exp, $callable, $tagName = null)
+    public function remember($key, $exp, $callable, $tagName = null, $expNull=null)
     {
         if (!$tagName) {
             $tagName = $this->tagName;
         }
+        if (!$expNull)
+        {
+            $expNull = $this->expNull;
+        }
         $key = $this->namePrefix . $key;
-        return $this->cache->get($key, function (ItemInterface $item) use ($tagName, $exp, $callable) {
+        return $this->cache->get($key, function (ItemInterface $item) use ($tagName, $exp, $callable, $expNull) {
+            $value = $callable();
+            $exp = $value ? $exp : $expNull;
             $item->expiresAfter($exp);
             $item->tag([$tagName]);
-            return $callable();
+            return $value;
         });
     }
 }
