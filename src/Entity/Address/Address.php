@@ -5,8 +5,10 @@ namespace App\Entity\Address;
 use App\Entity\User\User;
 use App\Repository\Address\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Address
 {
     #[ORM\Id]
@@ -16,29 +18,39 @@ class Address
 
     #[ORM\ManyToOne(inversedBy: 'addresses')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     private ?User $userId = null;
 
     #[ORM\ManyToOne(inversedBy: 'addresses')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     private ?AddressCity $city = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Regex(pattern: '/^[0-9]{4,10}$/', message: "The postCode '{{ value }}' is not a valid postCode.")]
+    #[ORM\Column(length: 20)]
+    #[Assert\NotBlank]
+    #[Assert\NotNull]
     private ?string $postCode = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updateAt = null;
 
-    #[ORM\Column(length: 15)]
-    private ?string $activeStatus = null;
+    #[ORM\Column]
+    #[Assert\NotNull]
+    private ?bool $isActive = true;
 
     #[ORM\Column]
-    private ?float $lat = null;
+    #[Assert\GreaterThanOrEqual(-90, message: "Latitude should be Greater than -90")]
+    #[Assert\LessThanOrEqual(90, message: "Latitude should be Less than 90")]
+    private ?float $lat = 0;
 
+    #[Assert\GreaterThanOrEqual(-180, message: "Longitude should be Greater than -180")]
+    #[Assert\LessThanOrEqual(180, message: "Longitude should be Less than 180")]
     #[ORM\Column]
-    private ?float $lng = null;
+    private ?float $lng = 0;
 
     public function getId(): ?int
     {
@@ -64,8 +76,10 @@ class Address
 
     public function setCity(?AddressCity $city): self
     {
-        $this->city = $city;
+        $this->city->addresses->removeElement($this);
+        $city->addAddress($this);
 
+        $this->city = $city;
         return $this;
     }
 
@@ -98,21 +112,23 @@ class Address
         return $this->updateAt;
     }
 
-    public function setUpdateAt(\DateTimeImmutable $updateAt): self
+    #[ORM\PreUpdate]
+    #[ORM\PrePersist]
+    public function setUpdateAt(): self
     {
-        $this->updateAt = $updateAt;
+        $this->updateAt = new \DateTimeImmutable();
 
         return $this;
     }
 
-    public function getActiveStatus(): ?string
+    public function getIsActive(): ?bool
     {
-        return $this->activeStatus;
+        return $this->isActive;
     }
 
-    public function setActiveStatus(string $activeStatus): self
+    public function setIsActive(bool $isActive): self
     {
-        $this->activeStatus = $activeStatus;
+        $this->isActive = $isActive;
 
         return $this;
     }

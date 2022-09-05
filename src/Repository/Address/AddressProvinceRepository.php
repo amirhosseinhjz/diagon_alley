@@ -39,28 +39,12 @@ class AddressProvinceRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return AddressProvince[] Returns an array of AddressProvince objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('a.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?AddressProvince
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function findOneByName($value): ?AddressProvince
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.name = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

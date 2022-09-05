@@ -6,6 +6,7 @@ use App\Repository\Address\AddressCityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AddressCityRepository::class)]
 class AddressCity
@@ -16,10 +17,14 @@ class AddressCity
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(min: 3, max: 255)]
+    #[Assert\NotBlank]
+    #[Assert\NotNull]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'addressCities')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
     private ?AddressProvince $province = null;
 
     #[ORM\OneToMany(mappedBy: 'city', targetEntity: Address::class, orphanRemoval: true)]
@@ -54,6 +59,9 @@ class AddressCity
 
     public function setProvince(?AddressProvince $province): self
     {
+        if ($this->province != null) {
+            $this->province->getAddressCities()->removeElement($this);
+        }
         $this->province = $province;
 
         return $this;
@@ -72,18 +80,6 @@ class AddressCity
         if (!$this->addresses->contains($address)) {
             $this->addresses->add($address);
             $address->setCity($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAddress(Address $address): self
-    {
-        if ($this->addresses->removeElement($address)) {
-            // set the owning side to null (unless already changed)
-            if ($address->getCity() === $this) {
-                $address->setCity(null);
-            }
         }
 
         return $this;

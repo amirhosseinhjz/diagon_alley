@@ -6,8 +6,11 @@ use App\Repository\Address\AddressProvinceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: AddressProvinceRepository::class)]
+#[UniqueEntity(fields: ["name"], message: "This name is already in use")]
 class AddressProvince
 {
     #[ORM\Id]
@@ -15,7 +18,8 @@ class AddressProvince
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Assert\Length(min: 3, max: 255)]
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'province', targetEntity: AddressCity::class)]
@@ -56,18 +60,6 @@ class AddressProvince
         if (!$this->addressCities->contains($addressCity)) {
             $this->addressCities->add($addressCity);
             $addressCity->setProvince($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAddressCity(AddressCity $addressCity): self
-    {
-        if ($this->addressCities->removeElement($addressCity)) {
-            // set the owning side to null (unless already changed)
-            if ($addressCity->getProvince() === $this) {
-                $addressCity->setProvince(null);
-            }
         }
 
         return $this;

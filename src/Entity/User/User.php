@@ -15,8 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
-#[ORM\DiscriminatorColumn(name: "type", type: "string" )]
-#[ORM\DiscriminatorMap(['seller'=>'Seller','admin'=>'Admin','customer'=>'Customer'])]
+#[ORM\DiscriminatorColumn(name: "type", type: "string")]
+#[ORM\DiscriminatorMap(['seller' => 'Seller', 'admin' => 'Admin', 'customer' => 'Customer'])]
 #[UniqueEntity(fields: ["email"], message: "This email is already in use")]
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -34,11 +34,11 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lastName = null;
 
-    #[Assert\Email(message:"The email '{{ value }}' is not a valid email.")]
+    #[Assert\Email(message: "The email '{{ value }}' is not a valid email.")]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Assert\Regex(pattern: '/^(\+989|09)\d{9}$/', message:"The number '{{ value }}' is not a valid PhoneNumber.")]
+    #[Assert\Regex(pattern: '/^(\+989|09)\d{9}$/', message: "The number '{{ value }}' is not a valid PhoneNumber.")]
     #[ORM\Column(length: 13, unique: true)]
     private ?string $phoneNumber = null;
 
@@ -184,9 +184,8 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeAddress(Address $address): self
     {
         if ($this->addresses->removeElement($address)) {
-            // set the owning side to null (unless already changed)
             if ($address->getUserId() === $this) {
-                $address->setUserId(null);
+                $address->setIsActive(false);
             }
         }
 
