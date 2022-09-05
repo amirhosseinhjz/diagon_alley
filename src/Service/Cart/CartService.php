@@ -5,18 +5,43 @@ namespace App\Service\Cart;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Exception;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 use App\Entity\Cart\Cart;
 use App\Entity\Cart\CartItem;
 use App\Interface\Cart\CartServiceInterface;
+use App\Interface\Cart\CartItemServiceInterface;
+use App\DTO\Cart\CartDTO;
+
+/*
+public enum Status
+{
+    case PENDING;
+    case INIT;
+    case SUCCESS;
+    case EXPIRED;
+}
+*/
 
 class CartService implements CartServiceInterface
 {
-    private EntityManagerInterface $entityManager;
 
+    private EntityManagerInterface $entityManager;
+    private CartItemServiceInterface $cartItemService;
+    private $serializer;
+    private $validator;
     
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager,
+                                ValidatorInterface $validator,
+                                CartItemServiceInterface $cartItemService)
     {
         $this->entityManager = $entityManager;
+        $this->validator = $validator;
+        $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
+        $this->cartItemService = $cartItemService;
     }
 
     public function getRequestBody(Request $req)
@@ -24,21 +49,79 @@ class CartService implements CartServiceInterface
         return json_decode($req->getContent(), true);
     }
 
-    public function validateCartArray(array $unvalidatedArray)
+    public function arrayToDTO(array $array)
     {
-        try {
-            if(!array_key_exists("user_id",$unvalidatedArray)) 
-                throw new Exception("user_id is required"); 
-            $user_id = $unvalidatedArray["user_id"];
-            #t: one item or more? what to do is items is empty?
-            #$items = array_key_exists("items",$unvalidatedArray)?$unvalidatedArray["items"]:array();
-            return ["user_id"=> $user_id, /*'items' => $items ,*/ "status" => 'init'];
-        } catch(Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
+        return $this->serializer->deserialize(json_encode($array), CartDTO::class, 'json');
     }
 
-    public function getCart(int $userId, bool $create = true)
+    private function createValidDTO(array $array)
+    {
+        $cartDTO = $this->arrayToDTO($array);
+        $DTOErrors = $this->validate($cartDTO);
+        if (count($DTOErrors) > 0) {
+            throw (new \Exception(json_encode($DTOErrors)));
+        }
+        return $cartDTO;
+    }
+
+    #not useful for now
+    public function createFromDTO(CartDTO $dto, bool $flush=true): Cart
+    {
+        $cart = new Cart();
+
+        $cart->setStatus($dto -> getStatus()); #Todo: make the constants
+        $cart->setUserId($dto -> getUserId());
+
+        $this->entityManager->persist($cart);
+        if($flush) {
+            $this->entityManager->flush();
+        }
+        #Todo: complete this method
+        return  $cart;
+    }
+
+    public function createFromArray(array $array) : Cart
+
+    {
+        $cartDTO = $this->createValidDTO($array);
+        $cart = $this->createFromDTO($cartDTO, false);
+        $databaseErrors = $this->validate($cart);
+        if (count($databaseErrors) > 0) {
+            throw (new \Exception(json_encode($databaseErrors)));
+        }
+        $this->entityManager->flush();
+        return $cart;
+    }
+
+    private function createDTOFromCart(Cart $cart): CartDTO
+    {
+        $cartDTO = new CartDTO();
+        $cartDTO->items = array();
+        foreach($cart->getItems() as $item){
+            $cartDTO->items[] = $this->cartItemService->createDTOFromCartItem($item);
+        }
+        foreach ($cart as $key => $value) {
+            if($key == "items")
+                continue;
+            $getterName = 'get' . ucfirst($key);
+            $setterName = 'set' . ucfirst($key);
+            $cartDTO->$setterName($cart->$getterName());
+        }
+        return $cartDTO;
+    }
+
+    private function validate($object): array
+    {
+        $errors = $this->validator->validate($object);
+        $errorsArray = [];
+        foreach ($errors as $error) {
+            $errorsArray[] = $error->getMessage();
+        }
+        return $errorsArray;
+    }
+
+
+    public function getCartByUser(int $userId, bool $create = true)
     {
         try{
             $cartRepository = $this->entityManager->getRepository(Cart::class);
@@ -53,24 +136,39 @@ class CartService implements CartServiceInterface
             }
             return $cart;
         } catch(Exception $exception){
-            return ['error' => $exception->getMessage()];
-        }         
+            throw new \Exception("unable to create cart");
+        }
     }
 
     public function getCartById(int $cartId)
     {
-        try{
-            $cartRepository = $this->entityManager->getRepository(Cart::class);
-            $cart = $cartRepository->findOneBy(['id'=> $cartId, 'status'=>'init']);
-            if($cart==null){
-                #T ?
-            }
-            return $cart;
-        } catch(Exception $exception){
-            #T?
+
+        $cartRepository = $this->entityManager->getRepository(Cart::class);
+        $cart = $cartRepository->findOneBy(['id'=> $cartId, 'status'=>'init']);
+        if($cart==null){
+            throw new \Exception("Invalid Cart ID");
         }
+        return $cart;
     }
 
+    public function resetCart($cartId, $flush = true){
+        $cart = $this->getCartById($cartId);
+        $cart->setStatus("INIT");
+        $cart->setFinalizedAt(null);
+        $this->removeAllItems($cart,$flush = false);
+        if($flush)
+            $this->entityManager->flush();
+    }
+
+    private function removeAllItems(Cart $cart, bool $flush = true)
+    {
+        foreach($cart->getItems() as $item){
+            $this->entityManager->remove($item);
+            $cart->removeItem($item);
+        }
+        if($flush)
+            $this->entityManager->flush();
+    }
 
     public function getTotalPrice($cartId)
     {
@@ -94,7 +192,7 @@ class CartService implements CartServiceInterface
     public function removeCart($cart)
     {
         try{
-            #T: remove all cart items?? isn't it automatically done?
+            $this->removeAllItems($cart, $flush = false);
             $this->entityManager->remove($cart);
             $this->entityManager->flush();
         } catch(Exception $exception){
@@ -105,16 +203,28 @@ class CartService implements CartServiceInterface
     //T: set up the event for automatic expiration
     public function updateStatus($cartId, $status)
     {
-        $cart = $this->entityManager->getRepository(Cart::class)->findOneBy(['id'=>$cartId]);
+        $cart = $this->getCartById($cartId);
         try{
-            //T: if cart does not exist? if cart is empty?
-            $cart->setStatus($status);
-            if($status === "PENDING")  #t: define constants
-            {
-                $cart->setFinalizedAt(new \DateTime("now")); 
-                #T: setup automatic exp.
+            switch ($status){
+                case "INIT":
+                    $cart->setStatus($status);
+                    $cart->setFinalizedAt(null);
+                    break;
+                case "PENDING":
+                    $cart->setStatus($status);
+                    $cart->setFinalizedAt(new \DateTime("now"));
+                    #ToDo: setup automatic exp.
+                    #ToDo: should I check item quantity/prices here again?
+                    break;
+                case "SUCCESS":
+                    $cart->setStatus($status);
+                    break;
+                case "EXPIRED":
+                    $cart->setStatus($status);
+                    break;
+                default:
+                    throw new \Exception("Invalid Status Code");
             }
-
             $this->entityManager.flush();
 
         } catch(Exception $exception){
@@ -126,7 +236,7 @@ class CartService implements CartServiceInterface
     {
         if(array_key_exists('varient',$array) && array_key_exists('userid',$array))  #camelCase? add multiple items?
         {
-            $cart = $this->getCart($array['userid']);
+            $cart = $this->getCartByUser($array['userid']);
             $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$cart->getId(), 'varient_id'=>$array['varient']['id']]);
             if(!empty($item)){
                 $item->increaseCount();
@@ -155,8 +265,8 @@ class CartService implements CartServiceInterface
     {
         if(array_key_exists('varient',$array) && array_key_exists('userid',$array))  #camelCase? add multiple items?
         {
-            $cart = $this->getCart($array['userid']);
-            $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$cart->getId(), 'varient_id'=>$array['varient']['id']]);
+            $cart = $this->getCartByUser($array['userid']);
+            $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['Cart_Id'=>$cart->getId(), 'varient_id'=>$array['varient']['id']]);
             if(!empty($item)){
                 $item->decreaseCount();
                 if($item->getCount() <= 0)
@@ -170,9 +280,27 @@ class CartService implements CartServiceInterface
                 throw new Exception('Item does not exist');
             }
         }else{
-                throw new Exception('insufficient arguments');
+            throw new Exception('insufficient arguments');
         }
 
     }
-    
+
+    public function checkItems(Cart $cart, bool $update)
+    {
+        $flag = true;
+        foreach($cart->getItems() as $item){
+            $flag = $flag && ($this->cartItemService->checkPrice($item->getId(),$update));
+            $flag = $flag && ($this->cartItemService->checkStocks($item->getId(),$update));
+        }
+        if($update)
+            $this->entityManager->flush();
+        return $flag;
+    }
+
+    #check: useless?
+    public function getCartId(int $userId)
+    {
+        $cart = $this->getCartByUser($userId);
+        return $cart->getId();
+    }
 }

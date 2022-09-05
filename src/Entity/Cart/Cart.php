@@ -18,6 +18,7 @@ class Cart
 
     #[ORM\Column]
     private ?int $User_Id = null;
+    #ToDo: make into a doctrine relation
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $finalizedAt = null;
@@ -76,8 +77,6 @@ class Cart
             $this->items->add($item);
             $item->setCart($this);
         }
-        else; #todo: check the stocks in the manager and increase the count
-
         return $this;
     }
 

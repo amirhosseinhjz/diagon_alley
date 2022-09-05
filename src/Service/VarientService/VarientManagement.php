@@ -26,6 +26,7 @@ class VarientManagement
         return $this->serializer->deserialize(json_encode($array), VarientDTO::class, 'json');
     }
 
+
     public function createVarientFromDTO(VarientDTO $dto, $flush=true) : Varient
     {
         $varient = new Varient();
@@ -70,5 +71,18 @@ class VarientManagement
         $varient->setCreatedAt($time);
         $this->em->flush();
         return $varient;
+    }
+
+    #ToDo: change these: remove the repository
+    public function getVarientPrice($serial,VarientRepository $varientRepository):int{
+        $varient = $varientRepository->findBy(['serial' => $serial]);
+        if($varient === null)throw new \Exception("Invalid serial number");
+        return $varient[0]->getPrice();
+    }
+
+    public function getVarientStock($serial, VarientRepository $varientRepository){
+        $varient = $varientRepository->findBy(['serial' => $serial]);
+        if($varient === null)throw new \Exception("Invalid serial number");
+        return $varient[0]->getQuantity();
     }
 }
