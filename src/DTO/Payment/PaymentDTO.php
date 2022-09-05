@@ -14,7 +14,7 @@ class PaymentDTO
 
     #[Assert\PositiveOrZero]
     #[Assert\NotNull]
-    public readonly ?int $paidAmount;
+    public ?int $paidAmount=0;
 
     #[Assert\NotBlank]
     #[Assert\NotNull]
@@ -22,7 +22,7 @@ class PaymentDTO
     public readonly ?string $status;
 
     #[Assert\NotNull]
-    public readonly ?Cart $cart;
+    public ?Cart $cart=null;
 
     public function __construct($cart, $price, $type, ValidatorInterface $validator)
     {
