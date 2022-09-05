@@ -13,7 +13,6 @@ use OpenApi\Attributes as OA;
 #[Route("/api/feature")]
 class FeatureController extends AbstractController
 {
-
     private FeatureManagementInterface $featureManagement;
 
     public function __construct(FeatureManagementInterface $featureManagement)

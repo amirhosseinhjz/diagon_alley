@@ -51,4 +51,4 @@ services:
 
   app.variant.management:
     class: App\Service\VariantService\VariantManagement
-  App\Interface\Variant\VariantManagementInterface: '@app.feature.management'
+  App\Interface\Variant\VariantManagementInterface: '@app.variant.management'

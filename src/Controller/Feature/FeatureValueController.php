@@ -2,6 +2,7 @@
 
 namespace App\Controller\Feature;
 
+use App\Interface\Feature\FeatureValueManagementInterface;
 use App\Service\FeatureService\FeatureValueManagement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,14 +14,21 @@ use OpenApi\Attributes as OA;
 #[Route("/api/feature/value")]
 class FeatureValueController extends AbstractController
 {
+    private FeatureValueManagementInterface $featureValueManagement;
+
+    public function __construct(FeatureValueManagementInterface $featureValueManagement)
+    {
+        $this->featureValueManagement = $featureValueManagement;
+    }
+
     #[Route('/define', name: 'app_define_feature_define', methods:['POST'])]
-    public function define(Request $request , FeatureValueManagement $defineFeatureManagement)
+    public function define(Request $request)
     {
         $body = $request->toArray();
         try {
-            $defineFeatureManagement->defineFeatureValue($body);
+            $this->featureValueManagement->defineFeatureValue($body);
             return $this->json(
-                ["message" => "Feature values have been defiend!"],
+                ["message" => "Feature values have been defined!"],
                 status: 200
             );
         } catch (\Exception $e){
@@ -29,9 +37,9 @@ class FeatureValueController extends AbstractController
     }
 
     #[Route('/read/{id}', name: 'app_define_feature_read', methods:['GET'])]
-    public function read(FeatureValueManagement $featureValueManagement, $id){
+    public function read($id){
         try {
-            $temp = $featureValueManagement->readFeatureValueById($id);
+            $temp = $this->featureValueManagement->readFeatureValueById($id);
             return $this->json(
                 $temp,
                 status: 200,
@@ -43,10 +51,10 @@ class FeatureValueController extends AbstractController
     }
 
     #[Route('/update/{id}', name: 'app_define_feature_update', methods:['POST'])]
-    public function update(Request $request , FeatureValueManagement $defineFeatureManagement, $id){
+    public function update(Request $request , $id){
         $body = $request->toArray();
         try {
-            $defineFeatureManagement->updateFeatureValue($id,$body);
+            $this->featureValueManagement->updateFeatureValue($id,$body);
             return $this->json(
                 ["message" => "Feature Value updated successfully"],
                 status: 200
@@ -58,9 +66,9 @@ class FeatureValueController extends AbstractController
     }
 
     #[Route('/delete/{id}', name: 'app_define_feature_delete', methods:['GET'])]
-    public function delete(FeatureValueManagement $defineFeatureManagement, $id){
+    public function delete($id){
         try {
-            $defineFeatureManagement->deleteFeatureValue($id);
+            $this->featureValueManagement->deleteFeatureValue($id);
             return $this->json(
                 ["message" => "Feature Value deleted successfully"],
                 status: 200
@@ -71,8 +79,8 @@ class FeatureValueController extends AbstractController
     }
 
     #[Route('/show', name: 'app_define_features_show', methods:['GET'])]
-    public function show(FeatureValueManagement $defineFeatureManagement){
-        $temp = $defineFeatureManagement->showFeaturesValue();
+    public function show(){
+        $temp = $this->featureValueManagement->showFeaturesValue();
         return $this->json(
             $temp,
             status: 200,

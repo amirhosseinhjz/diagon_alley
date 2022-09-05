@@ -76,4 +76,9 @@ class VariantManagement implements VariantManagementInterface
         $this->em->flush();
         return $variant;
     }
+
+    public function showVariant($filters_eq, $filters_gt)
+    {
+        return $this->varientRepository->showVariant($filters_eq,$filters_gt);
+    }
 }

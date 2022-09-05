@@ -18,4 +18,6 @@ interface VariantManagementInterface
     public function deleteVariant($serial);
 
     public function confirmVariant($serial);
+
+    public function showVariant($filters_eq,$filters_gt);
 }
