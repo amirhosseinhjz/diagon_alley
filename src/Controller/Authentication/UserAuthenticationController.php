@@ -62,7 +62,7 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/user/login', name: 'app_user_login',methods: ['POST'])]
-    public function default(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
+    public function login(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
     {
         try{
             (new LoginDTO($request->toArray(),$validator))->doValidate();

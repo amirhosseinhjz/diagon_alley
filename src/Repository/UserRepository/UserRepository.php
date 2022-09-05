@@ -66,7 +66,6 @@ class UserRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-
     public function loadUserByIdentifier(string $identifier): ?UserInterface
     {
         $entityManager = $this->getEntityManager();
@@ -79,5 +78,6 @@ class UserRepository extends ServiceEntityRepository
             ->setParameter('query', $identifier)
             ->getOneOrNullResult();
     }
+
 
 }
