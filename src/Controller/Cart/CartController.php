@@ -16,7 +16,7 @@ use App\Entity\Cart\CartItem;
 
 //____validation
 
-#[Route('/cart', name: 'app_cart')]
+#[Route('/api/cart', name: 'app_cart')]
 class CartController extends AbstractController
 {
     protected CartService $cartManager;
@@ -101,7 +101,7 @@ class CartController extends AbstractController
         }
     }
 
-    #[Route('/finalize', name: 'successful_payment', methods: ['GET'])]
+    #[Route('/close', name: 'successful_payment', methods: ['GET'])]  #t: right name?
     public function success(): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -118,7 +118,7 @@ class CartController extends AbstractController
     }
 
     #[Route('/revert', name: 'revert_pending_cart', methods: ['GET'])]
-    public function revert(): Response
+    public function revert(): Response   #todo: what if the user creates a new card while they have another waiting for payment
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
@@ -133,15 +133,15 @@ class CartController extends AbstractController
         }
     }
 
-    #[Route('/add', name: 'add_item_to_cart', methods: ['POST'])]
+    #[Route('/items/add', name: 'add_item_to_cart', methods: ['POST'])]
     public function addItem(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
             $array = $this->cartManager->getRequestBody($request);
-            $cart = $this->cartManager->getCart($array['userid']);
+            $cart = $this->cartManager->getCart($array['userid']); #todo: automatically get user info
             $this->denyAccessUnlessGranted('_EDIT', $cart);
-            $cart = $this->cartManager->addItemToCart($array);
+            $this->cartManager->addItemToCart($array);
             return $this->json([
                 'm' => "item added"
             ]);
@@ -150,7 +150,7 @@ class CartController extends AbstractController
         }
     }
 
-    #[Route('/remove', name: 'remove_item_from_cart', methods: ['POST'])]
+    #[Route('/items/remove', name: 'remove_item_from_cart', methods: ['POST'])]
     public function removeItem(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');

@@ -25,5 +25,10 @@ Interface CartServiceInterface
     public function removeItemFromCart(array $item); #tc
 
     public function getCartById(int $cartId);
+
+    public function checkItems(int $cartId, bool $update); #todo: check every item's price and availability, return true if it stays the same
+    #todo: what to do when the price has changed, or the item does not exist
+
+    public function getCartId(int $userId);
     
 }
