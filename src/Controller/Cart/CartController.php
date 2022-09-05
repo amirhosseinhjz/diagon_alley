@@ -16,6 +16,8 @@ use App\Entity\Cart\CartItem;
 
 //____validation
 
+#ToDo change error codes
+#ToDo change userid's to cartid
 #[Route('/api/cart', name: 'app_cart')]
 class CartController extends AbstractController
 {
@@ -32,13 +34,13 @@ class CartController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
-            $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());
+            $cart = $this->cartManager->getCartByUser($this->getUser()->getUserIdentifier());
             $this->denyAccessUnlessGranted('_EDIT', $cart);
             return $this->json([
                 'cart' => $cart
             ]);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -48,7 +50,7 @@ class CartController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
-            $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());  #check
+            $cart = $this->cartManager->getCartByUser($this->getUser()->getUserIdentifier());  #check
             $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->removeCart($cart);
             return $this->json([
@@ -56,7 +58,7 @@ class CartController extends AbstractController
             ]);
 
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,10 +80,10 @@ class CartController extends AbstractController
             } else {
                 return $this->json([
                     'm' => 'cart not found'
-                ]);
+                ], Response::HTTP_NOT_FOUND);
             }
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -90,12 +92,12 @@ class CartController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
-            $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());
+            $cart = $this->cartManager->getCartByUser($this->getUser()->getUserIdentifier());
             $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->updateStatus($cart, 'PENDING');
             return $this->json([
                 'm' => 'Status changed'
-            ]);
+            ], Response::HTTP_OK);
         } catch (Exception $exception) {
             return $this->json(['m' => $exception->getMessage()], 500);
         }
@@ -106,14 +108,14 @@ class CartController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
-            $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());
+            $cart = $this->cartManager->getCartByUser($this->getUser()->getUserIdentifier());
             $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->updateStatus($cart, 'SUCCESS');
             return $this->json([
                 'm' => 'Status changed'
-            ]);
+            ],Response::HTTP_OK);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -122,14 +124,14 @@ class CartController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
-            $cart = $this->cartManager->getCart($this->getUser()->getUserIdentifier());
+            $cart = $this->cartManager->getCartByUser($this->getUser()->getUserIdentifier());
             $this->denyAccessUnlessGranted('_BACK', $cart);
             $this->cartManager->updateStatus($cart, 'INIT');
             return $this->json([
                 'm' => 'Status changed'
-            ]);
+            ],Response::HTTP_OK);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -139,14 +141,14 @@ class CartController extends AbstractController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
             $array = $this->cartManager->getRequestBody($request);
-            $cart = $this->cartManager->getCart($array['userid']); #todo: automatically get user info
+            $cart = $this->cartManager->getCartByUser($array['userid']); #todo: automatically get user info
             $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->addItemToCart($array);
             return $this->json([
                 'm' => "item added"
-            ]);
+            ,Response::HTTP_OK]);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -156,14 +158,14 @@ class CartController extends AbstractController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
             $array = $this->cartManager->getRequestBody($request);  #T: DTO
-            $cart = $this->cartManager->getCart($array['userid']);
+            $cart = $this->cartManager->getCartByUser($array['userid']);
             $this->denyAccessUnlessGranted('_EDIT', $cart);
             $this->cartManager->removeItemFromCart($array);
             return $this->json([
                 'm' => 'item removed'
-            ]);
+            ],Response::HTTP_OK);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], 500);
+            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

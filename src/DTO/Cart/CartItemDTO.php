@@ -1,90 +1,84 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTO\Cart;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CartItembDTO
+class CartItemDTO
 {
-    
 
-private ?int $Cart_Id = null;
+    private ?int $Cart_Id = null;
 
-private ?int $varientId = null;
+    private ?int $varientId = null;
 
-#[Assert\Positive]
-#[Assert\Type(type:'int')]
-private ?int $count = null;
+    #[Assert\Positive]
+    #[Assert\Type(type:'int')]
+    private ?int $count = null;
 
-#[Assert\PositiveOrZero]
-private ?int $price = null;
+    #[Assert\PositiveOrZero]
+    private ?int $price = null;
 
-#[Assert\NotBlank]
-private ?string $title = null;
+    #[Assert\NotBlank]
+    private ?string $title = null;
 
-public function getId(): ?int
-{
-    return $this->id;
-}
+    #t: remove cartid
+    public function getCartId(): ?int
+    {
+        return $this->Cart_Id;
+    }
 
-#t: remove cartid
-public function getCartId(): ?int
-{
-    return $this->Cart_Id;
-}
+    public function setCartId(int $Cart_Id): self
+    {
+        $this->Cart_Id = $Cart_Id;
 
-public function setCartId(int $Cart_Id): self
-{
-    $this->Cart_Id = $Cart_Id;
+        return $this;
+    }
 
-    return $this;
-}
+    public function getVarientId(): ?int
+    {
+        return $this->VarientId;
+    }
 
-public function getVarientId(): ?int
-{
-    return $this->VarientId;
-}
+    public function setVarientId(int $VarientId): self
+    {
+        $this->VarientId = $VarientId;
 
-public function setVarientId(int $VarientId): self
-{
-    $this->VarientId = $VarientId;
+        return $this;
+    }
 
-    return $this;
-}
+    public function getCount(): ?int
+    {
+        return $this->count;
+    }
 
-public function getCount(): ?int
-{
-    return $this->count;
-}
+    public function setCount(int $count): self
+    {
+        $this->count = $count;
 
-public function setCount(int $count): self
-{
-    $this->count = $count;
+        return $this;
+    }
 
-    return $this;
-}
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
 
-public function getPrice(): ?int
-{
-    return $this->price;
-}
+    public function setPrice(int $price): self
+    {
+        $this->price = $price;
 
-public function setPrice(int $price): self
-{
-    $this->price = $price;
+        return $this;
+    }
 
-    return $this;
-}
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
 
-public function getTitle(): ?string
-{
-    return $this->title;
-}
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
 
-public function setTitle(string $title): self
-{
-    $this->title = $title;
-
-    return $this;
-}
+        return $this;
+    }
 }

@@ -15,7 +15,7 @@ class CartItem
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $Cart_Id = null;
+    private ?int $Cart_Id = null; #Todo: change to cartId, or remove!
 
     #[ORM\Column]
     private ?int $varientId = null;

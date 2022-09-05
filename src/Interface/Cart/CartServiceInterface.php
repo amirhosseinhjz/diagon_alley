@@ -12,7 +12,7 @@ use App\Entity\Cart\CartItem;
 Interface CartServiceInterface
 {
 
-    public function getCart(int $userId, bool $create = true);
+    public function getCartByUser(int $userId, bool $create = true);
 
     public function getTotalPrice($cartId);
 
@@ -26,7 +26,7 @@ Interface CartServiceInterface
 
     public function getCartById(int $cartId);
 
-    public function checkItems(int $cartId, bool $update); #todo: check every item's price and availability, return true if it stays the same
+    public function checkItems(Cart $cart, bool $update); #todo: check every item's price and availability, return true if it stays the same
     #todo: what to do when the price has changed, or the item does not exist
 
     public function getCartId(int $userId);
