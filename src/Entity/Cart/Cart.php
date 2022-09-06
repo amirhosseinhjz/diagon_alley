@@ -107,9 +107,9 @@ class Cart
 
     public function setStatus(string $status): self
     {
-        if ($status === "init" || $status == "expired" || $status === "success") {
+        if ($status === "INIT" || $status == "EXPIRED" || $status === "SUCCESS") {
             $this->status = $status;
-        } elseif ($status === "pending") {
+        } elseif ($status === "PENDING") {
             $this->status = $status;
             #ToDo: automatic expiration (not here)
         } else {
