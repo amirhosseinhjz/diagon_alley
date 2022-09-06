@@ -4,9 +4,9 @@ namespace App\Service\Product;
 
 use App\Entity\Brand\Brand;
 use App\Entity\Category\Category;
-use App\Entity\ItemValue;
 use App\Entity\Product\Product;
-use App\Entity\Variant;
+use App\Entity\Variant\Variant;
+use App\Entity\Feature\FeatureValue;
 use App\Interface\Product\ProductManagerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -114,7 +114,7 @@ class ProductManager implements ProductManagerInterface
                 $featureKey = $featureValue->getItemFeature()->getId();
                 if (array_key_exists($featureKey, $validFeatures) == false) throw new Exception('invalid feature found');
                 if (in_array($featureValue, $validFeatures[$featureKey]) == false) throw new Exception('invalid feature value found');
-                $itemValue = $this->em->getRepository(ItemValue::class)->findOneBy(['id' => $featureValue]);
+                $itemValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => $featureValue]);
                 $product->addItemValue($itemValue);
             }
             $this->em->persist($product);
@@ -146,7 +146,7 @@ class ProductManager implements ProductManagerInterface
         try {
             $product = $this->em->getRepository(Product::class)->findOneById($id);
             foreach ($features as $featureValue) {
-                $itemValue = $this->em->getRepository(ItemValue::class)->findOneBy(['id' => $featureValue]);
+                $itemValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => $featureValue]);
                 $product->removeItemValue($itemValue);
             }
             $this->em->persist($product);

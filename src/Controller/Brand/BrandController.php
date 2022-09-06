@@ -2,9 +2,7 @@
 
 namespace App\Controller\Brand;
 
-use App\Entity\Brand\Brand;
 use App\Service\Brand\BrandManager;
-use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,12 +68,12 @@ class BrandController extends AbstractController
     }
 
     #[Route('/search', name: 'search', methods: ['GET'])]
-    public function search(ManagerRegistry $doctrine, Request $req): Response
+    public function search(Request $req): Response
     {
         try {
             //TODO serialize
-            $q = $req->query->get('query');
-            $brands = $doctrine->getRepository(Brand::class)->findManyByQuery($q);
+            $query = $req->query->get('query');
+            $brands = $this->brandManager->search($query);
             return $this->json(['brands' => $brands]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
