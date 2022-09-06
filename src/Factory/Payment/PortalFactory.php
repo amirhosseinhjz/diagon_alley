@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Payment;
+namespace App\Factory\Payment;
 
 use App\Interface\Cart\CartServiceInterface;
 final class PortalFactory
