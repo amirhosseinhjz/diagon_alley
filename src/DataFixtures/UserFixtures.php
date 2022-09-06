@@ -3,13 +3,21 @@
 namespace App\DataFixtures;
 
 use App\Entity\User;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
-class UserFixtures extends Fixture
+class UserFixtures extends Fixture implements FixtureGroupInterface
 {
+    protected $passHasher;
+    public function __construct(UserPasswordHasherInterface $hasher)
+    {
+        $this->passHasher = $hasher;
+    }
+
     public function loadSeller(ObjectManager $manager)
     {
         for ($i = 0; $i < 10; $i++) {
@@ -17,7 +25,7 @@ class UserFixtures extends Fixture
             $seller->setShopSlug('shop'.$i);
             $seller->setPhoneNumber('+9891'.$i.'1234567');
             $seller->setEmail("seller$i@seller.com");
-            $seller->setPassword('seller');
+            $seller->setPassword($this->passHasher->hashPassword($seller,'123456789*zZ'));
             $seller->setRoles(['ROLE_SELLER']);
             $seller->setName('seller'.$i);
             $seller->setLastName('seller'.$i.'lastname');
@@ -32,7 +40,7 @@ class UserFixtures extends Fixture
             $customer = new User\Customer();
             $customer->setPhoneNumber('+9891' . $i . '7594567');
             $customer->setEmail("customer$i@customer.com");
-            $customer->setPassword('customer');
+            $customer->setPassword($this->passHasher->hashPassword($customer,'123456789*zZ'));
             $customer->setRoles(['ROLE_CUSTOMER']);
             $customer->setName('customer' . $i);
             $customer->setLastName('customer' . $i . 'lastname');
@@ -48,7 +56,7 @@ class UserFixtures extends Fixture
             $admin = new User\Admin();
             $admin->setPhoneNumber('+9891' . $i . '7594548');
             $admin->setEmail("admin$i@admin.com");
-            $admin->setPassword('admin');
+            $admin->setPassword($this->passHasher->hashPassword($admin,'123456789*zZ'));
             $admin->setRoles(['ROLE_ADMIN']);
             $admin->setName('admin' . $i);
             $admin->setLastName('admin' . $i . 'lastname');
@@ -62,5 +70,10 @@ class UserFixtures extends Fixture
         $this->loadSeller($manager);
         $this->loadCustomer($manager);
         $this->loadAdmin($manager);
+    }
+
+    public static function getGroups(): array
+    {
+        return ['userFixGroup'];
     }
 }

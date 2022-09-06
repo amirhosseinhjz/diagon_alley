@@ -10,10 +10,6 @@ use App\Tests\Base\BaseJsonApiTestCase;
  */
 class PaymentControllerTest extends BaseJsonApiTestCase
 {
-
-    protected array $defaultUser = ['username' => '09128464485', 'password' => '123456789'];
-
-
     public function testCreatePaymentHasCart()
     {
         $response = $this->loginDefaultUserGetToken();

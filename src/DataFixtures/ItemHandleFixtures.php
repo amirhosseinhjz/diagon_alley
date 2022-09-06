@@ -14,7 +14,7 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
 {
     public static function getGroups(): array
     {
-        return ['ItemHandle'];
+        return ['ItemFixGroup'];
     }
 
     public function loadItemFeature(ObjectManager $manager)
