@@ -9,6 +9,8 @@ interface BrandManagerInterface
 {
     public function getRequestBody(Request $req);
 
+    public function serialize($data, array $groups);
+
     public function normalizeArray(array $array);
 
     public function createEntityFromArray(array $validatedArray);
@@ -18,8 +20,4 @@ interface BrandManagerInterface
     public function removeUnused(Brand $brand);
 
     public function findById(int $id);
-
-    public function search(string $query);
-
-    public function findAll();
 }

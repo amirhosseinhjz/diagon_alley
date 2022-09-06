@@ -9,6 +9,8 @@ interface ProductManagerInterface
 {
     public function getRequestBody(Request $req);
 
+    public function serialize($data, array $groups);
+
     public function normalizeArray(array $array);
 
     public function createEntityFromArray(array $validatedArray);
@@ -27,7 +29,7 @@ interface ProductManagerInterface
 
     public function toggleActivity(int $id, bool $active);
 
-    public function findBrandProducts(int $id, array $options);
+    public function findBrandProducts(array $options);
 
-    public function findCategoryProducts(int $id, array $options);
+    public function findCategoryProducts(array $options);
 }
