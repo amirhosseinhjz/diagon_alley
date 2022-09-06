@@ -10,8 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ShipmentItemRepository::class)]
 class ShipmentItem
 {
-    const validTypes = ['digital', 'physical'];
-    const defaultType = 'physical';
+    const TYPES =  [
+        'DIGITAL'=>'digital',
+        'PHYSICAL'=>'physical',
+    ];
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -22,7 +24,7 @@ class ShipmentItem
     #[ORM\JoinColumn(nullable: false)]
     private ?Shipment $shipment = null;
 
-    #[ORM\OneToOne(inversedBy: 'shipmentItem', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'shipmentItem')]
     #[ORM\JoinColumn(nullable: false)]
     private ?PurchaseItem $purchaseItem = null;
 
@@ -30,7 +32,7 @@ class ShipmentItem
     private ?string $status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Choice(self::validTypes)]
+    #[Assert\Choice([ShipmentItem::TYPES['DIGITAL'], ShipmentItem::TYPES['physical']])]
     private ?string $type = null;
 
     public function getId(): ?int
@@ -72,5 +74,21 @@ class ShipmentItem
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string|null $type
+     */
+    public function setType(?string $type): void
+    {
+        $this->type = $type;
     }
 }

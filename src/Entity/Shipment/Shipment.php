@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ShipmentRepository::class)]
 class Shipment
 {
+    const STATUS = ['CANCEL','PENDING','DELIVERED','FINALIZED'];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
