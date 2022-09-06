@@ -4,6 +4,7 @@ namespace App\Repository\PurchaseRepository;
 
 use App\Entity\Purchase\PurchaseItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -63,4 +64,22 @@ class PurchaseItemRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function getSellerIds(array $criteria): ?array
+    {
+        $entityManager = $this->getEntityManager();
+        $connection = $entityManager->getConnection();
+        $query = $connection->prepare
+        (
+            "select pi.id as purchase_item_id, 
+                pi.type as type 
+                from purchase_item pi 
+                join variant v 
+                on v.id = pi.variant_id 
+                where pi.purchase_id=:purchaseId and v.seller_id=:sellerId;"
+        );
+        $query->bindValue('purchaseId',$criteria['purchaseId'],ParameterType::INTEGER);
+        $query->bindValue('sellerId',$criteria['sellerId'],ParameterType::INTEGER);
+        return $query->executeQuery()->fetchAllAssociative();
+    }
 }
