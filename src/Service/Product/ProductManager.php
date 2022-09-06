@@ -32,7 +32,7 @@ class ProductManager implements ProductManagerInterface
         return json_decode($req->getContent(), true);
     }
 
-    public function serialize(array $data, array $groups)
+    public function serialize($data, array $groups): string
     {
         return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
@@ -182,5 +182,10 @@ class ProductManager implements ProductManagerInterface
     public function findCategoryProducts(array $options): array
     {
         return $this->em->getRepository(Product::class)->findProductsByCategoryId($options);
+    }
+
+    public function findById(int $id): ?Product
+    {
+        return $this->em->getRepository(Product::class)->findOneById($id);
     }
 }

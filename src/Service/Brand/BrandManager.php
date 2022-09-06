@@ -28,9 +28,9 @@ class BrandManager implements BrandManagerInterface
         return json_decode($req->getContent(), true);
     }
 
-    public function serialize(array $data, array $groups)
+    public function serialize($data, array $groups): string
     {
-         return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
+        return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
 
     public function normalizeArray(array $array): array
@@ -53,7 +53,7 @@ class BrandManager implements BrandManagerInterface
         }
     }
 
-    public function updateEntity(Brand $brand, array $updates)
+    public function updateEntity(Brand $brand, array $updates): array
     {
         try {
             foreach ($updates as $key => $value) {
@@ -77,5 +77,10 @@ class BrandManager implements BrandManagerInterface
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
         }
+    }
+
+    public function findById(int $id): ?Brand
+    {
+        return $this->em->getRepository(Brand::class)->findOneById($id);
     }
 }

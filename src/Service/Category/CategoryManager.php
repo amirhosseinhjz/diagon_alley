@@ -30,9 +30,9 @@ class CategoryManager implements CategoryManagerInterface
         return json_decode($req->getContent(), true);
     }
 
-    public function serialize(array $data, array $groups)
+    public function serialize($data, array $groups): string
     {
-         return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
+        return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
 
     public function normalizeArray(array $array): array
@@ -185,5 +185,15 @@ class CategoryManager implements CategoryManagerInterface
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
         }
+    }
+
+    public function findById(int $id): ?Category
+    {
+        return $this->em->getRepository(Category::class)->findOneById($id);
+    }
+
+    public function findMainCategories(): array
+    {
+        return $this->em->getRepository(Category::class)->findMainCategories();
     }
 }
