@@ -1,10 +1,7 @@
 <?php
 namespace App\Abstract\Cache;
 
-use App\Service\CacheService\RedisCache;
-use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 
 abstract class BaseCache
 {
@@ -19,7 +16,9 @@ abstract class BaseCache
         $this->tagName = $tagName;
         $this->namePrefix = $namePrefix;
         $this->cache = $this->getAdapter();
-        $this->expNull = env('NULL_CACHE_TTL');
+        $this->expNull = $_ENV['NULL_CACHE_TTL'];
+        //$this->expNull = "env('NULL_CACHE_TTL')"; --> TODO NOTICE (AH)
+        //dd($this->expNull); --> TODO
     }
 
     private static function getAdapter()
