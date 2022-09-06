@@ -5,14 +5,37 @@ fos_elastica:
     default: { url: '%env(ELASTICSEARCH_URL)%' }
   indexes:
     product:
+      persistence:
+        driver: orm
+        model: App\Entity\Product\Product
+        provider: ~
+        finder: ~
       serializer:
         groups: [elastica]
+
     category:
+      persistence:
+        driver: orm
+        model: App\Entity\Category\Category
+        provider: ~
+        finder: ~
       serializer:
         groups: [elastica]
+
     brand:
+      persistence:
+        driver: orm
+        model: App\Entity\Brand\Brand
+        provider: ~
+        finder: ~
       serializer:
         groups: [elastica]
+
     seller:
+      persistence:
+        driver: orm
+        model: App\Entity\User\Seller
+        provider: ~
+        finder: ~
       serializer:
         groups: [elastica]
