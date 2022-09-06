@@ -26,5 +26,7 @@ interface EmailManagementInterface
 
     public function setText(string $text): self;
 
+    public function eventEmailClass(string $eventClassName): self;
+
     public function send();
 }

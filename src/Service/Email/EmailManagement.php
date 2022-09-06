@@ -11,6 +11,8 @@ class EmailManagement implements EmailManagementInterface
 
     protected $bus;
 
+    private string $eventClassName;
+
     public function __construct(MessageBusInterface $bus)
     {
         $this->reset();
@@ -88,8 +90,14 @@ class EmailManagement implements EmailManagementInterface
         return $this;
     }
 
+    public function eventEmailClass(string $eventClassName): self
+    {
+        $this->eventClassName = $eventClassName;
+        return $this;
+    }
+
     public function send()
     {
-        $this->bus->dispatch(new SendEmailMessage($this->parameters));
+        $this->bus->dispatch(new $this->eventClassName($this->parameters));
     }
 }
