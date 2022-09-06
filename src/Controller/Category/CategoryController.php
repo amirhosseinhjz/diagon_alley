@@ -2,9 +2,7 @@
 
 namespace App\Controller\Category;
 
-use App\Entity\Category\Category;
 use App\Service\Category\CategoryManager;
-use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,24 +28,24 @@ class CategoryController extends AbstractController
             $categoryArray = $this->categoryManager->normalizeArray($requestBody);
             $category = $this->categoryManager->createEntityFromArray($categoryArray);
             if (array_key_exists('error', $category)) return $this->json(['message' => $category['error']], 400);
-            $json = $this->categoryManager->serialize($category,["category_basic"]);
+            $json = $this->categoryManager->serialize($category, ["category_basic"]);
             return $this->json(["category" => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
     }
 
-     //TODO: admin auth
+    //TODO: admin auth
     #[Route('/update', name: 'update', methods: ['PATCH'])]
-    public function update(Request $req, ManagerRegistry $doctrine): Response
+    public function update(Request $req): Response
     {
         try {
             $body = $this->categoryManager->getRequestBody($req);
-            $category = $doctrine->getRepository(Category::class)->findOneById($body['id']);
+            $category = $this->categoryManager->findById($body['id']);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $updatedCategory = $this->categoryManager->updateEntity($category, $body['updates']);
             if (array_key_exists('error', $updatedCategory)) return $this->json(['message' => $updatedCategory['error']], 400);
-            $json = $this->categoryManager->serialize($category,["category_basic"]);
+            $json = $this->categoryManager->serialize($category, ["category_basic"]);
             return $this->json(['category' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -56,12 +54,12 @@ class CategoryController extends AbstractController
 
     //TODO: admin auth
     #[Route('/delete', name: 'delete', methods: ['DELETE'])]
-    public function delete(Request $req, ManagerRegistry $doctrine): Response
+    public function delete(Request $req): Response
     {
         try {
             $body = $this->categoryManager->getRequestBody($req);
-            $category = $doctrine->getRepository(Category::class)->findOneById($body['id']);
-            if (!$category) return $this->json(['message' => "category not found"], 400);
+            $category = $this->categoryManager->findById($body['id']);
+            if (!$category) return $this->json(['message' => 'category not found'], 400);
             $message = $this->categoryManager->removeUnused($category);
             if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
@@ -71,10 +69,10 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/main-categories', name: 'main_categories', methods: ['GET'])]
-    public function getMainCategories(ManagerRegistry $doctrine): Response
+    public function getMainCategories(): Response
     {
         try {
-            $mainCategories = $doctrine->getRepository(Category::class)->findMainCategories();
+            $mainCategories = $this->categoryManager->findMainCategories();
             $json = $this->categoryManager->serialize($mainCategories, ['category_basic']);
             return $this->json(["mainCategories" => $json]);
         } catch (Exception $exception) {
@@ -97,11 +95,11 @@ class CategoryController extends AbstractController
 
     //TODO: admin auth
     #[Route('/add-feature', name: 'add_feature', methods: ['PATCH'])]
-    public function addFeature(Request $req, ManagerRegistry $doctrine): Response
+    public function addFeature(Request $req): Response
     {
         try {
             $body = $this->categoryManager->getRequestBody($req);
-            $category = $doctrine->getRepository(Category::class)->findOneById($body['id']);
+            $category = $this->categoryManager->findById($body['id']);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $message = $this->categoryManager->addFeatures($category, $body['features']);
             if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
@@ -113,11 +111,11 @@ class CategoryController extends AbstractController
 
     //TODO: admin auth
     #[Route('/remove-feature', name: 'remove_feature', methods: ['PATCH'])]
-    public function removeFeature(Request $req, ManagerRegistry $doctrine): Response
+    public function removeFeature(Request $req): Response
     {
         try {
             $body = $this->categoryManager->getRequestBody($req);
-            $category = $doctrine->getRepository(Category::class)->findOneById($body['id']);
+            $category = $this->categoryManager->findById($body['id']);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $message = $this->categoryManager->removeFeatures($category, $body['features']);
             if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
@@ -128,10 +126,10 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/{id}', name: 'get_category', methods: ['GET'])]
-    public function getCategory(ManagerRegistry $doctrine, int $id): Response
+    public function getCategory(int $id): Response
     {
         try {
-            $category = $doctrine->getRepository(Category::class)->findOneById($id);
+            $category = $this->categoryManager->findById($id);
             $json = $this->categoryManager->serialize($category, ['category_basic', 'category_children', 'category_parent']);
             return $this->json(["category" => $json]);
         } catch (Exception $exception) {
