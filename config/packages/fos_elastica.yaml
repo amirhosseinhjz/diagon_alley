@@ -1,0 +1,18 @@
+# Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
+fos_elastica:
+  serializer: ~
+  clients:
+    default: { url: '%env(ELASTICSEARCH_URL)%' }
+  indexes:
+    product:
+      serializer:
+        groups: [elastica]
+    category:
+      serializer:
+        groups: [elastica]
+    brand:
+      serializer:
+        groups: [elastica]
+    seller:
+      serializer:
+        groups: [elastica]
