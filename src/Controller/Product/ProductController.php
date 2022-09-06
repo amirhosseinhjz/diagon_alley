@@ -2,9 +2,7 @@
 
 namespace App\Controller\Product;
 
-use App\Entity\Product\Product;
 use App\Service\Product\ProductManager;
-use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,11 +37,11 @@ class ProductController extends AbstractController
 
     //TODO: auth
     #[Route('/update', name: 'update', methods: ['PATCH'])]
-    public function update(Request $req, ManagerRegistry $doctrine): Response
+    public function update(Request $req): Response
     {
         try {
             $body = $this->productManager->getRequestBody($req);
-            $product = $doctrine->getRepository(Product::class)->findOneById($body['id']);
+            $product = $this->productManager->findById($body['id']);
             if (!$product) return $this->json(['message' => 'category not found'], 400);
             $updatedProduct = $this->productManager->updateEntity($product, $body['updates']);
             if (array_key_exists('error', $updatedProduct)) return $this->json(['message' => $updatedProduct['error']], 400);
@@ -69,11 +67,11 @@ class ProductController extends AbstractController
     }
 
     #[Route('/{id}', name: 'get_one_product', methods: ['GET'])]
-    public function getOneProduct(ManagerRegistry $doctrine, int $id ): Response
+    public function getOneProduct(int $id): Response
     {
         try {
             //TODO update view count find best solution
-            $product = $doctrine->getRepository(Product::class)->findOneByName($id);
+            $product = $this->productManager->findById($id);
             if (!$product) return $this->json(['message' => 'product not found']);
             $json = $this->productManager->serialize($product, ['product_basic']);
             return $this->json(['product' => $json]);
