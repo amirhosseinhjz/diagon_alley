@@ -2,16 +2,23 @@
 
 namespace App\Entity\Order;
 
+use App\Entity\Address\Address;
 use App\Entity\Payment\Payment;
 use App\Entity\User\Customer;
 use App\Repository\OrderRepository\PurchaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\Integer;
 
 #[ORM\Entity(repositoryClass: PurchaseRepository::class)]
 class Purchase
 {
+
+    public const STATUS_PENDING = 0;
+    public const STATUS_PAID = 1;
+    public const STATUS_SHIPPED = 2;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -36,6 +43,12 @@ class Purchase
 
     #[ORM\Column]
     private ?int $totalPrice = null;
+
+    #[ORM\ManyToOne]
+    private ?Address $address = null;
+
+    #[ORM\Column]
+    private ?int $status = null;
 
     public function __construct()
     {
@@ -141,5 +154,29 @@ class Purchase
     public function setCreatedAtValue()
     {
         $this->setCreatedAt(new \DateTimeImmutable());
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?Address $address): self
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
     }
 }
