@@ -2,9 +2,12 @@
 
 namespace App\Controller\Authentication;
 
+use App\CacheRepository\UserRepository\CacheSellerRepository;
 use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Entity\User\Seller;
 use App\Interface\Authentication\JWTManagementInterface;
+use App\Interface\Cache\CacheInterface;
+use App\Repository\UserRepository\SellerRepository;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -62,7 +65,7 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/user/login', name: 'app_user_login',methods: ['POST'])]
-    public function default(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
+    public function login(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
     {
         try{
             (new LoginDTO($request->toArray(),$validator))->doValidate();

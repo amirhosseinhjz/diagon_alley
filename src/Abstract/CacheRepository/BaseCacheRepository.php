@@ -5,7 +5,7 @@ namespace App\Abstract\CacheRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Interface\Cache\CacheInterface;
 
-class BaseCacheRepository
+abstract class BaseCacheRepository
 {
     private ServiceEntityRepository $repository;
     private CacheInterface $cache;
