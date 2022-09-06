@@ -22,7 +22,7 @@ services:
 
   App\Service\UserService\UserService:
       public: true
-#        synthetic: true
+  #      synthetic: true
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
   
@@ -39,5 +39,10 @@ services:
   App\Interface\Email\EmailManagementInterface: '@app.email.management'
 
   app.cart.service:
-      class: App\Service\CartService\CartService
+
+    class: App\Service\CartService\CartService
   App\Service\CartService\CartServiceInterface: '@app.cart.service'
+  
+  app.saman.service:
+    class: App\Service\Payment\SamanPortalService
+  App\Interface\Payment\BankPortalInterface: '@app.saman.service'

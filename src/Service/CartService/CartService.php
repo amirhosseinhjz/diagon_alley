@@ -47,12 +47,12 @@ class CartService implements CartServiceInterface
         try{
             $cartRepository = $this->entityManager->getRepository(Cart::class);    #ToDo: avoid repeating   
             
-            $cart = $cartRepository->findOneBy(['user_id'=> $userId, 'status'=>'init']); #check: is this a cart? should this be here?just init?
+            $cart = $cartRepository->findOneBy(['user_id'=> $userId, 'status'=>'INIT']); #check: is this a cart? should this be here?just init?
             #todo: validate user id, check if the user is logged in
             if($cart==null && $create){  #ToDo: check
                 $cart = new Cart();
                 $cart->setUserId($userId);
-                $cart->setStatus('init');
+                $cart->setStatus('INIT');
                 $this->entityManager->persist($cart);
                 $this->entityManager->flush();
             }
@@ -67,7 +67,7 @@ class CartService implements CartServiceInterface
     {
         $cartRepository = $this->entityManager->getRepository(Cart::class); 
         
-        $cart = $cartRepository->findOneBy(['id'=> $cartId, 'status'=>'init']);
+        $cart = $cartRepository->findOneBy(['id'=> $cartId, 'status'=>'INIT']);
 
         return $cart;   
     }
@@ -114,8 +114,7 @@ class CartService implements CartServiceInterface
                 $cart->setFinalizedAt(new \DateTime("now")); 
                 #ToDo
             }
-
-            $this->entityManager.flush();
+            $this->entityManager->flush();
 
         } catch(Exception $exception){
             return ['error' => $exception->getMessage()];

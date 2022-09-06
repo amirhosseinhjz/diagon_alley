@@ -89,13 +89,24 @@ class FeatureControllerTest extends WebTestCase
         //Valid Id
         $client->request(
             'GET',
+            self::ROUTE . 'read/3'
+        );
+
+        $response = $client->getResponse();
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Color2",$data['label']);
+
+        //Valid Id but deleted Feature
+        $client->request(
+            'GET',
             self::ROUTE . 'read/1'
         );
 
         $response = $client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals(false, $data['status']);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Feature not found", $data);
+        $this->assertEquals(400, $response->getStatusCode());
 
         //Invalid Id
         $client->request(

@@ -51,6 +51,6 @@ class SamanPortalService extends BankPortalService
         $payment->setCode($result['TraceNo']);
         $repository->flush();
 
-        return [$payment->getCart()->getId(), $result["State"]];
+        return ["Id"=>$payment->getCart()->getId(), "Status"=>$result["State"]];
     }
 }
