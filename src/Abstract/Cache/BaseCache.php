@@ -17,8 +17,6 @@ abstract class BaseCache
         $this->namePrefix = $namePrefix;
         $this->cache = $this->getAdapter();
         $this->expNull = $_ENV['NULL_CACHE_TTL'];
-        //$this->expNull = "env('NULL_CACHE_TTL')"; --> TODO NOTICE (AH)
-        //dd($this->expNull); --> TODO
     }
 
     private static function getAdapter()
