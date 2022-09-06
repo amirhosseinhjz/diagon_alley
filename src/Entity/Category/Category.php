@@ -26,7 +26,7 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: false)]
-    #[Groups(['category_basic'])]
+    #[Groups(['category_basic', 'elastica'])]
     #[Assert\NotBlank]
     private ?string $name = null;
 

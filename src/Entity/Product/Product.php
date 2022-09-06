@@ -26,17 +26,17 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['product_basic'])]
+    #[Groups(['product_basic', 'elastica'])]
     #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(length: 511, nullable: true)]
-    #[Groups(['product_basic'])]
+    #[Groups(['product_basic', 'elastica'])]
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['product_category'])]
+    #[Groups(['product_category', 'elastica'])]
     private ?Category $category = null;
 
     #[ORM\Column]
@@ -49,7 +49,7 @@ class Product
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups('product_basic')]
+    #[Groups('product_basic', 'elastica')]
     private int $viewCount = 0;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: Variant::class)]
@@ -58,7 +58,7 @@ class Product
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['product_brand'])]
+    #[Groups(['product_brand', 'elastica'])]
     private ?Brand $brand = null;
 
     #[ORM\ManyToMany(targetEntity: FeatureValue::class, mappedBy: 'products')]

@@ -1,11 +1,11 @@
-version: "3.5"
+version: '3.5'
 
 services:
   database:
     image: 'mysql:8.0'
     container_name: diagonalley_mysql
     cap_add:
-        - SYS_NICE
+      - SYS_NICE
     ports:
       - 9306:3306
     environment:
@@ -14,8 +14,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker/database/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:cached
-#      - ./storage/volumes/data/database:/var/lib/mysql
-#      - ./storage/volumes/logs/database:/var/log/mysql
+      #      - ./storage/volumes/data/database:/var/lib/mysql
+      #      - ./storage/volumes/logs/database:/var/log/mysql
       - db-data:/var/lib/mysql
       - db-data:/var/log/mysql
 
@@ -24,7 +24,7 @@ services:
     container_name: diagonalley_redis
     ports:
       - 9379:6379
-    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    command: ['redis-server', '/usr/local/etc/redis/redis.conf']
     restart: unless-stopped
     volumes:
       - ./docker/cache/redis.conf:/usr/local/etc/redis/redis.conf:cached
@@ -51,7 +51,7 @@ services:
       context: .
       dockerfile: docker/worker/Dockerfile
     working_dir: /etc/supervisor
-    command: ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
+    command: ['/usr/bin/supervisord', '-n', '-c', '/etc/supervisord.conf']
     restart: unless-stopped
     volumes:
       - ./docker/worker/custom_php.ini:/usr/local/etc/php/conf.d/custom_php.ini:cached
@@ -74,5 +74,43 @@ services:
       - ./:/var/www/html
     depends_on:
       - diagonalley
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
+    container_name: diagonalley_elasticsearch
+    restart: unless-stopped
+    environment:
+      - 'discovery.type=single-node'
+      - 'bootstrap.memory_lock=true'
+      - 'ES_JAVA_OPTS=-Xms1G -Xmx1G'
+      - 'xpack.security.enabled=false'
+      - 'http.cors.enabled=true'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - diagonalley_elasticsearch-data-volume:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  kibana:
+    container_name: diagonalley_kibana
+    image: docker.elastic.co/kibana/kibana:8.4.1
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://diagonalley_elasticsearch:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+
 volumes:
+  diagonalley_elasticsearch-data-volume:
+    driver: local
   db-data:
