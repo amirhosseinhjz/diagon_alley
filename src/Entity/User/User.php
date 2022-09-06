@@ -2,7 +2,10 @@
 
 namespace App\Entity\User;
 
+use App\Entity\Address\Address;
 use App\Repository\UserRepository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -12,8 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
-#[ORM\DiscriminatorColumn(name: "type", type: "string" )]
-#[ORM\DiscriminatorMap(['seller'=>'Seller','admin'=>'Admin','customer'=>'Customer'])]
+#[ORM\DiscriminatorColumn(name: "type", type: "string")]
+#[ORM\DiscriminatorMap(['seller' => 'Seller', 'admin' => 'Admin', 'customer' => 'Customer'])]
 #[UniqueEntity(fields: ["email"], message: "This email is already in use")]
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -31,11 +34,11 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lastName = null;
 
-    #[Assert\Email(message:"The email '{{ value }}' is not a valid email.")]
+    #[Assert\Email(message: "The email '{{ value }}' is not a valid email.")]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Assert\Regex(pattern: '/^(\+989|09)\d{9}$/', message:"The number '{{ value }}' is not a valid PhoneNumber.")]
+    #[Assert\Regex(pattern: '/^(\+989|09)\d{9}$/', message: "The number '{{ value }}' is not a valid PhoneNumber.")]
     #[ORM\Column(length: 13, unique: true)]
     private ?string $phoneNumber = null;
 
@@ -50,6 +53,14 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private bool $isActive = true;
+
+    #[ORM\OneToMany(mappedBy: 'userId', targetEntity: Address::class)]
+    private Collection $addresses;
+
+    public function __construct()
+    {
+        $this->addresses = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -148,6 +159,35 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Address>
+     */
+    public function getAddresses(): Collection
+    {
+        return $this->addresses;
+    }
+
+    public function addAddress(Address $address): self
+    {
+        if (!$this->addresses->contains($address)) {
+            $this->addresses->add($address);
+            $address->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAddress(Address $address): self
+    {
+        if ($this->addresses->removeElement($address)) {
+            if ($address->getUserId() === $this) {
+                $address->setIsActive(false);
+            }
+        }
 
         return $this;
     }
