@@ -3,6 +3,7 @@
 namespace App\Service\UserService;
 
 
+use App\Entity\Purchase\PurchaseItem;
 use App\Entity\User;
 use App\DTO\UserDTOs;
 use Doctrine\ORM\EntityManagerInterface;
@@ -250,5 +251,22 @@ class UserService
         }
         $user->setIsActive(false);
         $this->em->flush();
+    }
+
+    public function getSellerIdsByPurchaseId($purchaseId)
+    {
+        return $this->em->getRepository(User\User::class)->getSellerIds($purchaseId);
+    }
+
+    //TODO : take this method to PurchaseManagement service
+    public function getPurchaseItemsBySellerIdAndPurchaseId(array $criteria)
+    {
+        return $this->em->getRepository(PurchaseItem::class)->getpurchaseItems($criteria);
+    }
+
+    //TODO : take this method to PurchaseManagement service
+    public function getPurchaseItemById($id)
+    {
+        return $this->em->getRepository(PurchaseItem::class)->findOneBy(['id'=>$id]);
     }
 }
