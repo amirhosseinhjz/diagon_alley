@@ -22,7 +22,7 @@ class AuthenticationFixture extends Fixture implements FixtureGroupInterface
         $seller = new Seller();
         $seller->setName('4rter');
         $seller->setEmail('ee44@gmail.com');
-        $seller->setPassword($this->passHasher->hashPassword($seller,'123456789'));
+        $seller->setPassword($this->passHasher->hashPassword($seller,'123456789*zZ'));
         $seller->setPhoneNumber('09128464485');
         $seller->setLastname('eeeccc');
         $seller->setShopSlug('hvfdoe');
@@ -33,7 +33,7 @@ class AuthenticationFixture extends Fixture implements FixtureGroupInterface
         $customer->setName('lili');
         $customer->setLastname('hdhhd');
         $customer->setEmail('eee@gmail.com');
-        $customer->setPassword($this->passHasher->hashPassword($seller,'123456789'));
+        $customer->setPassword($this->passHasher->hashPassword($customer,'123456789*zZ'));
         $customer->setPhoneNumber('09128468486');
         $customer->setRoles(['ROLE_CUSTOMER']);
         $manager->persist($customer);

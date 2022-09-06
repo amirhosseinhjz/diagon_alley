@@ -4,7 +4,9 @@ use App\Service\UserService\UserService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 
-
+/**
+ * @group User
+ */
 class UserTest extends KernelTestCase
 {
     private UserService $userService;
@@ -19,7 +21,7 @@ class UserTest extends KernelTestCase
     {
         $userData = ['roles' => ['ROLE_SELLER'],
             'phoneNumber' => '+989333046603',
-            'password' => '123456',
+            'password' => '123456DFFd@',
             'shopSlug' => 'test',
             'email' => 'seller@user.com',
             'name' => 'seller_name',
