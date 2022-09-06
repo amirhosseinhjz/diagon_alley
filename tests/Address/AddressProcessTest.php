@@ -31,6 +31,7 @@ class AddressProcessTest extends BaseJsonApiTestCase
         $validator = $this->getValidator();
         $manager = $this->getManager();
 
+        //First,load fixtures
         $city = (new AddressService($manager,$validator))->makeCityFromArray(["name"=>"tehran","province"=>"Tehran"]);
         
         self::assertInstanceOf(Address\AddressProvince::class, $city);
@@ -49,6 +50,7 @@ class AddressProcessTest extends BaseJsonApiTestCase
             "lng" => 64,
         ];
         
+        //First,load fixtures
         $province = (new AddressService($manager,$validator))->makeAddressFromArray($array);
         
         self::assertInstanceOf(Address\AddressProvince::class, $province);

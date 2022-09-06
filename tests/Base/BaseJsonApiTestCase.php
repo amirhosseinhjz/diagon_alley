@@ -10,6 +10,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class BaseJsonApiTestCase extends JsonApiTestCase
 {
+    protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789'];
+
     /**
      * @return \PHPUnit\Framework\MockObject\MockObject|EventDispatcherInterface
      */
