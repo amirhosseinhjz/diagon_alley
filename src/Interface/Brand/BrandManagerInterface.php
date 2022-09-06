@@ -20,4 +20,6 @@ interface BrandManagerInterface
     public function removeUnused(Brand $brand);
 
     public function findById(int $id);
+
+    public function search(string $query);
 }
