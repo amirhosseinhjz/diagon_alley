@@ -34,6 +34,9 @@ class Purchase
     #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: PurchaseItem::class)]
     private Collection $purchaseItems;
 
+    #[ORM\Column]
+    private ?int $totalPrice = null;
+
     public function __construct()
     {
         $this->purchaseItems = new ArrayCollection();
@@ -120,5 +123,23 @@ class Purchase
         }
 
         return $this;
+    }
+
+    public function getTotalPrice(): ?int
+    {
+        return $this->totalPrice;
+    }
+
+    public function setTotalPrice(int $totalPrice): self
+    {
+        $this->totalPrice = $totalPrice;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue()
+    {
+        $this->setCreatedAt(new \DateTimeImmutable());
     }
 }

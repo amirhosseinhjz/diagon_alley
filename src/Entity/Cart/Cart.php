@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Entity\Cart;
-
-use App\Entity\Payment\Payment;
 use Exception;
 use App\Repository\CartRepository\CartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -13,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 class Cart
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,6 +18,7 @@ class Cart
 
     #[ORM\Column]
     private ?int $User_Id = null;
+    #ToDo: make into a doctrine relation
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $finalizedAt = null;
@@ -31,13 +29,9 @@ class Cart
     #[ORM\Column(length: 8)]
     private ?string $status = null;
 
-    #[ORM\OneToMany(mappedBy: 'cart', targetEntity: Payment::class)]
-    private Collection $payments;
-
     public function __construct()
     {
         $this->items = new ArrayCollection();
-        $this->payments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -82,9 +76,7 @@ class Cart
         if (!$this->items->contains($item)) {
             $this->items->add($item);
             $item->setCart($this);
-        } else { #todo: check the stocks in the manager and increase the count
         }
-
         return $this;
     }
 
@@ -107,43 +99,18 @@ class Cart
 
     public function setStatus(string $status): self
     {
-        if ($status === "init" || $status == "expired" || $status === "success") {
+        if($status === "init" || $status =="expired" || $status ==="success")
+        {
             $this->status = $status;
-        } elseif ($status === "pending") {
+        }
+        elseif($status === "pending")
+        {
             $this->status = $status;
             #ToDo: automatic expiration (not here)
-        } else {
+        }
+        else
+        {
             throw new Exception('Invalid value for status');
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Payment>
-     */
-    public function getPayments(): Collection
-    {
-        return $this->payments;
-    }
-
-    public function addPayment(Payment $payment): self
-    {
-        if (!$this->payments->contains($payment)) {
-            $this->payments->add($payment);
-            $payment->setCart($this);
-        }
-
-        return $this;
-    }
-
-    public function removePayment(Payment $payment): self
-    {
-        if ($this->payments->removeElement($payment)) {
-            // set the owning side to null (unless already changed)
-            if ($payment->getCart() === $this) {
-                $payment->setCart(null);
-            }
         }
 
         return $this;

@@ -2,7 +2,7 @@
 
 namespace App\Entity\Cart;
 
-use App\Repository\CartItemRepository;
+use App\Repository\CartRepository\CartItemRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -15,11 +15,8 @@ class CartItem
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $Cart_Id = null;
-
-    #[ORM\Column]
     private ?int $varientId = null;
-
+    #ToDo: turn into a relation
     /*#[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $expiry_date = null;*/
 
@@ -30,11 +27,13 @@ class CartItem
     #[ORM\JoinColumn(nullable: false)]
     private ?Cart $Cart = null;
 
+    #ToDo get from the varient
     #[ORM\Column]
     private ?int $price = null;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;
+    #todo: remove
 
     public function getId(): ?int
     {

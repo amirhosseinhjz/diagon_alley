@@ -2,7 +2,7 @@
 
 namespace App\Factory\Payment;
 
-use App\Service\CartService\CartServiceInterface;
+use App\Interface\Cart\CartServiceInterface;
 final class PortalFactory
 {
     //TODO: change factory method
