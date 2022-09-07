@@ -2,7 +2,7 @@
 
 namespace App\Controller\Brand;
 
-use App\Service\Brand\BrandManager;
+use App\Interface\Brand\BrandManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,9 +13,9 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 #[Route('/brand', name: 'app_brand_')]
 class BrandController extends AbstractController
 {
-    protected BrandManager $brandManager;
+    protected BrandManagerInterface $brandManager;
 
-    public function __construct(BrandManager $brandManager)
+    public function __construct(BrandManagerInterface $brandManager)
     {
         $this->brandManager = $brandManager;
     }
