@@ -34,6 +34,8 @@ class ProductManager implements ProductManagerInterface
 
     public function serialize($data, array $groups): string
     {
+        //TODO throw exception code
+        //TODO serialization on this->json
         return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
 
@@ -80,8 +82,7 @@ class ProductManager implements ProductManagerInterface
                 if (in_array($key, self::validUpdates) == false) throw new Exception('invalid operation');
                 $product->setWithKeyValue($key, $value);
             }
-            $this->em->persist($product);
-            $this->em->flush();
+            $this->em->getRepository(Product::class)->add($product, true);
             return ['entity' => $product];
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
@@ -117,8 +118,7 @@ class ProductManager implements ProductManagerInterface
                 if (in_array($featureValueId, $validFeatures[$featureKeyId]) == false) throw new Exception('invalid feature value found');
                 $product->addFeatureValue($featureValue);
             }
-            $this->em->persist($product);
-            $this->em->flush();
+            $this->em->getRepository(Product::class)->add($product, true);
             return ['message' => 'features added'];
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
@@ -149,8 +149,7 @@ class ProductManager implements ProductManagerInterface
                 $itemValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => $featureValue]);
                 $product->removeFeatureValue($itemValue);
             }
-            $this->em->persist($product);
-            $this->em->flush();
+            $this->em->getRepository(Product::class)->add($product, true);
             return ['message' => 'features removed'];
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
@@ -166,8 +165,7 @@ class ProductManager implements ProductManagerInterface
                 $this->em->persist($variant);
             }
             $product->setActive($active);
-            $this->em->persist($product);
-            $this->em->flush();
+            $this->em->getRepository(Product::class)->add($product, true);
             return ['message' => 'product status changed'];
         } catch (Exception $exception) {
             return ['error' => $exception->getMessage()];
