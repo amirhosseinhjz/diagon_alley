@@ -7,6 +7,7 @@ use App\Entity\Variant\Variant;
 use App\Repository\VariantRepository\VariantRepository;
 use App\Interface\Variant\VariantManagementInterface;
 use App\Entity\User\Seller;
+use App\Service\Product\ProductManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -17,12 +18,14 @@ class VariantManagement implements VariantManagementInterface
     private $em;
     private $serializer;
     private $varientRepository;
+    private $productManager;
 
-    public function __construct(EntityManagerInterface $em , VariantRepository $variantRepository )
+    public function __construct(EntityManagerInterface $em , VariantRepository $variantRepository , ProductManager $productManager)
     {
         $this->em = $em;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
         $this->varientRepository = $variantRepository;
+        $this->productManager = $productManager;
     }
 
     public function arrayToDTO(array $array)
@@ -41,6 +44,7 @@ class VariantManagement implements VariantManagementInterface
         $variant->setSoldNumber(0);
         $variant->setSeller($seller);
         $variant->setType($dto->type);
+        $variant->setProduct($this->productManager->findOneById($dto->productId));
         $this->em->persist($variant);
         if ($flush) {
             $this->em->flush();
