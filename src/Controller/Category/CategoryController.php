@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('/category', name: 'app_category_')]
 class CategoryController extends AbstractController
@@ -28,8 +29,7 @@ class CategoryController extends AbstractController
             $categoryArray = $this->categoryManager->normalizeArray($requestBody);
             $category = $this->categoryManager->createEntityFromArray($categoryArray);
             if (array_key_exists('error', $category)) return $this->json(['message' => $category['error']], 400);
-            $json = $this->categoryManager->serialize($category, ["category_basic"]);
-            return $this->json(["category" => $json]);
+            return $this->json(["category" => $category], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -45,8 +45,7 @@ class CategoryController extends AbstractController
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $updatedCategory = $this->categoryManager->updateEntity($category, $body['updates']);
             if (array_key_exists('error', $updatedCategory)) return $this->json(['message' => $updatedCategory['error']], 400);
-            $json = $this->categoryManager->serialize($category, ["category_basic"]);
-            return $this->json(['category' => $json]);
+            return $this->json(['category' => $updatedCategory], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -73,8 +72,7 @@ class CategoryController extends AbstractController
     {
         try {
             $mainCategories = $this->categoryManager->findMainCategories();
-            $json = $this->categoryManager->serialize($mainCategories, ['category_basic']);
-            return $this->json(["mainCategories" => $json]);
+            return $this->json(["mainCategories" => $mainCategories], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -131,8 +129,7 @@ class CategoryController extends AbstractController
     {
         try {
             $category = $this->categoryManager->findById($id);
-            $json = $this->categoryManager->serialize($category, ['category_basic', 'category_children', 'category_parent']);
-            return $this->json(["category" => $json]);
+            return $this->json(["category" => $category], context: [AbstractNormalizer::GROUPS => ['category_basic', 'category_children', 'category_parent']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -143,8 +140,7 @@ class CategoryController extends AbstractController
     {
         try {
             $parents = $this->categoryManager->findParentsById($id);
-            $json = $this->categoryManager->serialize($parents, ['category_basic']);
-            return $this->json(['parents' => $json]);
+            return $this->json(['parents' => $parents], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }

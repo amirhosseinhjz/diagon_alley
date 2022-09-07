@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('/product', name: 'app_product_')]
 class ProductController extends AbstractController
@@ -28,8 +29,7 @@ class ProductController extends AbstractController
             $productArray = $this->productManager->normalizeArray($requestBody);
             $product = $this->productManager->createEntityFromArray($productArray);
             if (array_key_exists('error', $product)) return $this->json(['message' => $product['error']], 400);
-            $json = $this->productManager->serialize($product, ['product_basic']);
-            return $this->json(['product' => $json]);
+            return $this->json(['product' => $product], context: [AbstractNormalizer::GROUPS => ['product_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], $exception->getCode());
         }
@@ -45,8 +45,7 @@ class ProductController extends AbstractController
             if (!$product) return $this->json(['message' => 'category not found'], 400);
             $updatedProduct = $this->productManager->updateEntity($product, $body['updates']);
             if (array_key_exists('error', $updatedProduct)) return $this->json(['message' => $updatedProduct['error']], 400);
-            $json = $this->productManager->serialize($updatedProduct, ['product_basic']);
-            return $this->json(['product' => $json]);
+            return $this->json(['product' => $updatedProduct], context: [AbstractNormalizer::GROUPS => ['product_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -139,8 +138,7 @@ class ProductController extends AbstractController
             //TODO update view count find best solution
             $product = $this->productManager->findById($id);
             if (!$product) return $this->json(['message' => 'product not found']);
-            $json = $this->productManager->serialize($product, ['product_basic']);
-            return $this->json(['product' => $json]);
+            return $this->json(['product' => $product], context: [AbstractNormalizer::GROUPS => ['product_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
