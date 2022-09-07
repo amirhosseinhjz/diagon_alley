@@ -66,20 +66,6 @@ class ProductController extends AbstractController
         }
     }
 
-    #[Route('/{id}', name: 'get_one_product', methods: ['GET'])]
-    public function getOneProduct(int $id): Response
-    {
-        try {
-            //TODO update view count find best solution
-            $product = $this->productManager->findById($id);
-            if (!$product) return $this->json(['message' => 'product not found']);
-            $json = $this->productManager->serialize($product, ['product_basic']);
-            return $this->json(['product' => $json]);
-        } catch (Exception $exception) {
-            return $this->json(['message' => $exception->getMessage()], 500);
-        }
-    }
-
     //TODO: auth
     #[Route('/add-feature', name: 'add_feature', methods: ['PATCH'])]
     public function addFeature(Request $req): Response
@@ -141,6 +127,20 @@ class ProductController extends AbstractController
             $body = $this->productManager->getRequestBody($req);
             $products = $this->productManager->findCategoryProducts($body['options']);
             return $this->json(['products' => $products]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
+
+    #[Route('/{id}', name: 'get_one_product', methods: ['GET'])]
+    public function getOneProduct(int $id): Response
+    {
+        try {
+            //TODO update view count find best solution
+            $product = $this->productManager->findById($id);
+            if (!$product) return $this->json(['message' => 'product not found']);
+            $json = $this->productManager->serialize($product, ['product_basic']);
+            return $this->json(['product' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }

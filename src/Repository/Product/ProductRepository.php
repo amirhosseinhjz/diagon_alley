@@ -3,8 +3,6 @@
 namespace App\Repository\Product;
 
 use App\Entity\Brand\Brand;
-use App\Entity\Feature\FeatureValue;
-use App\Entity\Variant\Variant;
 use App\Entity\Product\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;

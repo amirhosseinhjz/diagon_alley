@@ -157,8 +157,8 @@ class CategoryManager implements CategoryManagerInterface
     {
         try {
             $featureRepo = $this->em->getRepository(Feature::class);
-            foreach ($features['features'] as $featureId) {
-                $feature = $featureRepo->findOneBy(['id' => $featureId]);
+            foreach ($features as $featureId) {
+                $feature = $featureRepo->readFeatureById($featureId);
                 if (!$feature) throw new Exception('invalid feature');
                 $category->addFeature($feature);
             }
@@ -174,7 +174,7 @@ class CategoryManager implements CategoryManagerInterface
     {
         try {
             $featureRepo = $this->em->getRepository(Feature::class);
-            foreach ($features['features'] as $featureId) {
+            foreach ($features as $featureId) {
                 $feature = $featureRepo->findOneBy(['id' => $featureId]);
                 if (!$feature) throw new Exception('invalid feature');
                 $category->removeFeature($feature);
