@@ -97,6 +97,7 @@ class CategoryController extends AbstractController
     #[Route('/add-feature', name: 'add_feature', methods: ['PATCH'])]
     public function addFeature(Request $req): Response
     {
+        //TODO features could only be added to leaf categories
         try {
             $body = $this->categoryManager->getRequestBody($req);
             $category = $this->categoryManager->findById($body['id']);
