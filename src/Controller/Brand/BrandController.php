@@ -28,8 +28,7 @@ class BrandController extends AbstractController
             $requestBody = $this->brandManager->getRequestBody($req);
             $brandArray = $this->brandManager->normalizeArray($requestBody);
             $brand = $this->brandManager->createEntityFromArray($brandArray);
-            if (array_key_exists('error', $brand)) return $this->json(['message' => $brand['error']], 400);
-            return $this->json(["brand" => $brand['entity']]);
+            return $this->json(["brand" => $brand]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -60,7 +59,6 @@ class BrandController extends AbstractController
             $brand = $this->brandManager->findById($body['id']);
             if (!$brand) return $this->json(['message' => 'brand not found'], 400);
             $updatedBrand = $this->brandManager->updateEntity($brand, $body['updates']);
-            if (array_key_exists('error', $updatedBrand)) return $this->json(['message' => $updatedBrand['error']], 400);
             return $this->json(['brand' => $updatedBrand], context: [AbstractNormalizer::GROUPS => ['brand_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);

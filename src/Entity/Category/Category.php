@@ -8,6 +8,7 @@ use App\Repository\Category\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -95,9 +96,9 @@ class Category
         return $this->parent;
     }
 
-    public function setParent(?self $parent): ?self
+    public function setParent(?self $parent): self
     {
-        if ($parent && $parent->isLeaf()) return null;
+        if ($parent && $parent->isLeaf()) throw new Exception('leaf categories cant have children');
         $this->parent = $parent;
 
         return $this;
@@ -204,11 +205,11 @@ class Category
         return $this->leaf;
     }
 
-    public function setLeaf(bool $leaf): ?self
+    public function setLeaf(bool $leaf): self
     {
-        if ($leaf == true && $this->parent == null) return null;
-        if ($leaf == true && $this->children->count() != 0) return null;
-        if ($leaf == false && $this->products->count() != 0) return null;
+        if ($leaf == true && $this->parent == null) throw new Exception('leaf categories must have parents');
+        if ($leaf == true && $this->children->count() != 0) throw new Exception('category has children');
+        if ($leaf == false && $this->products->count() != 0) throw new Exception('category has products');
 
         $this->leaf = $leaf;
 
@@ -220,9 +221,9 @@ class Category
         return $this->type;
     }
 
-    public function setType(?string $type): ?self
+    public function setType(?string $type): self
     {
-        if ($this->isLeaf() == false && $type == null) return null;
+        if ($this->isLeaf() == false && $type == null) throw new Exception('non leaf categories cant have type');
         $this->type = $type;
 
         return $this;

@@ -38,9 +38,8 @@ class ProductManager implements ProductManagerInterface
         return $array;
     }
 
-    public function createEntityFromArray(array $validatedArray): array
+    public function createEntityFromArray(array $validatedArray): Product
     {
-        try {
             $product = new Product();
             $product->setName($validatedArray['name']);
             $product->setDescription($validatedArray['description']);
@@ -52,15 +51,11 @@ class ProductManager implements ProductManagerInterface
             if ($category != null) $category = $this->em->getRepository(Category::class)->findOneById($validatedArray['category']);
             $product->setCategory($category);
             $this->em->getRepository(Product::class)->add($product, true);
-            return ['entity' => $product];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
+            return $product;
     }
 
-    public function updateEntity(Product $product, array $updates): array
+    public function updateEntity(Product $product, array $updates): Product
     {
-        try {
             if (array_key_exists('category', $updates) == true) {
                 $updates['category'] = $this->em->getRepository(Category::class)->findOneById($updates['category']);
             }
@@ -72,15 +67,11 @@ class ProductManager implements ProductManagerInterface
                 $product->setWithKeyValue($key, $value);
             }
             $this->em->getRepository(Product::class)->add($product, true);
-            return ['entity' => $product];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
+            return $product;
     }
 
     public function deleteById(int $id): array
     {
-        try {
             $product = $this->em->getRepository(Product::class)->findOneById($id);
             $variants = $product->getVariants();
             $variantRepo = $this->em->getRepository(Variant::class);
@@ -90,14 +81,10 @@ class ProductManager implements ProductManagerInterface
             if (count($product->getVariants()) != 0) throw new Exception('operation failed');
             $this->em->getRepository(Product::class)->remove($product, true);
             return ['message' => 'product deleted'];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
     }
 
     public function addFeature(int $id, array $features): array
     {
-        try {
             $product = $this->em->getRepository(Product::class)->findOneById($id);
             $validFeatures = self::getValidFeatureValuesByProduct($product);
             foreach ($features as $featureValueId) {
@@ -109,9 +96,6 @@ class ProductManager implements ProductManagerInterface
             }
             $this->em->getRepository(Product::class)->add($product, true);
             return ['message' => 'features added'];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
     }
 
     public function getValidFeatureValuesByProduct(Product $product): array
@@ -132,7 +116,6 @@ class ProductManager implements ProductManagerInterface
 
     public function removeFeature(int $id, array $features): array
     {
-        try {
             $product = $this->em->getRepository(Product::class)->findOneById($id);
             foreach ($features as $featureValue) {
                 $itemValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => $featureValue]);
@@ -140,14 +123,10 @@ class ProductManager implements ProductManagerInterface
             }
             $this->em->getRepository(Product::class)->add($product, true);
             return ['message' => 'features removed'];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
     }
 
     public function toggleActivity(int $id, bool $active): array
     {
-        try {
             $product = $this->em->getRepository(Product::class)->findOneById($id);
             foreach ($product->getVariants() as $variant) {
                 $variant->setStatus($active);
@@ -156,9 +135,6 @@ class ProductManager implements ProductManagerInterface
             $product->setActive($active);
             $this->em->getRepository(Product::class)->add($product, true);
             return ['message' => 'product status changed'];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
     }
 
     public function findBrandProducts(array $options): array

@@ -28,7 +28,6 @@ class ProductController extends AbstractController
             $requestBody = $this->productManager->getRequestBody($req);
             $productArray = $this->productManager->normalizeArray($requestBody);
             $product = $this->productManager->createEntityFromArray($productArray);
-            if (array_key_exists('error', $product)) return $this->json(['message' => $product['error']], 400);
             return $this->json(['product' => $product], context: [AbstractNormalizer::GROUPS => ['product_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], $exception->getCode());
@@ -44,7 +43,6 @@ class ProductController extends AbstractController
             $product = $this->productManager->findById($body['id']);
             if (!$product) return $this->json(['message' => 'category not found'], 400);
             $updatedProduct = $this->productManager->updateEntity($product, $body['updates']);
-            if (array_key_exists('error', $updatedProduct)) return $this->json(['message' => $updatedProduct['error']], 400);
             return $this->json(['product' => $updatedProduct], context: [AbstractNormalizer::GROUPS => ['product_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -58,7 +56,6 @@ class ProductController extends AbstractController
         try {
             $body = $this->productManager->getRequestBody($req);
             $message = $this->productManager->deleteById($body['id']);
-            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -72,7 +69,6 @@ class ProductController extends AbstractController
         try {
             $body = $this->productManager->getRequestBody($req);
             $message = $this->productManager->addFeature($body['id'], $body['features']);
-            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => 'feature added']);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -86,7 +82,6 @@ class ProductController extends AbstractController
         try {
             $body = $this->productManager->getRequestBody($req);
             $message = $this->productManager->removeFeature($body['id'], $body['features']);
-            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => 'feature removed']);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -100,7 +95,6 @@ class ProductController extends AbstractController
         try {
             $body = $this->productManager->getRequestBody($req);
             $message = $this->productManager->toggleActivity($body['id'], $body['active']);
-            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
