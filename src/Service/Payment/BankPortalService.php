@@ -11,9 +11,7 @@ use App\Interface\Cart\CartServiceInterface;
 abstract class BankPortalService implements BankPortalInterface
 {
     protected CartServiceInterface $cartManager;
-    private $terminalId;
-    private $userName;
-    private $password;
+    protected $terminalId;
 
     public function __construct(CartServiceInterface $cartManager)
     {
@@ -54,12 +52,10 @@ abstract class BankPortalService implements BankPortalInterface
     {
         $payment = new Payment();
 
-        //TODO: change format
-        $payment->setType($requestDto->type);
-        $payment->setPaidAmount($requestDto->paidAmount);
-        $payment->setStatus($requestDto->status);
-        $payment->setCode($requestDto->code);
-        $payment->setCart($requestDto->cart);
+        foreach ($requestDto as $key => $value) {
+            $setterName = 'set' . ucfirst($key);
+            $payment->$setterName($value);
+        }
 
         $repository->add($payment, true);
     }

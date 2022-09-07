@@ -52,6 +52,7 @@ class Cart
     public function __construct()
     {
         $this->items = new ArrayCollection();
+        $this->payments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -107,14 +108,13 @@ class Cart
 
     public function setStatus(string $status): self
     {
-        if($status === "init" || $status =="expired" || $status ==="success")
-        {
+        if ($status === "INIT" || $status == "EXPIRED" || $status === "SUCCESS") {
             $this->status = $status;
-        }
-        elseif($status === "pending")
-        {
+        } elseif ($status === "PENDING") {
             $this->status = $status;
             #ToDo: automatic expiration (not here)
+        } else {
+            throw new Exception('Invalid value for status');
         }
         else
         {
