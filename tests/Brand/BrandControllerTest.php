@@ -2,6 +2,7 @@
 
 namespace App\Tests\Brand;
 
+use App\DataFixtures\BrandFixtures;
 use App\Tests\Base\BaseJsonApiTestCase;
 
 /**
@@ -11,10 +12,21 @@ class BrandControllerTest extends BaseJsonApiTestCase
 {
     protected const ROUTE = "/api/brand/";
 
+    public function setUp(): void
+    {
+        $client = static::createClient();
+        $container = $client->getContainer();
+        $doctrine = $container->get('doctrine');
+        $entityManager = $doctrine->getManager();
+
+        $fixture = new BrandFixtures();
+        $fixture->load($entityManager);
+    }
+
     public function testCreateBrand()
     {
         $body = [
-            'name' => 'myName',
+            'name' => 'myBrand',
             'description' => 'my description'
         ];
         $this->client->request('POST', self::ROUTE, content: json_encode($body));
@@ -27,6 +39,7 @@ class BrandControllerTest extends BaseJsonApiTestCase
     public function testUpdateBrand()
     {
 
+        $body = [];
     }
 
     public function testDeleteBrand()
@@ -36,16 +49,21 @@ class BrandControllerTest extends BaseJsonApiTestCase
 
     public function testGetAllBrands()
     {
-
+        $this->client->request('GET', self::ROUTE);
+        $response = $this->client->getResponse();
+        self::assertResponseIsSuccessful($response->getStatusCode());
     }
 
     public function testGetOneBrand()
     {
-
+        //TODO add brandID, needs data fixtures
+        $this->client->request('GET', self::ROUTE, parameters: []);
+        $response = $this->client->getResponse();
+        self::assertResponseIsSuccessful($response->getStatusCode());
     }
 
     public function testSearchBrand()
     {
-
+        //query params
     }
 }
