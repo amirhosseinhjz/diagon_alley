@@ -7,21 +7,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 class CartItemDTO
 {
 
-    private ?int $Cart_Id = null;
+    private ?int $cartId = null;
 
-    private ?int $varientId = null;
+    private ?int $variantId = null;
 
     #[Assert\Positive]
     #[Assert\Type(type:'int')]
     private ?int $quantity = null;
 
-    #[Assert\PositiveOrZero]
-    private ?int $price = null;
+    private ?string $discountCode = null;
 
-    #[Assert\NotBlank]
-    private ?string $title = null;
-
-    #t: remove cartid
+    #todo: remove cartid
     public function getCartId(): ?int
     {
         return $this->Cart_Id;
@@ -34,14 +30,14 @@ class CartItemDTO
         return $this;
     }
 
-    public function getVarientId(): ?int
+    public function getVariantId(): ?int
     {
-        return $this->VarientId;
+        return $this->VariantId;
     }
 
-    public function setVarientId(int $VarientId): self
+    public function setVariantId(int $VariantId): self
     {
-        $this->VarientId = $VarientId;
+        $this->VariantId = $VariantId;
 
         return $this;
     }
@@ -58,27 +54,14 @@ class CartItemDTO
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getDiscountCode(): ?string
     {
-        return $this->price;
+        return $this->discountCode;
     }
 
-    public function setPrice(int $price): self
+    public function setDiscountCode(?string $discountCode): void
     {
-        $this->price = $price;
-
-        return $this;
+        $this->discountCode = $discountCode;
     }
 
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-
-        return $this;
-    }
 }

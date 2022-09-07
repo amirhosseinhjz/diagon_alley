@@ -5,6 +5,7 @@ namespace App\Service\Cart;
 use App\DTO\Cart\cartItemDTO;
 use App\Entity\Cart\Cart;
 use App\Entity\Cart\CartItem;
+use App\Entity\Variant\Variant;
 use App\Interface\Cart\CartItemServiceInterface;
 
 use App\Repository\VariantRepository\VariantRepository;
@@ -104,11 +105,10 @@ class CartItemService implements CartItemServiceInterface
         return $errorsArray;
     }
 
-    function checkStocks($itemId, $update = false) #check: flush?
+    function checkStocks($itemId, $update = false):bool #check: flush?
     {
         $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$itemId]);
-        $variant = $this->vm->readVariant($item->getVariantId(),$this->entityManager->getRepository(VariantRepository::class));
-        $stock = $variant->getQuantity();
+        $stock = $item->getVariant()->getQuantity();
         if($stock < $item->getQuantity()) { #check: !=
             if($update){
                 $item->setQuantity($stock);  #ToDo: is this the correct action here?
@@ -118,17 +118,15 @@ class CartItemService implements CartItemServiceInterface
         return true;
     }
 
-    function checkPrice($itemId ,$update = false) #check: flush?
+    function getCartItemByVariant(Cart $cart, Variant $variant): CartItem
     {
-        $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$itemId]);
-        $variant = $this->vm->readVariant($item->getVariantId(),$this->entityManager->getRepository(VariantRepository::class));
-        $newPrice = $variant->getPrice();
-        if($newPrice != $item->getPrice()) { #check: !=
-            if($update){
-                $item->setPrice($newPrice);
-            }
-            return false;
-        }
-        return true;
+        // TODO: Implement getCartItemByVariant() method.
+        return new CartItem();
+    }
+
+    function getCartItemById(int $id): CartItem
+    {
+        // TODO: Implement getCartItemById() method.
+        return new CartItem();
     }
 }

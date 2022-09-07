@@ -2,12 +2,13 @@
 
 namespace App\Entity\Cart;
 
+use App\Entity\Cart\Cart;
+use App\Entity\Variant\Variant;
 use App\Repository\Cart\CartItemRepository;
+use App\Entity\Discount;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#ToDo: get price, etc from variant
-#toDo: change varient to variant everywhere
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
 class CartItem
 {
@@ -17,41 +18,24 @@ class CartItem
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $variantId = null;
-    #ToDo: turn into a relation
-    /*#[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $expiry_date = null;*/
-
-    #[ORM\Column]
     private ?int $quantity = null;
 
     #[ORM\ManyToOne(inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Cart $Cart = null;
+    private ?Cart $cart = null;
 
-    #ToDo get from the varient
-    #[ORM\Column]
-    private ?int $price = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $title = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Variant $variant = null;
+
+    #[ORM\ManyToOne(inversedBy: 'appliedTo')]
+    private ?Discount $discount = null;
     #todo: remove
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getVariantId(): ?int
-    {
-        return $this->variantId;
-    }
-
-    public function setVariantId(int $variantId): self
-    {
-        $this->variantId = $variantId;
-
-        return $this;
     }
 
     public function getQuantity(): ?int
@@ -68,17 +52,17 @@ class CartItem
 
     public function getCart(): ?Cart
     {
-        return $this->Cart;
+        return $this->cart;
     }
 
-    public function setCart(?Cart $Cart): self
+    public function setCart(?Cart $cart): self
     {
-        $this->Cart = $Cart;
+        $this->cart = $cart;
 
         return $this;
     }
 
-    #ToDo: should not exceed the 
+    #ToDo: should not exceed the
     public function increaseQuantity(int $n = 1){
         $this->quantity += $n;
     }
@@ -92,27 +76,30 @@ class CartItem
 
     public function getPrice(): ?int
     {
-        return $this->price;
+        return $this->variant->getPrice()*$this->quantity*(1.0 - $this->discount->getRatio()); #check, do i need to check the stocks too?
     }
 
-    public function setPrice(int $price): self
+    public function getVariant(): ?Variant
     {
-        $this->price = $price;
+        return $this->variant;
+    }
+
+    public function setVariant(?Variant $variant): self
+    {
+        $this->variant = $variant;
 
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getDiscount(): ?Discount
     {
-        return $this->title;
+        return $this->discount;
     }
 
-    public function setTitle(string $title): self
+    public function setDiscount(?Discount $discount): self
     {
-        $this->title = $title;
+        $this->discount = $discount;
 
         return $this;
     }
-
-    #ToDo: change getPrice to get price from variant and apply quantity and discount to return the final price
 }

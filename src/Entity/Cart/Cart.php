@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Entity\Cart;
+use App\Entity\Cart\CartItem;
 use App\Entity\User\Customer;
 use App\Entity\Payment\Payment;
 use Exception;
@@ -38,9 +39,6 @@ class Cart
 
     #[ORM\Column(length: 8)]
     private ?string $status = null;
-
-    #[ORM\OneToMany(mappedBy: 'cart', targetEntity: Payment::class)]
-    private Collection $payments;
 
     public function getCustomer(): ?Customer
     {
@@ -122,36 +120,6 @@ class Cart
         return $this;
     }
 
-    #ToDo: check if Narges still needs this
-    /**
-     * @return Collection<int, Payment>
-     */
-    public function getPayments(): Collection
-    {
-        return $this->payments;
-    }
-
-    public function addPayment(Payment $payment): self
-    {
-        if (!$this->payments->contains($payment)) {
-            $this->payments->add($payment);
-            $payment->setCart($this);
-        }
-
-        return $this;
-    }
-
-    public function removePayment(Payment $payment): self
-    {
-        if ($this->payments->removeElement($payment)) {
-            // set the owning side to null (unless already changed)
-            if ($payment->getCart() === $this) {
-                $payment->setCart(null);
-            }
-        }
-
-        return $this;
-    }
 }
 
 
