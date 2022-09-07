@@ -28,37 +28,7 @@ class CategoryController extends AbstractController
             $requestBody = $this->categoryManager->getRequestBody($req);
             $categoryArray = $this->categoryManager->normalizeArray($requestBody);
             $category = $this->categoryManager->createEntityFromArray($categoryArray);
-            return $this->json(["category" => $category], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
-        } catch (Exception $exception) {
-            return $this->json(['message' => $exception->getMessage()], 500);
-        }
-    }
-
-    //TODO: admin auth
-    #[Route('/', name: 'update', methods: ['PATCH'])]
-    public function update(Request $req): Response
-    {
-        try {
-            $body = $this->categoryManager->getRequestBody($req);
-            $category = $this->categoryManager->findById($body['id']);
-            if (!$category) return $this->json(['message' => 'category not found'], 400);
-            $updatedCategory = $this->categoryManager->updateEntity($category, $body['updates']);
-            return $this->json(['category' => $updatedCategory], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
-        } catch (Exception $exception) {
-            return $this->json(['message' => $exception->getMessage()], 500);
-        }
-    }
-
-    //TODO: admin auth
-    #[Route('/', name: 'delete', methods: ['DELETE'])]
-    public function delete(Request $req): Response
-    {
-        try {
-            $body = $this->categoryManager->getRequestBody($req);
-            $category = $this->categoryManager->findById($body['id']);
-            if (!$category) return $this->json(['message' => 'category not found'], 400);
-            $message = $this->categoryManager->removeUnused($category);
-            return $this->json(['message' => $message['message']]);
+            return $this->json(["category" => $category], 201, context: [AbstractNormalizer::GROUPS => ['category_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -76,12 +46,41 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/activity', name: 'toggle_activity', methods: ['PATCH'])]
-    public function toggleActivity(Request $req): Response
+    #[Route('/{id}', name: 'update', methods: ['PATCH'])]
+    public function update(Request $req, int $id): Response
     {
         try {
             $body = $this->categoryManager->getRequestBody($req);
-            $this->categoryManager->toggleActivity($body['id'], $body['active']);
+            $category = $this->categoryManager->findById($id);
+            if (!$category) return $this->json(['message' => 'category not found'], 400);
+            $updatedCategory = $this->categoryManager->updateEntity($category, $body['updates']);
+            return $this->json(['category' => $updatedCategory], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
+
+    //TODO: admin auth
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+    public function delete(int $id): Response
+    {
+        try {
+            $category = $this->categoryManager->findById($id);
+            if (!$category) return $this->json(['message' => 'category not found'], 400);
+            $message = $this->categoryManager->removeUnused($category);
+            return $this->json(['message' => $message['message']]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
+
+    //TODO: admin auth
+    #[Route('/{id}/activity', name: 'toggle_activity', methods: ['PATCH'])]
+    public function toggleActivity(Request $req, int $id): Response
+    {
+        try {
+            $body = $this->categoryManager->getRequestBody($req);
+            $this->categoryManager->toggleActivity($id, $body['active']);
             return $this->json(['message' => 'activity updated']);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -89,13 +88,13 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/feature', name: 'add_feature', methods: ['POST'])]
-    public function addFeature(Request $req): Response
+    #[Route('/{id}/feature', name: 'add_feature', methods: ['POST'])]
+    public function addFeature(Request $req, int $id): Response
     {
         //TODO features could only be added to leaf categories
         try {
             $body = $this->categoryManager->getRequestBody($req);
-            $category = $this->categoryManager->findById($body['id']);
+            $category = $this->categoryManager->findById($id);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $message = $this->categoryManager->addFeatures($category, $body['features']);
             return $this->json(['message' => $message['message']]);
@@ -105,12 +104,12 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/feature', name: 'remove_feature', methods: ['DELETE'])]
-    public function removeFeature(Request $req): Response
+    #[Route('/{id}/feature', name: 'remove_feature', methods: ['DELETE'])]
+    public function removeFeature(Request $req, int $id): Response
     {
         try {
             $body = $this->categoryManager->getRequestBody($req);
-            $category = $this->categoryManager->findById($body['id']);
+            $category = $this->categoryManager->findById($id);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $message = $this->categoryManager->removeFeatures($category, $body['features']);
             return $this->json(['message' => $message['message']]);

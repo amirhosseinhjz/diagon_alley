@@ -73,19 +73,18 @@ class ProductRepository extends ServiceEntityRepository
 
     public function findProductsByCategoryId(int $id, array $options): array
     {
-        $qb = $this->createQueryBuilder('product');
+        $qb = $this->createQueryBuilder('p');
         $qb = Filters::addBaseFilters($qb, $options);
         $qb = Filters::addBrandsFilter($qb, $options);
         $qb = Filters::addFeaturesFilter($qb, $options);
         return $qb->getQuery()->getResult();
     }
 
-    public function findProductsByBrandId(int $id, array $options): array
+    public function findProductByBrandId(int $id, array $options): array
     {
-        $qb = $this->createQueryBuilder('product');
+        $qb = $this->createQueryBuilder('p');
         $qb = Filters::addBaseFilters($qb, $options);
-//        $qb = Filters::addCategoriesFilter($qb, $options);
-        //TOdo add brand id filter
+        $qb = Filters::addCategoriesFilter($qb, $options);
         return $qb->getQuery()->getResult();
     }
 }
