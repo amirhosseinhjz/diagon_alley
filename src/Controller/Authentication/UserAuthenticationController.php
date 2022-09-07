@@ -1,8 +1,11 @@
 <?php
 
 namespace App\Controller\Authentication;
+use App\CacheRepository\UserRepository\CacheSellerRepository;
 use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Interface\Authentication\JWTManagementInterface;
+use App\Interface\Cache\CacheInterface;
+use App\Repository\UserRepository\SellerRepository;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
 use Exception;

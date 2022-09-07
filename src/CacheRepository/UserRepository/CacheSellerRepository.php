@@ -8,8 +8,8 @@ use App\Abstract\CacheRepository\BaseCacheRepository;
 
 class CacheSellerRepository extends BaseCacheRepository
 {
-    public function __construct(SellerRepository $repository, CacheInterface $cache, int $exp)
+    public function __construct(SellerRepository $repository, CacheInterface $cache)
     {
-        parent::__construct($repository, $cache, $exp, 'seller', 'seller.');
+        parent::__construct($repository, $cache, 'seller', 'seller', 60);
     }
 }
