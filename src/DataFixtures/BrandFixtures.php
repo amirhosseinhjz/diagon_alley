@@ -30,4 +30,13 @@ class BrandFixtures extends Fixture implements FixtureGroupInterface
         $manager->persist($brand1);
         $manager->flush();
     }
+
+    public function loadBrandForUpdate(ObjectManager $manager)
+    {
+        $brandToUpdate = new Brand();
+        $brandToUpdate->setName('brandToUpdate');
+
+        $manager->persist($brandToUpdate);
+        $manager->flush();
+    }
 }
