@@ -2,6 +2,7 @@
 
 namespace App\Entity\Cart;
 use App\Entity\User\Customer;
+use App\Entity\Payment\Payment;
 use Exception;
 use App\Repository\Cart\CartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -13,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 class Cart
 {
-
+    #ToDO: change the strings used in other files to these constants
     public const STATUS_INIT = "INIT";
     public const STATUS_PENDING = "PENDING";
     public const STATUS_SUCCESS = "SUCCESS";
@@ -38,6 +39,8 @@ class Cart
     #[ORM\Column(length: 8)]
     private ?string $status = null;
 
+    #[ORM\OneToMany(mappedBy: 'cart', targetEntity: Payment::class)]
+    private Collection $payments;
 
     public function getCustomer(): ?Customer
     {
@@ -52,6 +55,7 @@ class Cart
     public function __construct()
     {
         $this->items = new ArrayCollection();
+        $this->payments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -107,23 +111,49 @@ class Cart
 
     public function setStatus(string $status): self
     {
-        if($status === "init" || $status =="expired" || $status ==="success")
-        {
+        if ($status === "INIT" || $status == "EXPIRED" || $status === "SUCCESS") {
             $this->status = $status;
-        }
-        elseif($status === "pending")
-        {
+        } elseif ($status === "PENDING") {
             $this->status = $status;
             #ToDo: automatic expiration (not here)
-        }
-        else
-        {
+        } else {
             throw new \Exception('Invalid value for status');
+        }
+        return $this;
+    }
+
+    #ToDo: check if Narges still needs this
+    /**
+     * @return Collection<int, Payment>
+     */
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
+    public function addPayment(Payment $payment): self
+    {
+        if (!$this->payments->contains($payment)) {
+            $this->payments->add($payment);
+            $payment->setCart($this);
+        }
+
+        return $this;
+    }
+
+    public function removePayment(Payment $payment): self
+    {
+        if ($this->payments->removeElement($payment)) {
+            // set the owning side to null (unless already changed)
+            if ($payment->getCart() === $this) {
+                $payment->setCart(null);
+            }
         }
 
         return $this;
     }
 }
+
 
 
 

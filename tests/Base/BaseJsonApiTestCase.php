@@ -9,6 +9,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class BaseJsonApiTestCase extends JsonApiTestCase
 {
+    static protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789*zZ'];
     /**
      * @return \PHPUnit\Framework\MockObject\MockObject|EventDispatcherInterface
      */
@@ -63,7 +64,7 @@ class BaseJsonApiTestCase extends JsonApiTestCase
             [],
             [],
             [],
-            json_encode($this->defaultUser)
+            json_encode(self::$defaultUser)
         );
 
         $response = $this->client->getResponse()->getContent();
