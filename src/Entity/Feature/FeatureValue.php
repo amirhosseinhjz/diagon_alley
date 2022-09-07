@@ -128,7 +128,7 @@ class FeatureValue
 
     public function removeProduct(Product $product): self
     {
-        $this->variants->removeElement($product);
+        $this->products->removeElement($product);
 
         return $this;
     }
