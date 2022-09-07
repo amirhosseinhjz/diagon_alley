@@ -5,12 +5,23 @@ namespace App\DataFixtures;
 use App\Entity\Category\Category;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 
-class CategoryFixtures extends Fixture
+class CategoryFixtures extends Fixture implements FixtureGroupInterface
 {
     public const LEAF_CATEGORIES_REFERENCE = 'leafCategories';
 
+    public static function getGroups(): array
+    {
+        return ['category'];
+    }
+
     public function load(ObjectManager $manager): void
+    {
+        $this->loadCategories($manager);
+    }
+
+    public function loadCategories(ObjectManager $manager): void
     {
         //TODO: replace with this->createMany in BaseFixture
 

@@ -6,12 +6,30 @@ use App\Entity\Product\Product;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 
-class ProductFixtures extends Fixture implements DependentFixtureInterface
+class ProductFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
 {
+    public static function getGroups(): array
+    {
+        return ['product'];
+    }
+
+    public function getDependencies(): array
+    {
+        return [
+            CategoryFixtures::class
+        ];
+    }
+
     public function load(ObjectManager $manager): void
     {
-        $leadCategories = (array) $this->getReference(CategoryFixtures::LEAF_CATEGORIES_REFERENCE);
+        $this->loadProducts($manager);
+    }
+
+    public function loadProducts(ObjectManager $manager): void
+    {
+        $leadCategories = (array)$this->getReference(CategoryFixtures::LEAF_CATEGORIES_REFERENCE);
 
         $product1 = new Product();
         $product1->setName("product1");
@@ -24,12 +42,5 @@ class ProductFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($product1);
         $manager->persist($product2);
         $manager->flush();
-    }
-
-    public function getDependencies()
-    {
-        return [
-            CategoryFixtures::class
-        ];
     }
 }
