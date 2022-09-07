@@ -2,7 +2,7 @@
 
 namespace App\Controller\Product;
 
-use App\Service\Product\ProductManager;
+use App\Interface\Product\ProductManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,9 +13,9 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 #[Route('/product', name: 'app_product_')]
 class ProductController extends AbstractController
 {
-    protected ProductManager $productManager;
+    protected ProductManagerInterface $productManager;
 
-    public function __construct(ProductManager $productManager)
+    public function __construct(ProductManagerInterface $productManager)
     {
         $this->productManager = $productManager;
     }
