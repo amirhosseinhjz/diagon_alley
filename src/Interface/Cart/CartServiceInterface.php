@@ -2,19 +2,14 @@
 
 namespace App\Interface\Cart;
 
-use App\DTO\Cart\CartDTO;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Cart\Cart;
-use App\Entity\Cart\CartItem;
 
-
+#ToDo add byId versions and by object versions
 Interface CartServiceInterface
 {
+    public function getTotalPrice(Cart $cart);
 
-    public function getCartByUser(int $userId, bool $create = true);
-
-    public function getTotalPrice($cartId);
+    public function getTotalPriceById($cartId);
 
     public function removeCart($cart);
 
@@ -29,6 +24,4 @@ Interface CartServiceInterface
     public function checkItems(Cart $cart, bool $update); #todo: check every item's price and availability, return true if it stays the same
     #todo: what to do when the price has changed, or the item does not exist
 
-    public function getCartId(int $userId);
-    
 }

@@ -1,31 +1,19 @@
 <?php
 #ToDo: write transformer
-namespace App\DTO\CartDTO;
+namespace App\DTO\Cart;
 
 use Symfony\Component\Validator\Constraints as Assert;
-
+#ToDo: revise
 class CartDTO
 {
 
-    public ?int $User_Id = null;
+    public $id;
 
     #[Assert\DateTime]
     private ?\DateTimeInterface $finalizedAt = null;   #check if it is in the past
 
-    
-    #[Assert\Collection(
-        fields: [
-            'varient_id' => new Assert\Type('int'),
-            'title' => [new Assert\NotBlank, New Assert\Type('string')],  #check with varient code
-            'count' => [
-                new Assert\Positive,
-                new Assert\Type('int')
-            ],
-            'price' => new Assert\PositiveOrZero
-
-        ],
-        allowMissingFields: false,
-    )]
+    #ToDo: extra validation
+    #[Assert\Collection]
     public array $items;
 
     #[Assert\Choice(
@@ -47,18 +35,6 @@ class CartDTO
     public function setId(): ?int
     {
         return $this->id;
-    }
-
-    public function getUserId(): ?int
-    {
-        return $this->User_Id;
-    }
-
-    public function setUserId(int $User_Id): self
-    {
-        $this->User_Id = $User_Id;
-
-        return $this;
     }
 
     public function getFinalizedAt(): ?\DateTimeInterface

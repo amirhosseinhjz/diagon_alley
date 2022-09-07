@@ -3,7 +3,7 @@
 namespace App\DTO\Cart;
 
 use Symfony\Component\Validator\Constraints as Assert;
-
+#ToDo: revise
 class CartItemDTO
 {
 
@@ -13,7 +13,7 @@ class CartItemDTO
 
     #[Assert\Positive]
     #[Assert\Type(type:'int')]
-    private ?int $count = null;
+    private ?int $quantity = null;
 
     #[Assert\PositiveOrZero]
     private ?int $price = null;
@@ -46,14 +46,14 @@ class CartItemDTO
         return $this;
     }
 
-    public function getCount(): ?int
+    public function getQuantity(): ?int
     {
-        return $this->count;
+        return $this->quantity;
     }
 
-    public function setCount(int $count): self
+    public function setQuantity(int $quantity): self
     {
-        $this->count = $count;
+        $this->quantity = $quantity;
 
         return $this;
     }

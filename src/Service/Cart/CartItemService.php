@@ -7,7 +7,7 @@ use App\Entity\Cart\Cart;
 use App\Entity\Cart\CartItem;
 use App\Interface\Cart\CartItemServiceInterface;
 
-use App\Repository\ProductItem\VarientRepository;
+use App\Repository\VariantRepository\VariantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -16,9 +16,9 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 
-
+#ToDo: check that the property names match the ones in the DTO
 #todo: change
-use App\Service\VarientService\VarientManagement;
+use App\Service\VariantService\VariantManagement;
 
 class CartItemService implements CartItemServiceInterface
 {
@@ -26,7 +26,7 @@ class CartItemService implements CartItemServiceInterface
     private EntityManagerInterface $entityManager;
     private $serializer;
     private $validator;
-    #todo change
+    #todo change to variant interface
     private $vm;
 
     public function __construct(EntityManagerInterface $entityManager, ValidatorInterface $validator,
@@ -36,7 +36,7 @@ class CartItemService implements CartItemServiceInterface
         $this->validator = $validator;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
         #todo: change
-        $this->vm = new VarientManagement($entityManager);
+        $this->vm = new VariantManagement($entityManager);
     }
 
     public function arrayToDTO(array $array)
@@ -70,8 +70,7 @@ class CartItemService implements CartItemServiceInterface
         return  $item;
     }
 
-
-    public function createFromArray(array $array) : Cart
+    public function createFromArray(array $array)
 
     {
         $cartItemDTO = $this->createValidDTO($array);
@@ -83,7 +82,6 @@ class CartItemService implements CartItemServiceInterface
         $this->entityManager->flush();
         return $item;
     }
-
 
     public function createDTOFromCartItem(CartItem $item): cartItemDTO
     {
@@ -106,25 +104,25 @@ class CartItemService implements CartItemServiceInterface
         return $errorsArray;
     }
 
-
     function checkStocks($itemId, $update = false) #check: flush?
     {
         $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$itemId]);
-        $stock = $this->vm->getVarientStock($item->getVarientId(),$this->entityManager->getRepository(VarientRepository::class));
-        if($stock < $item->getCount()) { #check: !=
+        $variant = $this->vm->readVariant($item->getVariantId(),$this->entityManager->getRepository(VariantRepository::class));
+        $stock = $variant->getQuantity();
+        if($stock < $item->getQuantity()) { #check: !=
             if($update){
-                $item->setCount($stock);  #ToDo: is this the correct action here?
+                $item->setQuantity($stock);  #ToDo: is this the correct action here?
             }
             return false;
         }
         return true;
     }
 
-
     function checkPrice($itemId ,$update = false) #check: flush?
     {
         $item = $this->entityManager->getRepository(CartItem::class)->findOneBy(['id'=>$itemId]);
-        $newPrice = $this->vm->getVarientPrice($item->getVarientId(),$this->entityManager->getRepository(VarientRepository::class));
+        $variant = $this->vm->readVariant($item->getVariantId(),$this->entityManager->getRepository(VariantRepository::class));
+        $newPrice = $variant->getPrice();
         if($newPrice != $item->getPrice()) { #check: !=
             if($update){
                 $item->setPrice($newPrice);

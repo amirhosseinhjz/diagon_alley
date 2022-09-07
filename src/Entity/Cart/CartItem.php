@@ -2,10 +2,12 @@
 
 namespace App\Entity\Cart;
 
-use App\Repository\CartRepository\CartItemRepository;
+use App\Repository\Cart\CartItemRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#ToDo: get price, etc from variant
+#toDo: change varient to variant everywhere
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
 class CartItem
 {
@@ -15,13 +17,13 @@ class CartItem
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $varientId = null;
+    private ?int $variantId = null;
     #ToDo: turn into a relation
     /*#[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $expiry_date = null;*/
 
     #[ORM\Column]
-    private ?int $count = null;
+    private ?int $quantity = null;
 
     #[ORM\ManyToOne(inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
@@ -40,51 +42,26 @@ class CartItem
         return $this->id;
     }
 
-    #todo: remove cartid or card
-    public function getCartId(): ?int
+    public function getVariantId(): ?int
     {
-        return $this->Cart_Id;
+        return $this->variantId;
     }
 
-    public function setCartId(int $Cart_Id): self
+    public function setVariantId(int $variantId): self
     {
-        $this->Cart_Id = $Cart_Id;
+        $this->variantId = $variantId;
 
         return $this;
     }
 
-    public function getVarientId(): ?int
+    public function getQuantity(): ?int
     {
-        return $this->varientId;
+        return $this->quantity;
     }
 
-    public function setVarientId(int $varientId): self
+    public function setQuantity(int $quantity): self
     {
-        $this->varientId = $varientId;
-
-        return $this;
-    }
-
-    /*public function getExpiryDate(): ?\DateTimeInterface
-    {
-        return $this->expiry_date;
-    }
-
-    public function setExpiryDate(?\DateTimeInterface $expiry_date): self
-    {
-        $this->expiry_date = $expiry_date;
-
-        return $this;
-    }*/
-
-    public function getCount(): ?int
-    {
-        return $this->count;
-    }
-
-    public function setCount(int $count): self
-    {
-        $this->count = $count;
+        $this->quantity = $quantity;
 
         return $this;
     }
@@ -102,15 +79,15 @@ class CartItem
     }
 
     #ToDo: should not exceed the 
-    public function increaseCount(int $n = 1){
-        $this->count += $n;
+    public function increaseQuantity(int $n = 1){
+        $this->quantity += $n;
     }
 
-    public function decreaseCount(int $n = 1){
-        if($n>$this->count)
-            $this->count = 0;
+    public function decreaseQuantity(int $n = 1){
+        if($n>$this->quantity)
+            $this->quantity = 0;
         else
-            $this->count = $this->count - $n;
+            $this->quantity = $this->quantity - $n;
     }
 
     public function getPrice(): ?int
@@ -137,4 +114,5 @@ class CartItem
         return $this;
     }
 
+    #ToDo: change getPrice to get price from variant and apply quantity and discount to return the final price
 }
