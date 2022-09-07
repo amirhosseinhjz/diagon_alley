@@ -28,7 +28,6 @@ class CategoryController extends AbstractController
             $requestBody = $this->categoryManager->getRequestBody($req);
             $categoryArray = $this->categoryManager->normalizeArray($requestBody);
             $category = $this->categoryManager->createEntityFromArray($categoryArray);
-            if (array_key_exists('error', $category)) return $this->json(['message' => $category['error']], 400);
             return $this->json(["category" => $category], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -44,7 +43,6 @@ class CategoryController extends AbstractController
             $category = $this->categoryManager->findById($body['id']);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $updatedCategory = $this->categoryManager->updateEntity($category, $body['updates']);
-            if (array_key_exists('error', $updatedCategory)) return $this->json(['message' => $updatedCategory['error']], 400);
             return $this->json(['category' => $updatedCategory], context: [AbstractNormalizer::GROUPS => ['category_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -60,7 +58,6 @@ class CategoryController extends AbstractController
             $category = $this->categoryManager->findById($body['id']);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $message = $this->categoryManager->removeUnused($category);
-            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -101,7 +98,6 @@ class CategoryController extends AbstractController
             $category = $this->categoryManager->findById($body['id']);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $message = $this->categoryManager->addFeatures($category, $body['features']);
-            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -117,7 +113,6 @@ class CategoryController extends AbstractController
             $category = $this->categoryManager->findById($body['id']);
             if (!$category) return $this->json(['message' => 'category not found'], 400);
             $message = $this->categoryManager->removeFeatures($category, $body['features']);
-            if (array_key_exists('error', $message)) return $this->json(['message' => $message['error']], 400);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);

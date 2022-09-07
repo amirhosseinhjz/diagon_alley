@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Exception;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -111,9 +112,9 @@ class Product
         return $this->category;
     }
 
-    public function setCategory(?Category $category): ?self
+    public function setCategory(?Category $category): self
     {
-        if ($category->isLeaf() == false) return null;
+        if ($category->isLeaf() == false) throw new Exception('invalid category');
         $this->category = $category;
 
         return $this;

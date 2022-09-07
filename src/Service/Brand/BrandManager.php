@@ -31,43 +31,31 @@ class BrandManager implements BrandManagerInterface
         return $array;
     }
 
-    public function createEntityFromArray(array $validatedArray): array
+    public function createEntityFromArray(array $validatedArray): Brand
     {
-        try {
-            $brand = new Brand();
-            $brand->setName($validatedArray["name"]);
-            $brand->setDescription($validatedArray["description"]);
-            $this->em->getRepository(Brand::class)->add($brand, true);
-            return ['entity' => $brand];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
+        $brand = new Brand();
+        $brand->setName($validatedArray["name"]);
+        $brand->setDescription($validatedArray["description"]);
+        $this->em->getRepository(Brand::class)->add($brand, true);
+        return $brand;
     }
 
-    public function updateEntity(Brand $brand, array $updates): array
+    public function updateEntity(Brand $brand, array $updates): Brand
     {
-        try {
-            foreach ($updates as $key => $value) {
-                if (in_array($key, self::validUpdates) == false) throw new Exception('invalid operation');
-                $brand->setWithKeyValue($key, $value);
-            }
-            $this->em->persist($brand);
-            $this->em->flush();
-            return ['entity' => $brand];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
+        foreach ($updates as $key => $value) {
+            if (in_array($key, self::validUpdates) == false) throw new Exception('invalid operation');
+            $brand->setWithKeyValue($key, $value);
         }
+        $this->em->persist($brand);
+        $this->em->flush();
+        return $brand;
     }
 
     public function removeUnused(Brand $brand): array
     {
-        try {
-            if ($brand->getProducts()->isEmpty() == false) throw new Exception("brand has existing products");
-            $this->em->getRepository(Brand::class)->remove($brand, true);
-            return ['message' => 'brand deleted'];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
+        if ($brand->getProducts()->isEmpty() == false) throw new Exception("brand has existing products");
+        $this->em->getRepository(Brand::class)->remove($brand, true);
+        return ['message' => 'brand ' . $brand->getName() . ' deleted'];
     }
 
     public function findById(int $id): ?Brand
