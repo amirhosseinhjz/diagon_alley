@@ -9,8 +9,6 @@ interface CategoryManagerInterface
 {
     public function getRequestBody(Request $req);
 
-    public function serialize($data, array $groups);
-
     public function normalizeArray(array $array);
 
     public function createEntityFromArray(array $validatedArray);
