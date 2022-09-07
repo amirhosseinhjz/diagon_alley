@@ -31,7 +31,7 @@ class ProductController extends AbstractController
             $json = $this->productManager->serialize($product, ['product_basic']);
             return $this->json(['product' => $json]);
         } catch (Exception $exception) {
-            return $this->json(['message' => $exception->getMessage()], 500);
+            return $this->json(['message' => $exception->getMessage()], $exception->getCode());
         }
     }
 
