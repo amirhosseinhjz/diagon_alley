@@ -6,6 +6,7 @@ use App\DTO\ProductItem\VariantDTO;
 use App\Entity\Variant\Variant;
 use App\Repository\VariantRepository\VariantRepository;
 use App\Interface\Variant\VariantManagementInterface;
+use App\Entity\User\Seller;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -29,7 +30,7 @@ class VariantManagement implements VariantManagementInterface
         return $this->serializer->deserialize(json_encode($array), VariantDTO::class, 'json');
     }
 
-    public function createVariantFromDTO(VariantDTO $dto, $flush=true) : Variant
+    public function createVariantFromDTO(VariantDTO $dto,Seller $seller, $flush=true) : Variant
     {
         $variant = new Variant();
         $variant->setQuantity($dto->quantity);
@@ -38,6 +39,8 @@ class VariantManagement implements VariantManagementInterface
         $variant->setStatus(false);
         $variant->setDescription($dto->description);
         $variant->setSoldNumber(0);
+        $variant->setSeller($seller);
+        $variant->setType($dto->type);
         $this->em->persist($variant);
         if ($flush) {
             $this->em->flush();

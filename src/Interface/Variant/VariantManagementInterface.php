@@ -3,13 +3,14 @@
 namespace App\Interface\Variant;
 
 use App\DTO\ProductItem\VariantDTO;
+use App\Entity\User\Seller;
 use App\Entity\Variant\Variant;
 
 interface VariantManagementInterface
 {
     public function arrayToDTO(array $array);
 
-    public function createVariantFromDTO(VariantDTO $dto, $flush=true) : Variant;
+    public function createVariantFromDTO(VariantDTO $dto,Seller $seller, $flush=true) : Variant;
 
     public function readVariant($serial);
 

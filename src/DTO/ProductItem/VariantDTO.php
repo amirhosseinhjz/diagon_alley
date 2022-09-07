@@ -13,6 +13,9 @@ class VariantDTO{
     #[Assert\Type(type:'int')]
     public ?int $quantity = null;
 
+    #[Assert\Choice(['digital', 'physical'] , message: 'Chose type from \'digital\' or \'physical\' ')]
+    public ?string $type = null;
+
     public ?string $description = null;
 
     public function setPrice(int $price): self{

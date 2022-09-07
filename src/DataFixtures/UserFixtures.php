@@ -4,7 +4,6 @@ namespace App\DataFixtures;
 
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -13,6 +12,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserFixtures extends Fixture implements FixtureGroupInterface
 {
     protected $passHasher;
+    public const SELLER = 'seller';
     public function __construct(UserPasswordHasherInterface $hasher)
     {
         $this->passHasher = $hasher;
@@ -22,16 +22,18 @@ class UserFixtures extends Fixture implements FixtureGroupInterface
     {
         for ($i = 0; $i < 10; $i++) {
             $seller = new User\Seller();
-            $seller->setShopSlug('shop'.$i);
-            $seller->setPhoneNumber('+9891'.$i.'1234567');
+            $seller->setShopSlug('shop' . $i);
+            $seller->setPhoneNumber('+9891' . $i . '1234567');
             $seller->setEmail("seller$i@seller.com");
-            $seller->setPassword($this->passHasher->hashPassword($seller,'123456789*zZ'));
+            $seller->setPassword($this->passHasher->hashPassword($seller, '123456789*zZ'));
             $seller->setRoles(['ROLE_SELLER']);
-            $seller->setName('seller'.$i);
-            $seller->setLastName('seller'.$i.'lastname');
+            $seller->setName('seller' . $i);
+            $seller->setLastName('seller' . $i . 'lastname');
             $manager->persist($seller);
-    }
+            $sellers[]=$seller;
+        }
         $manager->flush();
+        $this->addReference(self::SELLER, (object)$sellers);
     }
 
     public function loadCustomer(ObjectManager $manager)
