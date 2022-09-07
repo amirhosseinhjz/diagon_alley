@@ -28,19 +28,19 @@ class ProductController extends AbstractController
             $requestBody = $this->productManager->getRequestBody($req);
             $productArray = $this->productManager->normalizeArray($requestBody);
             $product = $this->productManager->createEntityFromArray($productArray);
-            return $this->json(['product' => $product], context: [AbstractNormalizer::GROUPS => ['product_basic']]);
+            return $this->json(['product' => $product], 201, context: [AbstractNormalizer::GROUPS => ['product_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], $exception->getCode());
         }
     }
 
     //TODO: auth
-    #[Route('/', name: 'update', methods: ['PATCH'])]
-    public function update(Request $req): Response
+    #[Route('/{id}', name: 'update', methods: ['PATCH'])]
+    public function update(Request $req, int $id): Response
     {
         try {
             $body = $this->productManager->getRequestBody($req);
-            $product = $this->productManager->findById($body['id']);
+            $product = $this->productManager->findById($id);
             if (!$product) return $this->json(['message' => 'category not found'], 400);
             $updatedProduct = $this->productManager->updateEntity($product, $body['updates']);
             return $this->json(['product' => $updatedProduct], context: [AbstractNormalizer::GROUPS => ['product_basic']]);
@@ -50,12 +50,11 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/', name: 'delete', methods: ['DELETE'])]
-    public function delete(Request $req): Response
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+    public function delete(Request $req, int $id): Response
     {
         try {
-            $body = $this->productManager->getRequestBody($req);
-            $message = $this->productManager->deleteById($body['id']);
+            $message = $this->productManager->deleteById($id);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -63,12 +62,12 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/feature', name: 'add_feature', methods: ['POST'])]
-    public function addFeature(Request $req): Response
+    #[Route('/{id}/feature', name: 'add_feature', methods: ['POST'])]
+    public function addFeature(Request $req, int $id): Response
     {
         try {
             $body = $this->productManager->getRequestBody($req);
-            $message = $this->productManager->addFeature($body['id'], $body['features']);
+            $message = $this->productManager->addFeature($id, $body['features']);
             return $this->json(['message' => 'feature added']);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -76,12 +75,12 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/feature', name: 'remove_feature', methods: ['DELETE'])]
-    public function removeFeature(Request $req): Response
+    #[Route('/{id}/feature', name: 'remove_feature', methods: ['DELETE'])]
+    public function removeFeature(Request $req, int $id): Response
     {
         try {
             $body = $this->productManager->getRequestBody($req);
-            $message = $this->productManager->removeFeature($body['id'], $body['features']);
+            $message = $this->productManager->removeFeature($id, $body['features']);
             return $this->json(['message' => 'feature removed']);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -89,12 +88,12 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/activity', name: 'toggle_activity', methods: ['PATCH'])]
-    public function toggleActivity(Request $req): Response
+    #[Route('/{id}/activity', name: 'toggle_activity', methods: ['PATCH'])]
+    public function toggleActivity(Request $req, int $id): Response
     {
         try {
             $body = $this->productManager->getRequestBody($req);
-            $message = $this->productManager->toggleActivity($body['id'], $body['active']);
+            $message = $this->productManager->toggleActivity($id, $body['active']);
             return $this->json(['message' => $message['message']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -102,11 +101,11 @@ class ProductController extends AbstractController
     }
 
     #[Route('/brand/{id}', name: 'brand_products', methods: ['GET'])]
-    public function getBrandProducts(Request $req): Response
+    public function getBrandProducts(Request $req,int $id): Response
     {
         try {
             $body = $this->productManager->getRequestBody($req);
-            $products = $this->productManager->findBrandProducts($body['options']);
+            $products = $this->productManager->findBrandProducts($id, $body['options']);
             return $this->json(['products' => $products]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
@@ -114,11 +113,11 @@ class ProductController extends AbstractController
     }
 
     #[Route('/category/{id}', name: 'category_products', methods: ['GET'])]
-    public function getCategoryProducts(Request $req): Response
+    public function getCategoryProducts(Request $req, int $id): Response
     {
         try {
             $body = $this->productManager->getRequestBody($req);
-            $products = $this->productManager->findCategoryProducts($body['options']);
+            $products = $this->productManager->findCategoryProducts($id, $body['options']);
             return $this->json(['products' => $products]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);

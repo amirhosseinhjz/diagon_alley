@@ -9,6 +9,8 @@ use App\Tests\Base\BaseJsonApiTestCase;
  */
 class ProductControllerTest extends BaseJsonApiTestCase
 {
+    protected const ROUTE = "/api/product/";
+
     public function testCreateProduct()
     {
         
