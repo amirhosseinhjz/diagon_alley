@@ -25,6 +25,10 @@ class AddressProvince
     #[ORM\OneToMany(mappedBy: 'province', targetEntity: AddressCity::class)]
     private Collection $addressCities;
 
+    #[ORM\Column]
+    #[Assert\NotNull]
+    private ?bool $isActive = true;
+
     public function __construct()
     {
         $this->addressCities = new ArrayCollection();
@@ -61,6 +65,18 @@ class AddressProvince
             $this->addressCities->add($addressCity);
             $addressCity->setProvince($this);
         }
+
+        return $this;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }
