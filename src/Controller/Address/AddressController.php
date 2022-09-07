@@ -23,9 +23,9 @@ class AddressController extends AbstractController
     ): Response {
         try {
             $response = $this->addressService->createProvince($request->toArray());
-            return $response;
+            return  $this->json($response);
         } catch (\Exception $e) {
-            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -35,9 +35,10 @@ class AddressController extends AbstractController
     ): Response {
         try {
             $response = $this->addressService->createCity($request->toArray());
-            return $response;
+            return $this->json($response);
         } catch (\Exception $e) {
-            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+            dd($e->getMessage());
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -50,10 +51,10 @@ class AddressController extends AbstractController
             $user = $jwtmanager->authenticatedUser();
             $array = $request->toArray();
             $array["user"]=$user;
-            $status = $this->addressService->addAddress($array);
-            return $this->json(["Status" => $status]);
+            $response = $this->addressService->addAddress($array);
+            return $this->json($response);
         } catch (\Exception $e) {
-            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }

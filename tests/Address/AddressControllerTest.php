@@ -16,19 +16,46 @@ class AddressControllerTest extends BaseJsonApiTestCase
         
         $auth = json_decode($response, true);
         
-        dd($auth);  
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
-        $response = $this->client->request(
+        $this->client->request(
             'GET',
-            "http://localhost:70/api/payment/20/Saman",
-            ["name"=>"Fars"]
+            "http://localhost:70/api/address/add/province",
+            [],
+            [],
+            [],
+            json_encode(["name"=>"Fars"])
         );
+        
         $response = $this->client->getResponse()->getContent();
         $data = json_decode($response, true);
 
         self::assertArrayHasKey('status', $data);
         self::assertArrayHasKey('message', $data);
+    }
+
+    public function testAddDuplicateProvince()
+    {
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response, true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
+
+        //First,load fixtures
+        $this->client->request(
+            'GET',
+            "http://localhost:70/api/address/add/province",
+            [],
+            [],
+            [],
+            json_encode(["name"=>"Fars"])
+        );
+
+        $response = $this->client->getResponse()->getContent();
+        $data = json_decode($response, true);
+
+        $this->assertEquals($data, '["This name is already in use"]');
     }
 
     public function testAddCity()
@@ -40,20 +67,23 @@ class AddressControllerTest extends BaseJsonApiTestCase
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         //First,load fixtures
-        $response = $this->client->request(
+        $this->client->request(
             'GET',
-            "http://localhost:70/api/payment/20/Saman",
-            ["name"=>"varamin","province"=>"tehran"]
+            "http://localhost:70/api/address/add/city",
+            [],
+            [],
+            [],
+            json_encode(["name"=>"varamin","province"=>"tehran"])
         );
-
         $response = $this->client->getResponse()->getContent();
+  
         $data = json_decode($response, true);
 
         self::assertArrayHasKey('status', $data);
         self::assertArrayHasKey('message', $data);
     }
 
-    public function testAddDuplicateCity()
+    public function testAddAddress()
     {
         $response = $this->loginDefaultUserGetToken();
 
@@ -61,16 +91,28 @@ class AddressControllerTest extends BaseJsonApiTestCase
 
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
-        //First,load fixtures
-        $response = $this->client->request(
-            'GET',
-            "http://localhost:70/api/payment/20/Saman",
-            ["name"=>"varamin","province"=>"tehran"]
-        );
+        $body=[
+            "city"=>"Damavand",
+            "postCode"=>"1234567890",
+            "description"=>"infinitive street",
+            "lat"=>-20,
+            "lng"=>44
+        ];
 
+        //First,load fixtures
+        $this->client->request(
+            'GET',
+            "http://localhost:70/api/address/add",
+            [],
+            [],
+            [],
+            json_encode($body)
+        );
+        
         $response = $this->client->getResponse()->getContent();
         $data = json_decode($response, true);
-
-        dd($data);
+    
+        self::assertArrayHasKey('status', $data);
+        self::assertArrayHasKey('message', $data);
     }
 }

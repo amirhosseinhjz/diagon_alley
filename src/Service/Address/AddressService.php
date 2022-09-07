@@ -21,12 +21,8 @@ class AddressService
     {
         $province = $this->makeProvinceFromArray($array);
 
-        try {
-            $this->em->persist($province);
-            $this->em->flush();
-        } catch (\Exception) {
-            throw (new \Exception(json_encode("This province has already been defined")));
-        }
+        $this->em->persist($province);
+        $this->em->flush();
 
         return ["status"=>200,"message"=>"Province has been added."];
     }
@@ -35,7 +31,7 @@ class AddressService
     {
         $province = $this->em->getRepository(Address\AddressProvince::class)->findOneByName($array["province"]);
         if (is_null($province))
-            throw (new \Exception(json_encode("This province is not exist.")));
+            throw (new \Exception("This province is not exist."));
 
         $array["province"] = $province;
         $city = $this->makeCityFromArray($array);
@@ -51,15 +47,14 @@ class AddressService
     {
         $city = $this->em->getRepository(Address\AddressCity::class)->findOneByName($array["city"]);
         if (is_null($city))
-            throw (new \Exception(json_encode("This city is not exist.")));
+            throw (new \Exception("This city is not exist."));
         $array["city"] = $city;
-
+        
         $address = $this->makeAddressFromArray($array);
 
         $this->em->persist($address);
         $this->em->flush();
-
-        $city->addAddress($address);
+        
         $array["user"]->addAddress($address);
         return ["status"=>200,"message"=>"Address has been added."];
     }
