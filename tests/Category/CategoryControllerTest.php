@@ -9,6 +9,8 @@ use App\Tests\Base\BaseJsonApiTestCase;
  */
 class CategoryControllerTest extends BaseJsonApiTestCase
 {
+    protected const ROUTE = "/api/category/";
+
     public function testCreateCategory()
     {
 

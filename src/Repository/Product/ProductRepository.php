@@ -71,7 +71,7 @@ class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findProductsByCategoryId(array $options): array
+    public function findProductsByCategoryId(int $id, array $options): array
     {
         $qb = $this->createQueryBuilder('p');
         $qb = Filters::addBaseFilters($qb, $options);
@@ -80,7 +80,7 @@ class ProductRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findProductByBrandId(array $options): array
+    public function findProductByBrandId(int $id, array $options): array
     {
         $qb = $this->createQueryBuilder('p');
         $qb = Filters::addBaseFilters($qb, $options);

@@ -40,62 +40,62 @@ class ProductManager implements ProductManagerInterface
 
     public function createEntityFromArray(array $validatedArray): Product
     {
-            $product = new Product();
-            $product->setName($validatedArray['name']);
-            $product->setDescription($validatedArray['description']);
-            $product->setActive($validatedArray['active']);
-            $brand = $validatedArray['brand'];
-            if ($brand != null) $brand = $this->em->getRepository(Brand::class)->findOneById($brand);
-            $product->setBrand($brand);
-            $category = $validatedArray['category'];
-            if ($category != null) $category = $this->em->getRepository(Category::class)->findOneById($validatedArray['category']);
-            $product->setCategory($category);
-            $this->em->getRepository(Product::class)->add($product, true);
-            return $product;
+        $product = new Product();
+        $product->setName($validatedArray['name']);
+        $product->setDescription($validatedArray['description']);
+        $product->setActive($validatedArray['active']);
+        $brand = $validatedArray['brand'];
+        if ($brand != null) $brand = $this->em->getRepository(Brand::class)->findOneById($brand);
+        $product->setBrand($brand);
+        $category = $validatedArray['category'];
+        if ($category != null) $category = $this->em->getRepository(Category::class)->findOneById($validatedArray['category']);
+        $product->setCategory($category);
+        $this->em->getRepository(Product::class)->add($product, true);
+        return $product;
     }
 
     public function updateEntity(Product $product, array $updates): Product
     {
-            if (array_key_exists('category', $updates) == true) {
-                $updates['category'] = $this->em->getRepository(Category::class)->findOneById($updates['category']);
-            }
-            if (array_key_exists('brand', $updates) == true) {
-                $updates['brand'] = $this->em->getRepository(Category::class)->findOneById($updates['brand']);
-            }
-            foreach ($updates as $key => $value) {
-                if (in_array($key, self::validUpdates) == false) throw new Exception('invalid operation');
-                $product->setWithKeyValue($key, $value);
-            }
-            $this->em->getRepository(Product::class)->add($product, true);
-            return $product;
+        if (array_key_exists('category', $updates) == true) {
+            $updates['category'] = $this->em->getRepository(Category::class)->findOneById($updates['category']);
+        }
+        if (array_key_exists('brand', $updates) == true) {
+            $updates['brand'] = $this->em->getRepository(Category::class)->findOneById($updates['brand']);
+        }
+        foreach ($updates as $key => $value) {
+            if (in_array($key, self::validUpdates) == false) throw new Exception('invalid operation');
+            $product->setWithKeyValue($key, $value);
+        }
+        $this->em->getRepository(Product::class)->add($product, true);
+        return $product;
     }
 
     public function deleteById(int $id): array
     {
-            $product = $this->em->getRepository(Product::class)->findOneById($id);
-            $variants = $product->getVariants();
-            $variantRepo = $this->em->getRepository(Variant::class);
-            foreach ($variants as $variant) {
-                $variantRepo->remove($variant, false);
-            }
-            if (count($product->getVariants()) != 0) throw new Exception('operation failed');
-            $this->em->getRepository(Product::class)->remove($product, true);
-            return ['message' => 'product deleted'];
+        $product = $this->em->getRepository(Product::class)->findOneById($id);
+        $variants = $product->getVariants();
+        $variantRepo = $this->em->getRepository(Variant::class);
+        foreach ($variants as $variant) {
+            $variantRepo->remove($variant, false);
+        }
+        if (count($product->getVariants()) != 0) throw new Exception('operation failed');
+        $this->em->getRepository(Product::class)->remove($product, true);
+        return ['message' => 'product deleted'];
     }
 
     public function addFeature(int $id, array $features): array
     {
-            $product = $this->em->getRepository(Product::class)->findOneById($id);
-            $validFeatures = self::getValidFeatureValuesByProduct($product);
-            foreach ($features as $featureValueId) {
-                $featureValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => "$featureValueId"]);
-                $featureKeyId = $featureValue->getFeature()->getId();
-                if (array_key_exists($featureKeyId, $validFeatures) == false) throw new Exception('invalid feature found');
-                if (in_array($featureValueId, $validFeatures[$featureKeyId]) == false) throw new Exception('invalid feature value found');
-                $product->addFeatureValue($featureValue);
-            }
-            $this->em->getRepository(Product::class)->add($product, true);
-            return ['message' => 'features added'];
+        $product = $this->em->getRepository(Product::class)->findOneById($id);
+        $validFeatures = self::getValidFeatureValuesByProduct($product);
+        foreach ($features as $featureValueId) {
+            $featureValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => "$featureValueId"]);
+            $featureKeyId = $featureValue->getFeature()->getId();
+            if (array_key_exists($featureKeyId, $validFeatures) == false) throw new Exception('invalid feature found');
+            if (in_array($featureValueId, $validFeatures[$featureKeyId]) == false) throw new Exception('invalid feature value found');
+            $product->addFeatureValue($featureValue);
+        }
+        $this->em->getRepository(Product::class)->add($product, true);
+        return ['message' => 'features added'];
     }
 
     public function getValidFeatureValuesByProduct(Product $product): array
@@ -116,35 +116,35 @@ class ProductManager implements ProductManagerInterface
 
     public function removeFeature(int $id, array $features): array
     {
-            $product = $this->em->getRepository(Product::class)->findOneById($id);
-            foreach ($features as $featureValue) {
-                $itemValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => $featureValue]);
-                $product->removeFeatureValue($itemValue);
-            }
-            $this->em->getRepository(Product::class)->add($product, true);
-            return ['message' => 'features removed'];
+        $product = $this->em->getRepository(Product::class)->findOneById($id);
+        foreach ($features as $featureValue) {
+            $itemValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => $featureValue]);
+            $product->removeFeatureValue($itemValue);
+        }
+        $this->em->getRepository(Product::class)->add($product, true);
+        return ['message' => 'features removed'];
     }
 
     public function toggleActivity(int $id, bool $active): array
     {
-            $product = $this->em->getRepository(Product::class)->findOneById($id);
-            foreach ($product->getVariants() as $variant) {
-                $variant->setStatus($active);
-                $this->em->persist($variant);
-            }
-            $product->setActive($active);
-            $this->em->getRepository(Product::class)->add($product, true);
-            return ['message' => 'product status changed'];
+        $product = $this->em->getRepository(Product::class)->findOneById($id);
+        foreach ($product->getVariants() as $variant) {
+            $variant->setStatus($active);
+            $this->em->persist($variant);
+        }
+        $product->setActive($active);
+        $this->em->getRepository(Product::class)->add($product, true);
+        return ['message' => 'product status changed'];
     }
 
-    public function findBrandProducts(array $options): array
+    public function findBrandProducts(int $id, array $options): array
     {
-        return $this->em->getRepository(Product::class)->findProductByBrandId($options);
+        return $this->em->getRepository(Product::class)->findProductByBrandId($id, $options);
     }
 
-    public function findCategoryProducts(array $options): array
+    public function findCategoryProducts(int $id, array $options): array
     {
-        return $this->em->getRepository(Product::class)->findProductsByCategoryId($options);
+        return $this->em->getRepository(Product::class)->findProductsByCategoryId($id, $options);
     }
 
     public function findById(int $id): ?Product

@@ -27,7 +27,7 @@ interface ProductManagerInterface
 
     public function toggleActivity(int $id, bool $active);
 
-    public function findBrandProducts(array $options);
+    public function findBrandProducts(int $id, array $options);
 
-    public function findCategoryProducts(array $options);
+    public function findCategoryProducts(int $id, array $options);
 }
