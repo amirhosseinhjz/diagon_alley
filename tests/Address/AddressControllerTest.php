@@ -19,8 +19,8 @@ class AddressControllerTest extends BaseJsonApiTestCase
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $this->client->request(
-            'GET',
-            "http://localhost:70/api/address/add/province",
+            'POST',
+            "http://localhost:70/api/address/province",
             [],
             [],
             [],
@@ -44,8 +44,8 @@ class AddressControllerTest extends BaseJsonApiTestCase
 
         //First,load fixtures
         $this->client->request(
-            'GET',
-            "http://localhost:70/api/address/add/province",
+            'POST',
+            "http://localhost:70/api/address/province",
             [],
             [],
             [],
@@ -68,8 +68,8 @@ class AddressControllerTest extends BaseJsonApiTestCase
 
         //First,load fixtures
         $this->client->request(
-            'GET',
-            "http://localhost:70/api/address/add/city",
+            'POST',
+            "http://localhost:70/api/address/city",
             [],
             [],
             [],
@@ -101,8 +101,8 @@ class AddressControllerTest extends BaseJsonApiTestCase
 
         //First,load fixtures
         $this->client->request(
-            'GET',
-            "http://localhost:70/api/address/add",
+            'POST',
+            "http://localhost:70/api/address/",
             [],
             [],
             [],
