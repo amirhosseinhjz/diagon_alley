@@ -5,7 +5,6 @@ namespace App\Controller\Variant;
 use App\Entity\Variant\Variant;
 use App\Repository\VariantRepository\VariantRepository;
 use App\Service\FeatureService\FeatureValueManagement;
-use App\Service\FeatureService\ItemValueManagement;
 use App\Service\VariantService\VariantManagement;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

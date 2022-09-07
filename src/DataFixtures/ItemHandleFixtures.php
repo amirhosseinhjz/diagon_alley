@@ -4,7 +4,6 @@ namespace App\DataFixtures;
 
 use App\Entity\Feature\FeatureValue;
 use App\Entity\Feature\Feature;
-use App\Entity\Feature\ItemValue;
 use App\Entity\Variant\Variant;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;

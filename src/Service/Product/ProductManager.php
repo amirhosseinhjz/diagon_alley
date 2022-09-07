@@ -110,12 +110,12 @@ class ProductManager implements ProductManagerInterface
         try {
             $product = $this->em->getRepository(Product::class)->findOneById($id);
             $validFeatures = self::getValidFeatureValuesByProduct($product);
-            foreach ($features as $featureValue) {
-                $featureKey = $featureValue->getItemFeature()->getId();
-                if (array_key_exists($featureKey, $validFeatures) == false) throw new Exception('invalid feature found');
-                if (in_array($featureValue, $validFeatures[$featureKey]) == false) throw new Exception('invalid feature value found');
-                $itemValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => $featureValue]);
-                $product->addItemValue($itemValue);
+            foreach ($features as $featureValueId) {
+                $featureValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => "$featureValueId"]);
+                $featureKeyId = $featureValue->getFeature()->getId();
+                if (array_key_exists($featureKeyId, $validFeatures) == false) throw new Exception('invalid feature found');
+                if (in_array($featureValueId, $validFeatures[$featureKeyId]) == false) throw new Exception('invalid feature value found');
+                $product->addFeatureValue($featureValue);
             }
             $this->em->persist($product);
             $this->em->flush();
@@ -131,7 +131,7 @@ class ProductManager implements ProductManagerInterface
         $validFeatures = [];
         foreach ($category->getFeatures() as $feature) {
             $featureId = $feature->getId();
-            $featureValues = $feature->getItemValues();
+            $featureValues = $feature->getFeatureValues();
             $featureValueIds = [];
             foreach ($featureValues as $featureValue) {
                 $featureValueIds[] = $featureValue->getId();
@@ -147,7 +147,7 @@ class ProductManager implements ProductManagerInterface
             $product = $this->em->getRepository(Product::class)->findOneById($id);
             foreach ($features as $featureValue) {
                 $itemValue = $this->em->getRepository(FeatureValue::class)->findOneBy(['id' => $featureValue]);
-                $product->removeItemValue($itemValue);
+                $product->removeFeatureValue($itemValue);
             }
             $this->em->persist($product);
             $this->em->flush();

@@ -55,13 +55,13 @@ class BrandController extends AbstractController
     public function update(Request $req): Response
     {
         try {
-            //TODO serialize
             $body = $this->brandManager->getRequestBody($req);
             $brand = $this->brandManager->findById($body['id']);
             if (!$brand) return $this->json(['message' => 'brand not found'], 400);
             $updatedBrand = $this->brandManager->updateEntity($brand, $body['updates']);
             if (array_key_exists('error', $updatedBrand)) return $this->json(['message' => $updatedBrand['error']], 400);
-            return $this->json(['brand' => $updatedBrand['entity']]);
+            $json = $this->brandManager->serialize($updatedBrand['entity'], ['brand_basic']);
+            return $this->json(['brand' => $json]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
