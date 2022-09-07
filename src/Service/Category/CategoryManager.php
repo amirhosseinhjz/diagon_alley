@@ -9,7 +9,6 @@ use App\Interface\Category\CategoryManagerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class CategoryManager implements CategoryManagerInterface
 {
@@ -17,22 +16,14 @@ class CategoryManager implements CategoryManagerInterface
 
     private EntityManagerInterface $em;
 
-    private SerializerInterface $serializer;
-
-    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer)
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->serializer = $serializer;
     }
 
     public function getRequestBody(Request $req)
     {
         return json_decode($req->getContent(), true);
-    }
-
-    public function serialize($data, array $groups): string
-    {
-        return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
 
     public function normalizeArray(array $array): array

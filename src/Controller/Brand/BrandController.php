@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[Route('/brand', name: 'app_brand_')]
 class BrandController extends AbstractController
@@ -60,8 +61,7 @@ class BrandController extends AbstractController
             if (!$brand) return $this->json(['message' => 'brand not found'], 400);
             $updatedBrand = $this->brandManager->updateEntity($brand, $body['updates']);
             if (array_key_exists('error', $updatedBrand)) return $this->json(['message' => $updatedBrand['error']], 400);
-            $json = $this->brandManager->serialize($updatedBrand['entity'], ['brand_basic']);
-            return $this->json(['brand' => $json]);
+            return $this->json(['brand' => $updatedBrand], context: [AbstractNormalizer::GROUPS => ['brand_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
@@ -86,8 +86,7 @@ class BrandController extends AbstractController
         try {
             $brand = $this->brandManager->findById($id);
             if (!$brand) return $this->json(['message' => 'brand not found'], 400);
-            $json = $this->brandManager->serialize($brand, ['brand_basic']);
-            return $this->json(['brand' => $json]);
+            return $this->json(['brand' => $brand], context: [AbstractNormalizer::GROUPS => ['brand_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
