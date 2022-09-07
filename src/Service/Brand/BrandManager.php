@@ -67,4 +67,9 @@ class BrandManager implements BrandManagerInterface
     {
         return $this->em->getRepository(Brand::class)->findManyByQuery($query);
     }
+
+    public function findAll()
+    {
+        return $this->em->getRepository(Brand::class)->findAll();
+    }
 }

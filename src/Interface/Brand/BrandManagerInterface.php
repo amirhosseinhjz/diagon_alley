@@ -20,4 +20,6 @@ interface BrandManagerInterface
     public function findById(int $id);
 
     public function search(string $query);
+
+    public function findAll();
 }
