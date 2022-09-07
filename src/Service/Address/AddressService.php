@@ -53,7 +53,7 @@ class AddressService
         $user = $this->em->getRepository(User\User::class)->find($userId);
         if (is_null($user))
             throw (new \Exception(json_encode("This user is not exist.")));
-        $array["userId"] = $user;
+        $array["user"] = $user;
 
         $city = $this->em->getRepository(Address\AddressCity::class)->findOneByName($array["city"]);
         if (is_null($city))
