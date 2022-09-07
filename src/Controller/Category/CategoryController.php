@@ -2,7 +2,7 @@
 
 namespace App\Controller\Category;
 
-use App\Service\Category\CategoryManager;
+use App\Interface\Category\CategoryManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,9 +13,9 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 #[Route('/category', name: 'app_category_')]
 class CategoryController extends AbstractController
 {
-    protected CategoryManager $categoryManager;
+    protected CategoryManagerInterface $categoryManager;
 
-    public function __construct(CategoryManager $categoryManager)
+    public function __construct(CategoryManagerInterface $categoryManager)
     {
         $this->categoryManager = $categoryManager;
     }
