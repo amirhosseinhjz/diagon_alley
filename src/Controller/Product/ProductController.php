@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-#[Route('/product', name: 'app_product_')]
+#[Route('/api/product', name: 'app_product_')]
 class ProductController extends AbstractController
 {
     protected ProductManagerInterface $productManager;
@@ -21,7 +21,7 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/create', name: 'create', methods: ['POST'])]
+    #[Route('/', name: 'create', methods: ['POST'])]
     public function create(Request $req): Response
     {
         try {
@@ -35,7 +35,7 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/update', name: 'update', methods: ['PATCH'])]
+    #[Route('/', name: 'update', methods: ['PATCH'])]
     public function update(Request $req): Response
     {
         try {
@@ -50,7 +50,7 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/delete', name: 'delete', methods: ['DELETE'])]
+    #[Route('/', name: 'delete', methods: ['DELETE'])]
     public function delete(Request $req): Response
     {
         try {
@@ -63,7 +63,7 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/add-feature', name: 'add_feature', methods: ['PATCH'])]
+    #[Route('/feature', name: 'add_feature', methods: ['POST'])]
     public function addFeature(Request $req): Response
     {
         try {
@@ -76,7 +76,7 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/remove-feature', name: 'remove_feature', methods: ['PATCH'])]
+    #[Route('/feature', name: 'remove_feature', methods: ['DELETE'])]
     public function removeFeature(Request $req): Response
     {
         try {
@@ -89,7 +89,7 @@ class ProductController extends AbstractController
     }
 
     //TODO: auth
-    #[Route('/toggle-activity', name: 'toggle_activity', methods: ['PATCH'])]
+    #[Route('/activity', name: 'toggle_activity', methods: ['PATCH'])]
     public function toggleActivity(Request $req): Response
     {
         try {

@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-#[Route('/brand', name: 'app_brand_')]
+#[Route('/api/brand', name: 'app_brand_')]
 class BrandController extends AbstractController
 {
     protected BrandManagerInterface $brandManager;
@@ -21,7 +21,7 @@ class BrandController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/create', name: 'create', methods: ['POST'])]
+    #[Route('/', name: 'create', methods: ['POST'])]
     public function create(Request $req): Response
     {
         try {
@@ -35,7 +35,7 @@ class BrandController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/delete', name: 'delete', methods: ['DELETE'])]
+    #[Route('/', name: 'delete', methods: ['DELETE'])]
     public function delete(Request $req): Response
     {
         try {
@@ -51,7 +51,7 @@ class BrandController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/update', name: 'update', methods: ['PATCH'])]
+    #[Route('/', name: 'update', methods: ['PATCH'])]
     public function update(Request $req): Response
     {
         try {
@@ -60,6 +60,17 @@ class BrandController extends AbstractController
             if (!$brand) return $this->json(['message' => 'brand not found'], 400);
             $updatedBrand = $this->brandManager->updateEntity($brand, $body['updates']);
             return $this->json(['brand' => $updatedBrand], context: [AbstractNormalizer::GROUPS => ['brand_basic']]);
+        } catch (Exception $exception) {
+            return $this->json(['message' => $exception->getMessage()], 500);
+        }
+    }
+
+    #[Route('/', name: 'get_all', methods: ['GET'])]
+    public function getAll(): Response
+    {
+        try {
+            $brands = $this->brandManager->findALl();
+            return $this->json(['brand' => $brands], context: [AbstractNormalizer::GROUPS => ['brand_basic']]);
         } catch (Exception $exception) {
             return $this->json(['message' => $exception->getMessage()], 500);
         }
