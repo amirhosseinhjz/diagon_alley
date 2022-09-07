@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-#[Route('/category', name: 'app_category_')]
+#[Route('/api/category', name: 'app_category_')]
 class CategoryController extends AbstractController
 {
     protected CategoryManagerInterface $categoryManager;
@@ -21,7 +21,7 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/create', name: 'create', methods: ['POST'])]
+    #[Route('/', name: 'create', methods: ['POST'])]
     public function create(Request $req): Response
     {
         try {
@@ -35,7 +35,7 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/update', name: 'update', methods: ['PATCH'])]
+    #[Route('/', name: 'update', methods: ['PATCH'])]
     public function update(Request $req): Response
     {
         try {
@@ -50,7 +50,7 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/delete', name: 'delete', methods: ['DELETE'])]
+    #[Route('/', name: 'delete', methods: ['DELETE'])]
     public function delete(Request $req): Response
     {
         try {
@@ -64,7 +64,7 @@ class CategoryController extends AbstractController
         }
     }
 
-    #[Route('/main-categories', name: 'main_categories', methods: ['GET'])]
+    #[Route('/', name: 'main_categories', methods: ['GET'])]
     public function getMainCategories(): Response
     {
         try {
@@ -76,7 +76,7 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/toggle-activity', name: 'toggle_activity', methods: ['PATCH'])]
+    #[Route('/activity', name: 'toggle_activity', methods: ['PATCH'])]
     public function toggleActivity(Request $req): Response
     {
         try {
@@ -89,7 +89,7 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/add-feature', name: 'add_feature', methods: ['PATCH'])]
+    #[Route('/feature', name: 'add_feature', methods: ['POST'])]
     public function addFeature(Request $req): Response
     {
         //TODO features could only be added to leaf categories
@@ -105,7 +105,7 @@ class CategoryController extends AbstractController
     }
 
     //TODO: admin auth
-    #[Route('/remove-feature', name: 'remove_feature', methods: ['PATCH'])]
+    #[Route('/feature', name: 'remove_feature', methods: ['DELETE'])]
     public function removeFeature(Request $req): Response
     {
         try {
