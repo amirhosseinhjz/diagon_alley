@@ -2,6 +2,7 @@
 
 namespace App\Controller\Address;
 
+use App\Interface\Authentication\JWTManagementInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -40,14 +41,17 @@ class AddressController extends AbstractController
         }
     }
 
-    #[Route('/add/{userId}', name: 'app_add_address')]
+    #[Route('/add', name: 'app_add_address')]
     public function addAddress(
         Request $request,
-        int $userId,
+        JWTManagementInterface $jwtmanager,
     ): Response {
         try {
-            $response = $this->addressService->addAddress($request->toArray(), $userId);
-            return $response;
+            $user = $jwtmanager->authenticatedUser();
+            $array = $request->toArray();
+            $array["user"]=$user;
+            $status = $this->addressService->addAddress($array);
+            return $this->json(["Status" => $status]);
         } catch (\Exception $e) {
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
         }

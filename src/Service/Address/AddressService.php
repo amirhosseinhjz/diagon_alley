@@ -3,7 +3,6 @@
 namespace App\Service\Address;
 
 use App\Entity\Address;
-use App\Entity\User;
 use App\Trait\AddressTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -48,13 +47,8 @@ class AddressService
         return ["status"=>200,"message"=>"City has been added."];
     }
 
-    public function addAddress(array $array, int $userId)
+    public function addAddress(array $array)
     {
-        $user = $this->em->getRepository(User\User::class)->find($userId);
-        if (is_null($user))
-            throw (new \Exception(json_encode("This user is not exist.")));
-        $array["user"] = $user;
-
         $city = $this->em->getRepository(Address\AddressCity::class)->findOneByName($array["city"]);
         if (is_null($city))
             throw (new \Exception(json_encode("This city is not exist.")));
@@ -66,7 +60,7 @@ class AddressService
         $this->em->flush();
 
         $city->addAddress($address);
-        $user->addAddress($address);
+        $array["user"]->addAddress($address);
         return ["status"=>200,"message"=>"Address has been added."];
     }
 
