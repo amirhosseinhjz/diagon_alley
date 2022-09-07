@@ -235,4 +235,8 @@ class Product
 
         return $this;
     }
+
+    public function containFeatureValue($featureValue){
+        return $this->featureValues->contains($featureValue);
+    }
 }

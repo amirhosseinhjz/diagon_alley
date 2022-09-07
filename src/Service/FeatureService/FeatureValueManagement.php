@@ -4,10 +4,10 @@ namespace App\Service\FeatureService;
 
 use App\Entity\Feature\FeatureValue;
 use App\Entity\Variant\Variant;
+use App\Entity\Product\Product;
 use App\Repository\FeatureRepository\FeatureValueRepository;
 use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
 use App\Interface\Feature\FeatureValueManagementInterface;
 
 class FeatureValueManagement implements FeatureValueManagementInterface
@@ -43,11 +43,9 @@ class FeatureValueManagement implements FeatureValueManagementInterface
     }
 
     public function addFeatureValueToVariant(array $values, Variant $variant){
+        $product = $variant->getProduct();
         foreach($values as $featureId => $FeatureValueId) {
             $featureValue = new FeatureValue();
-
-            //TODO
-            //have to check is featureId valid?(base on productId)
 
             //FeatureValueId validation
             if (count($this->featureValueRepository->showFeature(array("id" => $FeatureValueId)))) {
@@ -57,7 +55,12 @@ class FeatureValueManagement implements FeatureValueManagementInterface
             } else {
                 $this->em->remove($variant);
                 $this->em->flush();
-                throw new \Exception("Invalid Item feature value");
+                throw new \Exception("Invalid Item feature value for this feature with id : {$featureId} ");
+            }
+
+            //have to check is featureId valid(base on productId)
+            if(!$product->containFeatureValue($featureValue)){
+                throw new \Exception("Invalid Item feature value for product");
             }
             
             $variant->addFeatureValue($featureValue);

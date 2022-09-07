@@ -63,9 +63,9 @@ class Variant
     #[ORM\Column(length: 30)]
     private ?string $type = null;
 
-//     #[ORM\ManyToOne(inversedBy: 'variants')]
-//     #[ORM\JoinColumn(nullable: false)]
-//     private ?Product $product = null;
+    #[ORM\ManyToOne(inversedBy: 'variants')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Product $product = null;
 
     public function __construct()
     {
@@ -176,51 +176,51 @@ class Variant
         return $this;
     }
 
-     public function getProduct(): ?Product
-     {
-         return $this->product;
-     }
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
 
-     public function setProduct(Product $product): self
-     {
-         $this->product = $product;
+    public function setProduct(Product $product): self
+    {
+        $this->product = $product;
 
-         return $this;
-     }
+        return $this;
+    }
 
-public function getSoldNumber(): ?int
-{
-    return $this->soldNumber;
-}
+    public function getSoldNumber(): ?int
+    {
+        return $this->soldNumber;
+    }
 
-public function setSoldNumber(int $soldNumber): self
-{
-    $this->soldNumber = $soldNumber;
+    public function setSoldNumber(int $soldNumber): self
+    {
+        $this->soldNumber = $soldNumber;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getSeller(): ?Seller
-{
-    return $this->seller;
-}
+    public function getSeller(): ?Seller
+    {
+        return $this->seller;
+    }
 
-public function setSeller(?Seller $seller): self
-{
-    $this->seller = $seller;
+    public function setSeller(?Seller $seller): self
+    {
+        $this->seller = $seller;
 
-    return $this;
-}
+        return $this;
+    }
 
-public function getType(): ?string
-{
-    return $this->type;
-}
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
 
-public function setType(string $type): self
-{
-    $this->type = $type;
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
-    return $this;
-}
+        return $this;
+    }
 }
