@@ -80,7 +80,7 @@ class UserRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function getSellerIds($purchaseId): ?array
+    public function findBySellerIds($purchaseId): ?array
     {
         $entityManager = $this->getEntityManager();
         $connection = $entityManager->getConnection();
