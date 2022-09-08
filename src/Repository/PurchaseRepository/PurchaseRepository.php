@@ -2,7 +2,7 @@
 
 namespace App\Repository\PurchaseRepository;
 
-use App\Entity\Purchase\Purchase;
+use App\Entity\Order\Purchase\Purchase;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
