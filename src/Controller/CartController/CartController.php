@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Service\CartService\CartService;
+use App\Service\Cart\CartService;
 
 use App\Entity\Cart\Cart;
 use App\Entity\Cart\CartItem;
