@@ -50,13 +50,13 @@ class ShipmentRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findWithSeller($id)
+    public function findWithSeller($seller)
     {
         return $this->createQueryBuilder('sh')
             ->innerJoin('sh.seller','s')
             ->addSelect('s')
             ->andWhere('s.id = :id')
-            ->setParameter('id',$id)
+            ->setParameter('id',$seller)
             ->getQuery()
             ->getResult();
     }

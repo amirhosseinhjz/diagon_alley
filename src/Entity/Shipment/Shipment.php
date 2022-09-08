@@ -88,7 +88,6 @@ class Shipment
     public function removeShipmentItem(ShipmentItem $shipmentItem): self
     {
         if ($this->shipmentItems->removeElement($shipmentItem)) {
-            // set the owning side to null (unless already changed)
             if ($shipmentItem->getShipment() === $this) {
                 $shipmentItem->setShipment(null);
             }

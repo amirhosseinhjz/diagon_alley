@@ -108,7 +108,7 @@ class ShipmentManagement implements ShipmentManagementInterface
     {
         if (!$this->entityManager->getRepository(Shipment::class)->find($id))
         {
-            throw new \Exception(json_encode('There is no shipment for given id'),404);
+            throw new \Exception(json_encode('There is no shipment for given id'),Response::HTTP_NOT_FOUND);
         }
         return $this->entityManager->getRepository(Shipment::class)->findWithItems($id);
     }
