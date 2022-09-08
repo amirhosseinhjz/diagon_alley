@@ -40,6 +40,8 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
                 ->setCreatedAt(new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran')))
                 ->setSerial(md5($i))
                 ->setSoldNumber(0)
+                ->setType('physical')
+                ->setSeller($this->getReference('seller'))
                 ->addFeatureValue($featureValue);
             $manager->persist($variant);
         }
