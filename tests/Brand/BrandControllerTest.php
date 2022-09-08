@@ -12,17 +12,6 @@ class BrandControllerTest extends BaseJsonApiTestCase
 {
     protected const ROUTE = "/api/brand/";
 
-    public function setUp(): void
-    {
-        $client = static::createClient();
-        $container = $client->getContainer();
-        $doctrine = $container->get('doctrine');
-        $entityManager = $doctrine->getManager();
-
-        $fixture = new BrandFixtures();
-        $fixture->load($entityManager);
-    }
-
     public function testCreateBrand()
     {
         $body = [
