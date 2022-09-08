@@ -53,7 +53,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isActive = true;
 
-    #[ORM\OneToMany(mappedBy: 'userId', targetEntity: Address::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class)]
     private Collection $addresses;
 
     public function __construct()
@@ -173,7 +173,6 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->addresses->contains($address)) {
             $this->addresses->add($address);
-            $address->setUserId($this);
         }
 
         return $this;
@@ -182,7 +181,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeAddress(Address $address): self
     {
         if ($this->addresses->removeElement($address)) {
-            if ($address->getUserId() === $this) {
+            if ($address->getUser() === $this) {
                 $address->setIsActive(false);
             }
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataFixtures;
+namespace App\DataFixtures\Item;
 
 use App\Entity\Feature\FeatureValue;
 use App\Entity\Feature\Feature;
@@ -48,6 +48,6 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface
 
     public function load(ObjectManager $manager)
     {
-        $this->loadItemFeature($manager);
+        // $this->loadItemFeature($manager);
     }
 }
