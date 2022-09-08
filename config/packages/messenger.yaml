@@ -1,6 +1,6 @@
 framework:
     messenger:
-
+    
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             async_sms:
@@ -11,8 +11,21 @@ framework:
                     max_retries: 3
                     multiplier: 2
             failed_sms: '%env(FAILED_SMS_TRANSPORT_DSN)%'
+
+
+            async_email:
+                dsn: '%env(EMAIL_TRANSPORT_DSN)%'
+                failure_transport: failed_email
+                options:
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
+            failed_email: '%env(FAILED_EMAIL_TRANSPORT_DSN)%'
+
         routing:
+        
             App\Message\SendSMSMessage: async_sms
+            App\Message\SendEmailMessage: async_email
 
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
