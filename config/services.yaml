@@ -38,5 +38,9 @@ services:
   App\Service\CartService\CartServiceInterface: '@app.cart.service'
 
   app.shipment.management:
-    class: App\Service\CartService\CartService
+    class: App\Service\Shipment\ShipmentManagement
   App\Interface\Shipment\ShipmentManagementInterface: '@app.shipment.management'
+
+  app.order.management:
+    class: App\Service\OrderService\OrderService
+  App\Interface\Order\OrderManagementInterface: '@app.order.management'
