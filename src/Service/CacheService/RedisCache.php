@@ -24,7 +24,6 @@ class RedisCache extends BaseCache implements CacheInterface
             $expNull = $this->expNull;
         }
 
-        $key = $this->namePrefix . '.' . $key;
         return $this->adapter->get($key, function (ItemInterface $item) use ($tagName, $exp, $callable, $expNull) {
             $value = $callable();
             $exp = $value ? $exp : $expNull;

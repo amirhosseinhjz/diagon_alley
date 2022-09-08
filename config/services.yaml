@@ -20,6 +20,14 @@ services:
       - "../src/Entity/"
       - "../src/Kernel.php"
 
+  App\EventListener\Cache\User\SellerChangedNotifier:
+    tags:
+      -
+        # these are the options required to define the entity listener
+        name: 'doctrine.orm.entity_listener'
+        event: 'postUpdate'
+        entity: 'App\Entity\User\Seller'
+
   App\Service\UserService\UserService:
       public: true
 #        synthetic: true

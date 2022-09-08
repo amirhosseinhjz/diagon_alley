@@ -9,6 +9,7 @@ use App\Repository\UserRepository\SellerRepository;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
 use Exception;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,6 +81,18 @@ class UserAuthenticationController extends AbstractController
         } catch(Exception $e) {
 
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[Route('/gogo/{id}', name: 'gogo',methods: ['GET'])]
+    public function update(UserService $userService, CacheSellerRepository $repository, $id): Response
+    {
+        try{
+            $seller = $repository->findAll($id);
+//            $userService->updatePhoneNumberById($id,'+989666665676');
+            dd($seller);
+        }catch(Exception $e){
+            return $this->json(json_decode(4165456), Response::HTTP_OK);
         }
     }
 }

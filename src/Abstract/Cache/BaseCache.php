@@ -7,14 +7,12 @@ abstract class BaseCache
 {
     protected static ?TagAwareAdapter $_adapter = null;
     protected string $tagName;
-    protected string $namePrefix;
     protected TagAwareAdapter $adapter;
     protected $expNull;
 
-    public function __construct(string $tagName, string $namePrefix)
+    public function __construct(string $tagName)
     {
         $this->tagName = $tagName;
-        $this->namePrefix = $namePrefix;
         $this->adapter = $this->_getAdapter();
         $this->expNull = (int)$_ENV['NULL_CACHE_TTL'];
     }
@@ -32,6 +30,11 @@ abstract class BaseCache
             );
         }
         return self::$_adapter;
+    }
+
+    public function forget(string $key)
+    {
+        return $this->adapter->delete($key);
     }
 
     abstract public static function adapter();

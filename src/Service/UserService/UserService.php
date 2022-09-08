@@ -215,6 +215,7 @@ class UserService
             throw (new \Exception("Phone number already exists"));
         } catch (\Exception $e) {}
         $user->setPhoneNumber($phoneNumber);
+        $this->em->persist($user);
         $this->em->flush();
         return $user;
     }
