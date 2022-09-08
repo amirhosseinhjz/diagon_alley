@@ -2,9 +2,10 @@
 
 namespace App\Entity\Shipment;
 
-use App\Entity\Purchase\PurchaseItem;
+use App\Entity\Order\PurchaseItem\PurchaseItem;
 use App\Repository\ShipmentRepository\ShipmentItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ShipmentItemRepository::class)]
@@ -15,13 +16,17 @@ class ShipmentItem
         'PHYSICAL'=>'physical',
     ];
 
+    const STATUS = ['CANCEL','PENDING','DELIVERED','FINALIZED'];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['shipment.shipmentItem.read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'shipmentItems')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Serializer\Groups(['shipmentItem.shipment.read'])]
     private ?Shipment $shipment = null;
 
     #[ORM\OneToOne(inversedBy: 'shipmentItem')]
@@ -29,10 +34,12 @@ class ShipmentItem
     private ?PurchaseItem $purchaseItem = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Choice([ShipmentItem::STATUS['DIGITAL'], ShipmentItem::TYPES['physical']])]
+    #[Serializer\Groups(['shipment.shipmentItem.read'])]
     private ?string $status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Choice([ShipmentItem::TYPES['DIGITAL'], ShipmentItem::TYPES['physical']])]
+    #[Serializer\Groups(['shipment.shipmentItem.read'])]
     private ?string $type = null;
 
     public function getId(): ?int

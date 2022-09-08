@@ -7,6 +7,7 @@ use App\Repository\ShipmentRepository\ShipmentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: ShipmentRepository::class)]
 class Shipment
@@ -16,23 +17,27 @@ class Shipment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['shipment.read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'shipments')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Serializer\Groups(['shipment.seller.read'])]
     private ?Seller $seller = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Serializer\Groups(['shipment.read','shipment.shipmentItem.read','shipment.seller.read'])]
     private ?string $status = null;
 
     #[ORM\OneToMany(mappedBy: 'shipment', targetEntity: ShipmentItem::class)]
+    #[Serializer\Groups(['shipment.shipmentItem.read'])]
     private Collection $shipmentItems;
 
     public function __construct()
     {
         $this->shipmentItems = new ArrayCollection();
     }
-    
+
     public function getId(): ?int
     {
         return $this->id;
