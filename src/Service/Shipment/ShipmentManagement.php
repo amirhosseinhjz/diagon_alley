@@ -4,29 +4,35 @@ namespace App\Service\Shipment;
 
 use App\Entity\Shipment\Shipment;
 use App\Entity\Shipment\ShipmentItem;
-use App\Entity\User;
+use App\Interface\Order\OrderManagementInterface;
 use App\Interface\Shipment\ShipmentManagementInterface;
-use App\Message\SendBookMessage;
 use App\Service\UserService\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use HttpException;
+use PHPUnit\Util\Exception;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class ShipmentManagement implements ShipmentManagementInterface
 {
     protected $messageBus;
 
-    protected $userService;
+    protected $orderService;
 
     protected $entityManager;
 
+    protected $userService;
+
     public function __construct(
         MessageBusInterface $messageBus,
+        OrderManagementInterface $orderService,
+        EntityManagerInterface $entityManager,
         UserService $userService,
-        EntityManagerInterface $entityManager
     )
     {
         $this->dispatcher = $messageBus;
         $this->entityManager = $entityManager;
+        $this->orderService = $orderService;
         $this->userService = $userService;
     }
 
@@ -39,39 +45,78 @@ class ShipmentManagement implements ShipmentManagementInterface
             $seller = $this->userService->getUserById($id);
             $shipment = $this->createShipment($seller);
             $criteria = ['purchaseId'=>$purchaseId,'sellerId'=>$id];
-            $orderItems = $this->userService->getSellerIdsByPurchaseId($criteria);
+            $orderItems = $this->orderService->getPurchaseItemsBySellerIdAndPurchaseId($criteria);
 
             foreach ($orderItems as $orderItem)
             {
                 $shipmentItem = $this->createShipmentItem($orderItem,$shipment);
-                $this->pushDigitalOrdersToQueue($shipmentItem,$purchaseId);
+                $this->digitalProductDelivery($shipmentItem,$orderItem);
             }
         }
     }
 
     public function changeStatus(Shipment|ShipmentItem $object,$status)
     {
-        if(in_array($status,Shipment::STATUS))
+        if (in_array($status,Shipment::STATUS))
         {
             $object->setStatus($status);
             $this->entityManager->flush();
         }
+        return $object;
     }
 
-    public function digitalProductDelivery()
+    public function getShipmentBySellerId($id)
     {
-
+        if (!$this->userService->getUserById($id))
+        {
+            throw new Exception
+            (
+                json_encode('There is no seller for given id'),
+                code: Response::HTTP_NOT_FOUND
+            );
+        }
+        return $this->entityManager->getRepository(Shipment::class)->findWithSeller($id);
     }
 
-    private function getByType()
+    public function getShipmentItemById($id)
     {
+        if (!$this->entityManager->getRepository(ShipmentItem::class)->find($id))
+        {
+            throw new Exception
+            (
+                json_encode('There is no shipment-item for giving id'),
+                code: Response::HTTP_NOT_FOUND
+            );
+        }
+        return $this->entityManager->getRepository(ShipmentItem::class)->find($id);
+    }
 
+    public function getShipmentById($id)
+    {
+        if (!$this->entityManager->getRepository(Shipment::class)->find($id))
+        {
+            throw new Exception
+            (
+                json_encode('There is no shipment for giving id'),
+                code: Response::HTTP_NOT_FOUND
+            );
+        }
+        return $this->entityManager->getRepository(Shipment::class)->find($id);
+    }
+
+    public function getShipmentItems($id)
+    {
+        if (!$this->entityManager->getRepository(Shipment::class)->find($id))
+        {
+            throw new \Exception(json_encode('There is no shipment for given id'),404);
+        }
+        return $this->entityManager->getRepository(Shipment::class)->findWithItems($id);
     }
 
     private function createShipmentItem($fields,$shipment)
     {
         $shipmentItem = new ShipmentItem();
-        $shipmentItem->setPurchaseItem($this->userService->getPurchaseItemById($fields['purchase_item_id']));
+        $shipmentItem->setPurchaseItem($this->orderService->getPurchaseItemById($fields['purchase_item_id']));
         $shipmentItem->setShipment($shipment);
         $shipmentItem->setType($fields['type']);
         $shipmentItem->setStatus('PENDING');
@@ -102,11 +147,18 @@ class ShipmentManagement implements ShipmentManagementInterface
         return array_map($callback,$sellerIds);
     }
 
-    private function pushDigitalOrdersToQueue(ShipmentItem $shipmentItem, $purchaseId)
+    private function digitalProductDelivery(ShipmentItem $shipmentItem, $orderItem)
     {
         if ($shipmentItem->getType() === ShipmentItem::TYPES['DIGITAL'])
         {
-            $this->messageBus->dispatch(new SendBookMessage($shipmentItem->getId() , $purchaseId));
+//            Todo take files from $orderItem id and set status to shipmentItem delivered
+//            $this->fileShipment($file);
+            return;
         }
+    }
+
+    private function fileShipment($file)
+    {
+//        TODO send email
     }
 }
