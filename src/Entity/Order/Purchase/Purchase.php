@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\Purchase;
+namespace App\Entity\Order;
 
 use App\Entity\Payment\Payment;
 use App\Entity\User\Customer;
