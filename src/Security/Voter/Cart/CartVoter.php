@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Security\Voter\CartVoter;
+namespace App\Security\Voter\Cart;
 
+#use App\Interface\Authentication\JWTManagmentInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\Cart\Cart;
+
 
 class CartVoter extends Voter
 {

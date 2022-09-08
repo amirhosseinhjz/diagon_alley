@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\CartController;
+namespace App\Controller\Cart;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +11,7 @@ class CartItemController extends AbstractController
 {
     #[Route('/read/{id}', name: 'read_cart_item')]
     public function index(int $id): Response
-    {   #todo: fetch and return the item properties
+    {   #t: fetch and return the item properties
         return $this->json([
             'id'=> $id
         ]);

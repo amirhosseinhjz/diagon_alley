@@ -3,7 +3,7 @@
 namespace App\Controller\Payment;
 
 use App\Repository\Payment\PaymentRepository;
-use App\Service\CartService\CartServiceInterface;
+use App\Interface\Cart\CartServiceInterface;
 use App\Factory\Payment\PortalFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

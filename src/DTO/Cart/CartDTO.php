@@ -1,38 +1,42 @@
 <?php
-#ToDo: write transformer
-namespace App\DTO\CartDTO;
+namespace App\DTO\Cart;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CartDTO
 {
 
+    public ?int $id= null;
     public ?int $User_Id = null;
 
     #[Assert\DateTime]
-    private ?\DateTimeInterface $finalizedAt = null;   #check if it is in the past
+    public ?\DateTimeInterface $finalizedAt = null;   #check if it is in the past
 
     
-    #[Assert\Collection(
-        fields: [
-            'varient_id' => new Assert\Type('int'),
-            'title' => [new Assert\NotBlank, New Assert\Type('string')],  #check with varient code
-            'count' => [
-                new Assert\Positive,
-                new Assert\Type('int')
-            ],
-            'price' => new Assert\PositiveOrZero
-
-        ],
-        allowMissingFields: false,
-    )]
+    #[Assert\Collection]
     public array $items;
 
     #[Assert\Choice(
         choices: ['INIT', 'PENDING', 'EXPIRED', 'SUCCESS'],
         message: 'Choose a valid genre.',
     )]
-    private ?string $status = null;
+    public ?string $status = null;
+
+    /**
+     * @return string|null
+     */
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string|null $status
+     */
+    public function setStatus(?string $status): void
+    {
+        $this->status = $status;
+    }
 
     public function __construct()
     {
@@ -66,18 +70,14 @@ class CartDTO
         return $this->finalizedAt;
     }
 
-    public function setFinalizedAt(\DateTimeInterface $finalizedAt): self
+    public function setFinalizedAt(\DateTimeInterface $finalizedAt)
     {
         $this->finalizedAt = $finalizedAt;
-
-        return $this;
     }
 
     public function setItems(array $items)
     {
         $this->items = $items;
-
-        return $this;
     }
 
     public function getItems(){
