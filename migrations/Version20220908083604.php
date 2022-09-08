@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20220904204737 extends AbstractMigration
+final class Version20220908083604 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -32,11 +32,11 @@ final class Version20220904204737 extends AbstractMigration
         $this->addSql('CREATE TABLE shipment (id INT AUTO_INCREMENT NOT NULL, seller_id INT NOT NULL, status VARCHAR(255) DEFAULT NULL, INDEX IDX_2CB20DC8DE820D9 (seller_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE shipment_item (id INT AUTO_INCREMENT NOT NULL, shipment_id INT NOT NULL, purchase_item_id INT NOT NULL, status VARCHAR(255) DEFAULT NULL, type VARCHAR(255) DEFAULT NULL, INDEX IDX_1C573407BE036FC (shipment_id), UNIQUE INDEX UNIQ_1C573409B59827 (purchase_item_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) DEFAULT NULL, last_name VARCHAR(255) DEFAULT NULL, email VARCHAR(255) NOT NULL, phone_number VARCHAR(13) NOT NULL, roles LONGTEXT NOT NULL COMMENT \'(DC2Type:simple_array)\', password VARCHAR(255) NOT NULL, token_validate_after DATETIME DEFAULT NULL, is_active TINYINT(1) NOT NULL, type VARCHAR(255) NOT NULL, shop_slug VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_8D93D649E7927C74 (email), UNIQUE INDEX UNIQ_8D93D6496B01BC5B (phone_number), UNIQUE INDEX UNIQ_8D93D649596F7D19 (shop_slug), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE variant (id INT AUTO_INCREMENT NOT NULL, serial VARCHAR(255) DEFAULT NULL, price BIGINT NOT NULL, quantity INT NOT NULL, status TINYINT(1) NOT NULL, description VARCHAR(255) DEFAULT NULL, created_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', sold_number INT NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('ALTER TABLE cart_item ADD CONSTRAINT FK_F0FE25271AD5CDBF FOREIGN KEY (cart_id) REFERENCES cart (id)');
-        $this->addSql('ALTER TABLE feature_value ADD CONSTRAINT FK_D429523D60E4B879 FOREIGN KEY (feature_id) REFERENCES feature (id)');
+        $this->addSql('CREATE TABLE variant (id INT AUTO_INCREMENT NOT NULL, seller_id INT NOT NULL, serial VARCHAR(255) DEFAULT NULL, price BIGINT NOT NULL, quantity INT NOT NULL, status TINYINT(1) NOT NULL, description VARCHAR(255) DEFAULT NULL, created_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', sold_number INT NOT NULL, type VARCHAR(30) NOT NULL, INDEX IDX_F143BFAD8DE820D9 (seller_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE feature_value_variant ADD CONSTRAINT FK_735F6D8580CD149D FOREIGN KEY (feature_value_id) REFERENCES feature_value (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE feature_value_variant ADD CONSTRAINT FK_735F6D853B69A9AF FOREIGN KEY (variant_id) REFERENCES variant (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE cart_item ADD CONSTRAINT FK_F0FE25271AD5CDBF FOREIGN KEY (cart_id) REFERENCES cart (id)');
+        $this->addSql('ALTER TABLE feature_value ADD CONSTRAINT FK_D429523D60E4B879 FOREIGN KEY (feature_id) REFERENCES feature (id)');
         $this->addSql('ALTER TABLE payment ADD CONSTRAINT FK_6D28840D1AD5CDBF FOREIGN KEY (cart_id) REFERENCES cart (id)');
         $this->addSql('ALTER TABLE purchase ADD CONSTRAINT FK_6117D13B9395C3F3 FOREIGN KEY (customer_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE purchase ADD CONSTRAINT FK_6117D13B4C3A3BB FOREIGN KEY (payment_id) REFERENCES payment (id)');
@@ -45,6 +45,7 @@ final class Version20220904204737 extends AbstractMigration
         $this->addSql('ALTER TABLE shipment ADD CONSTRAINT FK_2CB20DC8DE820D9 FOREIGN KEY (seller_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE shipment_item ADD CONSTRAINT FK_1C573407BE036FC FOREIGN KEY (shipment_id) REFERENCES shipment (id)');
         $this->addSql('ALTER TABLE shipment_item ADD CONSTRAINT FK_1C573409B59827 FOREIGN KEY (purchase_item_id) REFERENCES purchase_item (id)');
+        $this->addSql('ALTER TABLE variant ADD CONSTRAINT FK_F143BFAD8DE820D9 FOREIGN KEY (seller_id) REFERENCES user (id)');
     }
 
     public function down(Schema $schema): void
@@ -62,6 +63,7 @@ final class Version20220904204737 extends AbstractMigration
         $this->addSql('ALTER TABLE shipment DROP FOREIGN KEY FK_2CB20DC8DE820D9');
         $this->addSql('ALTER TABLE shipment_item DROP FOREIGN KEY FK_1C573407BE036FC');
         $this->addSql('ALTER TABLE shipment_item DROP FOREIGN KEY FK_1C573409B59827');
+        $this->addSql('ALTER TABLE variant DROP FOREIGN KEY FK_F143BFAD8DE820D9');
         $this->addSql('DROP TABLE cart');
         $this->addSql('DROP TABLE cart_item');
         $this->addSql('DROP TABLE feature');
