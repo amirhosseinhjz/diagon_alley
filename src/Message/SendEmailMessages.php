@@ -2,7 +2,7 @@
 
 namespace App\Message;
 
-final class SendEmailMessage
+final class SendEmailMessages
 {
     private const DEFINED_EMAIL='diagonAlley@test.com';
 

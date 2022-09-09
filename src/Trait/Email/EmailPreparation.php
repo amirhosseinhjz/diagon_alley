@@ -2,7 +2,7 @@
 
 namespace App\Trait\Email;
 
-use App\Message\SendEmailMessage;
+use App\Message\SendEmailMessages;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
 trait EmailPreparation

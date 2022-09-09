@@ -25,7 +25,7 @@ framework:
         routing:
         
             App\Message\SendSMSMessage: async_sms
-            App\Message\SendEmailMessage: async_email
+            App\Message\SendEmailMessages: async_email
 
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
