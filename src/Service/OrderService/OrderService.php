@@ -84,7 +84,7 @@ class OrderService implements OrderManagementInterface
         return $purchase->getId();
     }
 
-    public function finalizeOrder(array $params): int
+    public function submitOrder(array $params): int
     {
         if (!isset($params['cartId']) || !isset($params['addressId'])) {
             throw new \Exception('Invalid params');
@@ -101,6 +101,14 @@ class OrderService implements OrderManagementInterface
             throw new \Exception('Order not found');
         }
         return $order;
+    }
+
+    public function finalizeOrder($orderId): void
+    {
+        $order = $this->getOrderById($orderId);
+        $order->setStatus($order::STATUS_PAID);
+        $this->em->flush();
+//        TODO: call shipping service
     }
 
 }

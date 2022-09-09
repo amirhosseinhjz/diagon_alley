@@ -14,7 +14,7 @@ class OrderController extends AbstractController
     public function finalizeOrder(Request $request, OrderService $orderService)
     {
         try {
-            $orderId = $orderService->finalizeOrder($request->request->all());
+            $orderId = $orderService->submitOrder($request->request->all());
 
             $response = [
                 'orderId' => $orderId,
