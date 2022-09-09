@@ -34,7 +34,7 @@ class Purchase
     #[ORM\Column(length: 25)]
     private ?string $serialNumber = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'purchase', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Payment $payment = null;
 

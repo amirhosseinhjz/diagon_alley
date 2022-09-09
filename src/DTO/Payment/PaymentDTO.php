@@ -2,6 +2,8 @@
 
 namespace App\DTO\Payment;
 
+use App\Entity\Order\Purchase;
+use App\Entity\Portal\Portal;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class PaymentDTO
@@ -19,4 +21,8 @@ class PaymentDTO
     #[Assert\NotNull]
     #[Assert\Choice(['PENDING', 'FAILED', 'SUCCESS'], message: 'This method is not available.')]
     public ?string $status = "PENDING";
+
+    public ?Purchase $purchase = null;
+
+    public ?Portal $portal = null;
 }

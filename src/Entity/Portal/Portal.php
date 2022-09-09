@@ -20,7 +20,7 @@ class Portal
     #[ORM\Column(length: 255)]
     private ?string $code = "000000";
 
-    #[ORM\OneToOne(mappedBy: 'Portal', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'portal', cascade: ['persist', 'remove'])]
     private ?Payment $payment = null;
 
     public function getId(): ?int

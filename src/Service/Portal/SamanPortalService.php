@@ -62,6 +62,6 @@ class SamanPortalService implements portalInterface
         $portal->getPayment()->setCode($result['TraceNo']);
         $this->em->flush();
 
-        return ["Id" => $portal->getPayment()->getOrder()->getId(), "Status" => $result["State"]];
+        return ["Id" => $portal->getPayment()->getPurchase()->getId(), "Status" => $result["State"]];
     }
 }

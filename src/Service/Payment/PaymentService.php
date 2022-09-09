@@ -3,6 +3,7 @@
 namespace App\Service\Payment;
 
 use App\DTO\Payment\PaymentDTO;
+use App\Entity\Order\Purchase;
 use App\Entity\Payment\Payment;
 use App\Interface\Payment\paymentInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,14 +24,14 @@ abstract class PaymentService implements paymentInterface
 
     public function dtoFromOrderArray($array)
     {
-        $order = $this->em->getRepository(Order::class)->find($array["order"]);
-        if (is_null($order))
+        $purchase = $this->em->getRepository(Purchase::class)->find($array["purchase"]);
+        if (is_null($purchase))
             throw (new \Exception("This order is not exist."));
-        if ($order->getStatus() != "PENDING")
+        if ($purchase->getStatus() != Purchase::STATUS_PENDING)
             throw (new \Exception("This order is not suitable for payment."));
-        $array["order"] = $order;
+        $array["purchase"] = $purchase;
 
-        $array["paidAmount"] = $order->getPrice();
+        $array["paidAmount"] = $purchase->getTotalPrice();
         $paymentDTO = $this->serializer->deserialize(json_encode($array), PaymentDTO::class, 'json');
 
         $DTOErrors = $this->validate($paymentDTO);

@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/payment')]
 class PaymentController extends AbstractController
 {
-    #[Route('/{orderId}/{type}', name: 'app_payment_new', methods: ['GET'])]
+    #[Route('/{orderId}/{method}', name: 'app_payment_new', methods: ['GET'])]
     public function new(
         Request $request,
         int $orderId,
@@ -21,7 +21,7 @@ class PaymentController extends AbstractController
         try {
             $paymentService = PaymentFactory::create($method);
 
-            $requestDto = $paymentService->dtoFromOrderArray(["order" => $orderId, "method" => $method]);
+            $requestDto = $paymentService->dtoFromOrderArray(["purchase" => $orderId, "method" => $method]);
             $paymentId = $paymentService->entityFromDto($requestDto);
 
             $array = $request->toArray();

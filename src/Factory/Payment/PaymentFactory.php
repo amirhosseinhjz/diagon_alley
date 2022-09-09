@@ -13,6 +13,6 @@ final class PaymentFactory
         if (class_exists($newPayment))
             return new $newPayment();
         else
-            throw (new \Exception('Invalid portal type'));
+            throw (new \Exception('Invalid portal method'));
     }
 }

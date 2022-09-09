@@ -2,6 +2,7 @@
 
 namespace App\Entity\Payment;
 
+use App\Entity\Order\Purchase;
 use App\Entity\Portal\Portal;
 use App\Repository\Payment\PaymentRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -28,9 +29,10 @@ class Payment
     private ?string $status = null;
 
     #[ORM\OneToOne(inversedBy: 'payment', cascade: ['persist', 'remove'])]
-    private ?Portal $Portal = null;
+    private ?Portal $portal = null;
 
-    //TODO: orderId
+    #[ORM\OneToOne(inversedBy: 'payment', cascade: ['persist', 'remove'])]
+    private ?Purchase $purchase = null;
 
     //TODO: walletId
 
@@ -90,12 +92,24 @@ class Payment
 
     public function getPortal(): ?Portal
     {
-        return $this->Portal;
+        return $this->portal;
     }
 
-    public function setPortal(?Portal $Portal): self
+    public function setPortal(?Portal $portal): self
     {
-        $this->Portal = $Portal;
+        $this->portal = $portal;
+
+        return $this;
+    }
+
+    public function getPurchase(): ?Purchase
+    {
+        return $this->purchase;
+    }
+
+    public function setPurchase(?Purchase $purchase): self
+    {
+        $this->purchase = $purchase;
 
         return $this;
     }
