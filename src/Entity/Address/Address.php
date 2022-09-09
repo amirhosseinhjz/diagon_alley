@@ -76,7 +76,9 @@ class Address
 
     public function setCity(?AddressCity $city): self
     {
-        $this->city->addresses->removeElement($this);
+        if(!is_null($this->city))
+            $this->city->removeAdderess($this);
+
         $city->addAddress($this);
 
         $this->city = $city;

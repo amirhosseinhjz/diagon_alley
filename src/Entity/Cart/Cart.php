@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Entity\Cart;
-
 use Exception;
 use App\Repository\CartRepository\CartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -12,7 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 class Cart
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -20,6 +18,7 @@ class Cart
 
     #[ORM\Column]
     private ?int $User_Id = null;
+    #ToDo: make into a doctrine relation
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $finalizedAt = null;
@@ -77,9 +76,7 @@ class Cart
         if (!$this->items->contains($item)) {
             $this->items->add($item);
             $item->setCart($this);
-        } else { #todo: check the stocks in the manager and increase the count
         }
-
         return $this;
     }
 
@@ -107,7 +104,9 @@ class Cart
         } elseif ($status === "PENDING") {
             $this->status = $status;
             #ToDo: automatic expiration (not here)
-        } else {
+        }
+        else
+        {
             throw new Exception('Invalid value for status');
         }
 

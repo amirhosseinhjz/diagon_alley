@@ -6,10 +6,12 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class BaseJsonApiTestCase extends JsonApiTestCase
 {
     static protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789*zZ'];
+
     /**
      * @return \PHPUnit\Framework\MockObject\MockObject|EventDispatcherInterface
      */
@@ -70,5 +72,12 @@ class BaseJsonApiTestCase extends JsonApiTestCase
         $response = $this->client->getResponse()->getContent();
 
         return $response;
+    }
+    
+    public function getValidator(): \PHPUnit\Framework\MockObject\MockObject|ValidatorInterface
+    {
+        return $this->getMockBuilder(
+            ValidatorInterface::class
+        )->getMockForAbstractClass();
     }
 }
