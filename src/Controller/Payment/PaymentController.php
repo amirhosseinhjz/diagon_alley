@@ -2,53 +2,53 @@
 
 namespace App\Controller\Payment;
 
-use App\Repository\Payment\PaymentRepository;
-use App\Service\CartService\CartServiceInterface;
-use App\Factory\Payment\PortalFactory;
+use App\Factory\Payment\PaymentFactory;
+use App\Factory\Portal\PortalFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/payment')]
 class PaymentController extends AbstractController
 {
-
-    #[Route('/{cartId}/{type}', name: 'app_payment_new', methods: ['GET'])]
+    #[Route('/{orderId}/{type}', name: 'app_payment_new', methods: ['GET'])]
     public function new(
-        ValidatorInterface $validator,
-        PaymentRepository $repository,
-        CartServiceInterface $cartService,
-        int $cartId,
-        string $type,
-    ) {
+        Request $request,
+        int $orderId,
+        string $method,
+    ): Response {
         try {
-            $portalService = PortalFactory::create($type, $cartService);
+            $paymentService = PaymentFactory::create($method);
 
-            $requestDto = $portalService->makePaymentDTO($cartId, $type, $validator, $repository);
+            $requestDto = $paymentService->dtoFromOrderArray(["order" => $orderId, "method" => $method]);
+            $paymentId = $paymentService->entityFromDto($requestDto);
 
-            $directToPayment = $portalService->payCart($requestDto);
+            $array = $request->toArray();
+            $array["payment"] = $paymentId;
 
-            return $this->render('Payment/payment.html.twig', $directToPayment);
+            $response = $paymentService->pay($requestDto, $array);
+
+            if ($method == "PORTAL")
+                return $this->render('Payment/payment.html.twig', $response);
+            else
+                return $this->json($response);
         } catch (\Exception $e) {
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #[Route('/getStatus', name: 'app_payment_get_status', methods: ['POST'])]
+    #[Route('/status', name: 'app_payment_get_status', methods: ['POST'])]
     public function changeStatus(
         Request $request,
-        PaymentRepository $repository,
-        CartServiceInterface $cartService
     ) {
         try {
             $requestToArray = $request->request->all();
 
             sscanf($requestToArray['ResNum'], "%d:%s", $requestToArray['ResNum'], $type);
 
-            $portalService = PortalFactory::create($type, $cartService);
-            $responce = $portalService->changeStatus($requestToArray, $repository);
+            $portalService = PortalFactory::create($type);
+            $responce = $portalService->changeStatus($requestToArray);
 
             return $this->json($responce);
         } catch (\Exception $e) {

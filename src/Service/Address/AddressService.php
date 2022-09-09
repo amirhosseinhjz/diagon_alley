@@ -4,13 +4,13 @@ namespace App\Service\Address;
 
 use App\Entity\Address;
 use App\Entity\User;
-use App\Trait\AddressTrait;
+use App\Trait\Distance\CalculateDistanceTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AddressService
 {
-    use AddressTrait;
+    use CalculateDistanceTrait;
 
     public function __construct(
         private EntityManagerInterface $em,

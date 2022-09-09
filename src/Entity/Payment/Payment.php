@@ -2,7 +2,7 @@
 
 namespace App\Entity\Payment;
 
-use App\Entity\Cart\Cart;
+use App\Entity\Portal\Portal;
 use App\Repository\Payment\PaymentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -15,8 +15,8 @@ class Payment
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30)]
-    private ?string $type = null;
+    #[ORM\Column(length: 20)]
+    private ?string $method = null;
 
     #[ORM\Column]
     private ?int $paidAmount = null;
@@ -24,30 +24,29 @@ class Payment
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 20)]
     private ?string $status = null;
 
-    #[ORM\Column(length: 10)]
-    private ?string $code = null;
+    #[ORM\OneToOne(inversedBy: 'payment', cascade: ['persist', 'remove'])]
+    private ?Portal $Portal = null;
 
-    #[ORM\ManyToOne(inversedBy: 'payments')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Cart $cart = null;
+    //TODO: orderId
 
+    //TODO: walletId
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getType(): ?string
+    public function getMethod(): ?string
     {
-        return $this->type;
+        return $this->method;
     }
 
-    public function setType(string $type): self
+    public function setMethod(string $method): self
     {
-        $this->type = $type;
+        $this->method = $method;
 
         return $this;
     }
@@ -89,26 +88,14 @@ class Payment
         return $this;
     }
 
-    public function getCode(): ?string
+    public function getPortal(): ?Portal
     {
-        return $this->code;
+        return $this->Portal;
     }
 
-    public function setCode(?string $code): self
+    public function setPortal(?Portal $Portal): self
     {
-        $this->code = $code;
-
-        return $this;
-    }
-
-    public function getCart(): ?Cart
-    {
-        return $this->cart;
-    }
-
-    public function setCart(?Cart $cart): self
-    {
-        $this->cart = $cart;
+        $this->Portal = $Portal;
 
         return $this;
     }
