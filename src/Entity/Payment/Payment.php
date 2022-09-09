@@ -31,7 +31,7 @@ class Payment
     #[ORM\OneToOne(inversedBy: 'payment', cascade: ['persist', 'remove'])]
     private ?Portal $portal = null;
 
-    #[ORM\OneToOne(inversedBy: 'payment', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'payments')]
     private ?Purchase $purchase = null;
 
     //TODO: walletId

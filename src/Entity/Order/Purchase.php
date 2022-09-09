@@ -34,10 +34,6 @@ class Purchase
     #[ORM\Column(length: 25)]
     private ?string $serialNumber = null;
 
-    #[ORM\OneToOne(mappedBy: 'purchase', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Payment $payment = null;
-
     #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: PurchaseItem::class)]
     private Collection $purchaseItems;
 
@@ -50,9 +46,13 @@ class Purchase
     #[ORM\Column]
     private ?int $status = null;
 
+    #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: Payment::class)]
+    private Collection $payments;
+
     public function __construct()
     {
         $this->purchaseItems = new ArrayCollection();
+        $this->payments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -92,18 +92,6 @@ class Purchase
     public function setSerialNumber(string $serialNumber): self
     {
         $this->serialNumber = $serialNumber;
-
-        return $this;
-    }
-
-    public function getPayment(): ?Payment
-    {
-        return $this->payment;
-    }
-
-    public function setPayment(Payment $payment): self
-    {
-        $this->payment = $payment;
 
         return $this;
     }
@@ -176,6 +164,24 @@ class Purchase
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Payment>
+     */
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
+    public function addPayment(Payment $payment): self
+    {
+        if (!$this->payments->contains($payment)) {
+            $this->payments->add($payment);
+            $payment->setPurchase($this);
+        }
 
         return $this;
     }
