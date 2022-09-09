@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Message;
+namespace App\Message\Email;
 
-final class SendEmailMessage
+final class SendEmailMessages
 {
     private const DEFINED_EMAIL='diagonAlley@test.com';
 

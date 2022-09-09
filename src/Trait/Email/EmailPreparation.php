@@ -2,12 +2,12 @@
 
 namespace App\Trait\Email;
 
-use App\Message\SendEmailMessage;
+use App\Message\Email\SendEmailMessages;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
 trait EmailPreparation
 {
-    private function emailPreparation(TemplatedEmail $email,SendEmailMessage $message)
+    private function emailPreparation(TemplatedEmail $email,SendEmailMessages $message)
     {
         $email = $email->from($message->getEmailFrom())->to($message->getEmailTo());
 

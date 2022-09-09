@@ -2,8 +2,7 @@
 namespace App\Service\Email;
 
 use App\Interface\Email\EmailManagementInterface;
-use App\Message\SendEmailMessage;
-use Symfony\Component\Mailer\Messenger\SendEmailMessage;
+use App\Message\Email\SendEmailMessages;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class EmailManagement implements EmailManagementInterface
@@ -23,7 +22,7 @@ class EmailManagement implements EmailManagementInterface
    private function reset()
    {
        $this->parameters = [];
-       $this->eventClassName = SendEmailMessage::class;
+       $this->eventClassName = SendEmailMessages::class;
    }
 
     public function setEmailTo(string $emailTo): self

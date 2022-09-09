@@ -1,8 +1,8 @@
 <?php
 
-namespace App\MessageHandler;
+namespace App\MessageHandler\Email;
 
-use App\Message\SendEmailMessage;
+use App\Message\Email\SendEmailMessages;
 use App\Trait\Email\EmailPreparation;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
@@ -20,7 +20,7 @@ final class SendEmailMessageHandler implements MessageHandlerInterface
         $this->mailerService = $mailer;
     }
 
-    public function __invoke(SendEmailMessage $message)
+    public function __invoke(SendEmailMessages $message)
     {
         $email = $this->emailPreparation(new TemplatedEmail(), $message);
         $this->mailerService->send($email);

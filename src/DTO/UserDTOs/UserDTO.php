@@ -15,7 +15,7 @@ abstract class UserDTO
     public ?string $name = null;
 
     #[Assert\NotBlank()]
-    #[Assert\Email(message:"The email '{{ value }}' is not a valid email.")]
+    #[Assert\Email(message:"The Email '{{ value }}' is not a valid Email.")]
     public string $email;
 
     public ?string $lastName = null;
