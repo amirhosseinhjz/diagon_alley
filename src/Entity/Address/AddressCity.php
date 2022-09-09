@@ -30,6 +30,10 @@ class AddressCity
     #[ORM\OneToMany(mappedBy: 'city', targetEntity: Address::class, orphanRemoval: true)]
     private Collection $addresses;
 
+    #[ORM\Column]
+    #[Assert\NotNull]
+    private ?bool $isActive = true;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
@@ -88,6 +92,17 @@ class AddressCity
     public function removeAdderess($element): self
     {
         $this->addresses->removeElement($element);
+        return $this;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }

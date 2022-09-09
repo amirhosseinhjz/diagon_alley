@@ -47,8 +47,9 @@
         "symfony/web-link": "6.1.*",
         "symfony/yaml": "6.1.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0",
-    },
+        "twig/twig": "^2.12|^3.0"
+        "symfony-bundles/json-request-bundle": "^4.1"
+      },
   "config": {
     "allow-plugins": {
       "composer/package-versions-deprecated": true,
