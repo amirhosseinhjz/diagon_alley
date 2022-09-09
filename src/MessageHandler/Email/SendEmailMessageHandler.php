@@ -1,8 +1,8 @@
 <?php
 
-namespace App\MessageHandler;
+namespace App\MessageHandler\Email;
 
-use App\Message\SendEmailMessages;
+use App\Message\Email\SendEmailMessages;
 use App\Trait\Email\EmailPreparation;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;

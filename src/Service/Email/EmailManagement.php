@@ -2,7 +2,7 @@
 namespace App\Service\Email;
 
 use App\Interface\Email\EmailManagementInterface;
-use App\Message\SendEmailMessages;
+use App\Message\Email\SendEmailMessages;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class EmailManagement implements EmailManagementInterface

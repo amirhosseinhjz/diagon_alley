@@ -45,10 +45,13 @@ services:
 #  App\Interface\Cart\CartItemServiceInterface: '@App\Service\Cart\CartItemService'
 
   app.cart.service:
-
     class: App\Service\CartService\CartService
   App\Service\CartService\CartServiceInterface: '@app.cart.service'
   
   app.saman.service:
     class: App\Service\Payment\SamanPortalService
   App\Interface\Payment\BankPortalInterface: '@app.saman.service'
+
+  app.email.service:
+    class: App\Service\Email\EmailManagement
+  App\Interface\Email\EmailManagementInterface: '@app.email.service'

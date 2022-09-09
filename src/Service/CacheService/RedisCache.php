@@ -45,7 +45,7 @@ class RedisCache implements CacheInterface
 }
 //    public function test()
 //    {
-//        $this->remember('email.32', 30, function () {
+//        $this->remember('Email.32', 30, function () {
 //            return $userService->getUserById($jwt->authenticatedUser()->getId());
 //        }, 'hhuu');
 
