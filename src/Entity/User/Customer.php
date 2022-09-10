@@ -2,7 +2,7 @@
 
 namespace App\Entity\User;
 
-use App\Entity\Order\Purchase\Purchase;
+use App\Entity\Order\Purchase;
 use App\Repository\UserRepository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -38,7 +38,7 @@ class Customer extends User
     }
 
     /**
-     * @return Collection<int, Purchase>
+     * @return Collection<int, \App\Entity\Order\Purchase>
      */
     public function getPurchases(): Collection
     {

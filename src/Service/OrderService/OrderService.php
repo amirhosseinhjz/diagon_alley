@@ -4,8 +4,8 @@ namespace App\Service\OrderService;
 
 use App\Entity\Address\Address;
 use App\Entity\Cart\Cart;
-use App\Entity\Order\Purchase\Purchase;
-use App\Entity\Order\PurchaseItem\PurchaseItem;
+use App\Entity\Order\Purchase;
+use App\Entity\Order\PurchaseItem;
 use App\Interface\Order\OrderManagementInterface;
 use App\Service\Address\AddressService;
 use App\Service\Cart\CartService;

@@ -2,13 +2,13 @@
 
 namespace App\Repository\PurchaseRepository;
 
-use App\Entity\Order\PurchaseItem\PurchaseItem;
+use App\Entity\Order\PurchaseItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<PurchaseItem>
+ * @extends ServiceEntityRepository<\App\Entity\Order\PurchaseItem>
  *
  * @method PurchaseItem|null find($id, $lockMode = null, $lockVersion = null)
  * @method PurchaseItem|null findOneBy(array $criteria, array $orderBy = null)

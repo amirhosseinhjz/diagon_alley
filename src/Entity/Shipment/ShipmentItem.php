@@ -2,7 +2,7 @@
 
 namespace App\Entity\Shipment;
 
-use App\Entity\Order\PurchaseItem\PurchaseItem;
+use App\Entity\Order\PurchaseItem;
 use App\Repository\ShipmentRepository\ShipmentItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation as Serializer;
