@@ -3,7 +3,10 @@
 namespace App\Entity\User;
 
 use App\Entity\Cart\Cart;
+use App\Entity\Order\Purchase;
 use App\Repository\UserRepository\CustomerRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
@@ -15,6 +18,14 @@ class Customer extends User
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Cart::class, orphanRemoval: true)]
     private Collection $carts;
+
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Purchase::class)]
+    private Collection $purchases;
+
+    public function __construct()
+    {
+        $this->purchases = new ArrayCollection();
+    }
 
     public function getRoles(): array
     {
@@ -54,6 +65,35 @@ class Customer extends User
                 $cart->setCustomer(null);
             }
         }
+    }
+
+    /**
+     * @return Collection<int, Purchase>
+     */
+    public function getPurchases(): Collection
+    {
+        return $this->purchases;
+    }
+
+    public function addPurchase(Purchase $purchase): self
+    {
+        if (!$this->purchases->contains($purchase)) {
+            $this->purchases->add($purchase);
+            $purchase->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removePurchase(Purchase $purchase): self
+    {
+        if ($this->purchases->removeElement($purchase)) {
+            // set the owning side to null (unless already changed)
+            if ($purchase->getCustomer() === $this) {
+                $purchase->setCustomer(null);
+            }
+        }
+
         return $this;
     }
 }

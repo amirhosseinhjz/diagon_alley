@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataFixtures;
+namespace App\DataFixtures\Cart;
 
 use App\Entity\Cart\Cart;
 use Doctrine\Bundle\FixturesBundle\Fixture;

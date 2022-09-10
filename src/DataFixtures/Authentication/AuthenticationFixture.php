@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataFixtures;
+namespace App\DataFixtures\Authentication;
 
 use App\Entity\User\Customer;
 use App\Entity\User\Seller;

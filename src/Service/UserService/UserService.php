@@ -32,7 +32,7 @@ class UserService
         'phoneNumber',
         'password',
         'shopSlug',
-        'email',
+        'Email',
     ];
 
     private EntityManagerInterface $em;
@@ -188,10 +188,10 @@ class UserService
     private function updateEmail(User\User $user, string $email)
     {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw (new \Exception("Invalid email"));
+            throw (new \Exception("Invalid Email"));
         }
         try{
-            $this->getUserBy(['email' => $email]);
+            $this->getUserBy(['Email' => $email]);
             throw (new \Exception("Email already exists"));
         } catch (\Exception $e) {}
         $user->setEmail($email);

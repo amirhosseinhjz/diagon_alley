@@ -27,7 +27,8 @@ class JWTManagement implements JWTManagementInterface
         EventDispatcherInterface $dispatcher,
         JWTTokenManagerInterface $JWTManager,
         TokenStorageInterface $tokenStorageInterface,
-        UserPasswordHasherInterface $hasher
+        UserPasswordHasherInterface $hasher,
+
     )
     {
         $this->JWTManager = $JWTManager;
