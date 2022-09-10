@@ -22,11 +22,11 @@ class PaymentController extends AbstractController
     ) {
     }
 
-    #[Route('/{orderId}/{method}', name: 'app_payment_new', methods: ['POST'])]
+    #[Route('/{orderId}/{method}/{type}', name: 'app_payment_new', methods: ['GET'])]
     public function new(
-        Request $request,
         int $orderId,
         string $method,
+        string $type="",
     ): Response {
         try {
             $paymentService = PaymentFactory::create($method, $this->em, $this->validator,$this->orderService);
@@ -34,7 +34,7 @@ class PaymentController extends AbstractController
             $requestDto = $paymentService->dtoFromOrderArray(["purchase" => $orderId, "method" => $method]);
             $paymentId = $paymentService->entityFromDto($requestDto);
             
-            $array = $request->toArray();
+            $array["type"] = $type;
             $array["payment"] = $paymentId;
 
             $response = $paymentService->pay($requestDto, $array);

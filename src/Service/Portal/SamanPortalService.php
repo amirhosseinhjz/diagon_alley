@@ -59,7 +59,7 @@ class SamanPortalService implements portalInterface
 
         if ($result["State"] == "OK") {
             $payment->setStatus("SUCCESS");
-            $this->orderService->finalizeOrder($payment->getOrder());
+            $this->orderService->finalizeOrder($payment->getPurchase());
         } else {
             $payment->setStatus("FAILED");
         }
