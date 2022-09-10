@@ -12,13 +12,13 @@ framework:
                     multiplier: 2
             failed_sms: '%env(FAILED_SMS_TRANSPORT_DSN)%'
             async_book:
-                dsn: '%env(DIGITAL_BOOK_TRANSPORT_DSN)%'
+                dsn: '%env(DIGITAL_TRANSPORT_DSN)%'
                 failure_transport: failed_sms
                 options:
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
-            failed_book: '%env(FAILED_DIGITAL_BOOK_TRANSPORT_DSN)%'
+            failed_book: '%env(FAILED_DIGITAL_TRANSPORT_DSN)%'
         routing:
             App\Message\SendSMSMessage: async_sms
             App\Message\SendBookMessage: async_book

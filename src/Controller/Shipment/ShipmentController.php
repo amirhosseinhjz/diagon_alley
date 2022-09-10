@@ -2,7 +2,7 @@
 
 namespace App\Controller\Shipment;
 
-use App\DTO\ShipmentDTO\ShipmenAndShipmentItemUpdateDTO;
+use App\DTO\ShipmentDTO\ShipmentAndShipmentItemUpdateDTO;
 use App\Interface\Shipment\ShipmentManagementInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,7 +70,7 @@ class ShipmentController extends AbstractController
     {
         try {
             $request = $request->toArray();
-            (new ShipmenAndShipmentItemUpdateDTO($request,$this->validator))
+            (new ShipmentAndShipmentItemUpdateDTO($request,$this->validator))
                 ->doValidate();
             $shipment = $this->managementShipment->changeStatus
             (
@@ -92,7 +92,7 @@ class ShipmentController extends AbstractController
     public function shipmentItemStatusUpdate(Request $request,$id): Response
     {
         try {
-            (new ShipmenAndShipmentItemUpdateDTO($request->toArray(),$this->validator))
+            (new ShipmentAndShipmentItemUpdateDTO($request->toArray(),$this->validator))
                 ->doValidate();
             $shipment = $this->managementShipment->changeStatus
             (

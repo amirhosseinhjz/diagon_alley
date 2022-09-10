@@ -6,7 +6,7 @@ use App\Entity\Shipment\ShipmentItem;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class ShipmenAndShipmentItemUpdateDTO
+class ShipmentAndShipmentItemUpdateDTO
 {
     #[Assert\NotBlank]
     #[Assert\Choice(Shipment::STATUS,message: "not a valid status")]
