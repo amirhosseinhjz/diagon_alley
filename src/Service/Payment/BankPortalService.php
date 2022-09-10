@@ -6,7 +6,7 @@ use App\Interface\Payment\BankPortalInterface;
 use App\Repository\Payment\PaymentRepository;
 use App\DTO\Payment\PaymentDTO;
 use App\Entity\Payment\Payment;
-use App\Service\CartService\CartServiceInterface;
+use App\Interface\Cart\CartServiceInterface;
 
 abstract class BankPortalService implements BankPortalInterface
 {

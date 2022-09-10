@@ -1,7 +1,7 @@
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
 
-# Put parameters here that don't need to change on each machine where the app is deployed
+# Put parameters here that don't need to change on each machine  where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
 
@@ -22,9 +22,10 @@ services:
 
   App\Service\UserService\UserService:
       public: true
-#        synthetic: true
+  #      synthetic: true
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
+  
   app.jwt.management:
       class: App\Service\Authentication\JWTManagement
   App\Interface\Authentication\JWTManagmentInterface: '@app.jwt.management'
@@ -32,6 +33,16 @@ services:
   App\Listener\AuthenticationProcesses\JWTDecodedEventListener:
       tags:
           - { name: kernel.event_listener, event: 'lexik_jwt_authentication.on_jwt_decoded', method: onJWTDecoded }
+
+
+#  App\Service\Cart\CartService:
+#    public: true
+#
+#  App\Service\Cart\CartItemService:
+#    public: true
+#
+#  App\Interface\Cart\CartServiceInterface: '@App\Service\Cart\CartService'
+#  App\Interface\Cart\CartItemServiceInterface: '@App\Service\Cart\CartItemService'
 
   app.cart.service:
     class: App\Service\CartService\CartService
@@ -52,3 +63,7 @@ services:
   app.variant.management:
     class: App\Service\VariantService\VariantManagement
   App\Interface\Variant\VariantManagementInterface: '@app.variant.management'
+
+  app.email.service:
+    class: App\Service\Email\EmailManagement
+  App\Interface\Email\EmailManagementInterface: '@app.email.service'

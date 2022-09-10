@@ -15,7 +15,7 @@ class AuthControllerTest extends BaseJsonApiTestCase
 
         $body = [
             'name'=>'jery',
-            'email'=>'cacvoaasfdsaqsgweo@gmail.com',
+            'Email'=>'cacvoaasfdsaqsgweo@gmail.com',
             'lastName'=>'coca',
             'phoneNumber'=>'09182836949',
             'password'=>'123456789W1',
