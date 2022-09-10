@@ -2,7 +2,6 @@
 namespace App\Abstract\CacheRepository;
 
 
-use App\Entity\User\Seller;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Interface\Cache\CacheInterface;
 
