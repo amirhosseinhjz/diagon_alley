@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/payment')]
+#[Route('/api/payment')]
 class PaymentController extends AbstractController
 {
     public function __construct(
