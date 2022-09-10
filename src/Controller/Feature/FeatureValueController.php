@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use OpenApi\Attributes as OA;
 
-#[Route("/api/feature/value" , name: 'app_feature_value_')]
+#[Route("/api/feature-value" , name: 'app_feature-value_')]
 class FeatureValueController extends AbstractController
 {
     private FeatureValueManagementInterface $featureValueManagement;

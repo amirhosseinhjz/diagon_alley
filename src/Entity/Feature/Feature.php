@@ -24,7 +24,7 @@ class Feature
 
     #[ORM\Column]
     #[Groups(['showFeature'])]
-    private ?bool $status = null;
+    private ?bool $active = null;
 
     #[ORM\OneToMany(mappedBy: 'feature', targetEntity: FeatureValue::class)]
     #[Groups(['showFeature'])]
@@ -59,17 +59,17 @@ class Feature
     /**
      * @return bool|null
      */
-    public function getStatus(): ?bool
+    public function getActive(): ?bool
     {
-        return $this->status;
+        return $this->active;
     }
 
     /**
-     * @param bool|null $status
+     * @param bool|null $active
      */
-    public function setStatus(?bool $status): void
+    public function setActive(?bool $active): void
     {
-        $this->status = $status;
+        $this->active = $active;
     }
 
     /**

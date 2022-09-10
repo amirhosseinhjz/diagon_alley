@@ -25,7 +25,7 @@ class FeatureValue
 
     #[ORM\Column]
     #[Groups(['showFeature'])]
-    private ?bool $status = null;
+    private ?bool $active = null;
 
     #[ORM\ManyToOne(inversedBy: 'featureValues')]
     #[ORM\JoinColumn(nullable: false)]
@@ -61,14 +61,14 @@ class FeatureValue
         return $this;
     }
 
-    public function isStatus(): ?bool
+    public function isActive(): ?bool
     {
-        return $this->status;
+        return $this->active;
     }
 
-    public function setStatus(bool $status): self
+    public function setActive(bool $active): self
     {
-        $this->status = $status;
+        $this->active = $active;
 
         return $this;
     }

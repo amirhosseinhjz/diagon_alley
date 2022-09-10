@@ -14,11 +14,11 @@ class VariantVoter extends Voter
     public const CREATE = 'VARIANT_CREATE';
     public const CONFIRM = 'VARIANT_CONFIRM';
     public const DENY = 'VARIANT_DENIED';
-    public const SHOW = 'UNVERIFIED_VARIANT_SHOW';
+    public const SHOW = 'VARIANT_SHOW';
 
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [self::UPDATE, self::CREATE, self::CONFIRM, self::DENY]);
+        return in_array($attribute, [self::UPDATE, self::CREATE, self::CONFIRM, self::DENY ,self::SHOW]);
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -34,7 +34,7 @@ class VariantVoter extends Voter
             self::CONFIRM => $this->confirm($user),
             self::DENY => $this->deny($user),
             self::UPDATE => $this->update($user,$subject),
-            self::SHOW => $this->show($user)
+            self::SHOW => $this->show($user,$subject)
         };
 
         return $accessIsGranted;
@@ -69,10 +69,10 @@ class VariantVoter extends Voter
         return false;
     }
 
-    private function show(User $user){
+    private function show(User $user , $valid){
         foreach ($user->getRoles() as $role){
-            if($role == 'ROLE_ADMIN')return true;
+            if($role == 'ROLE_ADMIN' || $role == 'ROLE_SELLER')return true;
         }
-        return false;
+        return $valid;
     }
 }

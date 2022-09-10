@@ -39,7 +39,7 @@ class Variant
 
     #[ORM\Column]
     #[Groups('showVariant')]
-    private ?bool $status = null;
+    private ?bool $valid = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups('showVariant')]
@@ -113,14 +113,14 @@ class Variant
         return $this;
     }
 
-    public function isStatus(): ?bool
+    public function isValid(): ?bool
     {
-        return $this->status;
+        return $this->valid;
     }
 
-    public function setStatus(bool $status): self
+    public function setValid(bool $valid): self
     {
-        $this->status = $status;
+        $this->valid = $valid;
 
         return $this;
     }

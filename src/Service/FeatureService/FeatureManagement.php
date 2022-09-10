@@ -23,14 +23,14 @@ class FeatureManagement implements FeatureManagementInterface
             if($this->featureRepository->readFeatureById($feature) === null){
                 $temp = new Feature();
                 $temp->setLabel($feature);
-                $temp->setStatus(true);
+                $temp->setActive(true);
                 $this->featureRepository->add($temp,true);
             }
         }
     }
 
     public function readFeatureLabel($id){
-        if(!$this->featureRepository->find($id) || !$this->featureRepository->find($id)->getStatus()){
+        if(!$this->featureRepository->find($id) || !$this->featureRepository->find($id)->getActive()){
             throw new \Exception("Feature not found");
         }
         return $this->featureRepository->find($id);
@@ -39,7 +39,7 @@ class FeatureManagement implements FeatureManagementInterface
     public function updateFeatureLabel($id , $body){
         if($body['status'] === null  || !$body['label'])throw new \Exception("Wrong data type");
         $feature = $this->readFeatureLabel($id);
-        $feature->setStatus($body['status']);
+        $feature->setActive($body['active']);
         $feature->setLabel($body['label']);
         $this->em->flush();
         return $feature;
@@ -47,12 +47,12 @@ class FeatureManagement implements FeatureManagementInterface
 
     public function deleteFeatureLabel($id){
         $feature = $this->readFeatureLabel($id);
-        $feature->setStatus(false);
+        $feature->setActive(false);
         $this->em->flush();
         return $feature;
     }
 
     public function showFeatureLabel(){
-        return $this->featureRepository->showFeature(array('status' => true));
+        return $this->featureRepository->showFeature(array('active' => true));
     }
 }

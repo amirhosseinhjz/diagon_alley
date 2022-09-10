@@ -2,7 +2,6 @@
 
 namespace App\Controller\Variant;
 
-use App\Entity\Variant\Variant;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Interface\Feature\FeatureValueManagementInterface;
 use App\Interface\Variant\VariantManagementInterface;
@@ -63,7 +62,7 @@ class VariantController extends AbstractController
         }
     }
 
-    #[Route('/{serial}/denied', name: 'serial_denied', methods: ['DELETE'])]
+    #[Route('/{serial}/validation', name: 'serial_denied', methods: ['DELETE'])]
     #[IsGranted('VARIANT_DENY' , message: 'ONLY ADMIN CAN ACCESS')]
     public function denied($serial){
         $this->variantManagement->deleteVariant($serial);
@@ -72,13 +71,26 @@ class VariantController extends AbstractController
         );
     }
 
-    #[Route('/{serial}/confirm', name: 'serial_confirm', methods: ['GET'])]
+    #[Route('/{serial}/validation', name: 'serial_confirm', methods: ['GET'])]
     #[IsGranted('VARIANT_CONFIRM' , message: 'ONLY ADMIN CAN ACCESS')]
     public function confirmCreate($serial): Response
     {
         $this->variantManagement->confirmVariant($serial);
         return $this->json(
             ["message" => "Variant confirmed successfully"],
+        );
+    }
+
+    #[Route('/{valid}', name: 'show', requirements: ['valid' => '[0,1]'], defaults: ['valid' => 1], methods: ['GET'])]
+    public function show(bool $valid): Response
+    {
+        if(!$valid)$this->denyAccessUnlessGranted('VARIANT_SHOW', subject: $valid , message: 'Access Denied For Customers');
+        $filters_eq = array("valid" => $valid);
+        $filters_gt = array("quantity" => 0);
+        $variants = $this->variantManagement->showVariant($filters_eq,$filters_gt);
+        return $this->json(
+            $variants,
+            context:[AbstractNormalizer::GROUPS => 'showVariant']
         );
     }
 
@@ -123,31 +135,5 @@ class VariantController extends AbstractController
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
-    }
-
-    #[Route('', name: 'show', methods: ['GET'])]
-    public function show(): Response
-    {
-        $filters_eq = array("status" => Variant::STATUS_VALIDATE_SUCCESS);
-        $filters_gt = array("quantity" => 0);
-        $variants = $this->variantManagement->showVariant($filters_eq,$filters_gt);
-        return $this->json(
-            $variants,
-            status: 200,
-            context:[AbstractNormalizer::GROUPS => 'showVariant']
-        );
-    }
-
-    #[Route('/request', name: 'request', methods: ['GET'])]
-    #[IsGranted('UNVERIFIED_VARIANT_SHOW' , message: 'ONLY ADMIN CAN ACCESS')]
-    public function createRequest(): Response
-    {
-        $filters_eq = array("status" => Variant::STATUS_VALIDATE_PENDING);
-        $variants = $this->variantManagement->showVariant($filters_eq,array());
-        return $this->json(
-            $variants,
-            status: 200,
-            context:[AbstractNormalizer::GROUPS => 'showVariant']
-        );
     }
 }

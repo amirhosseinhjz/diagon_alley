@@ -25,18 +25,18 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface , Depe
         for ($i = 0; $i < 4; $i++) {
             $feature = new Feature();
             $feature->setLabel("Color$i");
-            $feature->setStatus(1);
+            $feature->setActive(1);
             $manager->persist($feature);
 
             $featureValue = new FeatureValue();
             $featureValue->setValue("RED$i");
-            $featureValue->setStatus(1);
+            $featureValue->setActive(1);
             $featureValue->setFeature($feature);
             $manager->persist($featureValue);
 
             $variant = new Variant();
             $variant
-                ->setStatus(1)
+                ->setValid(1)
                 ->setPrice($i*5)
                 ->setDescription("some $i hj")
                 ->setQuantity(8*$i+1)
