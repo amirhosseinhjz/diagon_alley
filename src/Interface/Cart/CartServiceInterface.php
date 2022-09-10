@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Interface\Cart;
-
+use App\DTO\Cart\CartDTO;
 use App\Entity\Cart\Cart;
+use App\Entity\User\Customer;
 
 #ToDo add byId versions and by object versions
 Interface CartServiceInterface
@@ -13,15 +14,15 @@ Interface CartServiceInterface
 
     public function removeCart($cart);
 
-    public function updateStatus($cartId, $status); #tc: return type
+    public function updateStatus($cartId, $status);
 
-    public function addItemToCart(array $item); #tc
+    public function updateCartFromDTO(CartDTO $dto):Cart;
 
-    public function removeItemFromCart(array $item); #tc
+    public function createCart(Customer $user):Cart;
 
-    public function getCartById(int $cartId);
+    public function getCartById(int $cartId):Cart;
 
-    public function checkItems(Cart $cart, bool $update); #todo: check every item's price and availability, return true if it stays the same
+    public function confirmItems(Cart $cart, bool $update):bool; #todo: check every item's price and availability, return true if it stays the same
     #todo: what to do when the price has changed, or the item does not exist
 
 }

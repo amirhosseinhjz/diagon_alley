@@ -3,7 +3,9 @@
 namespace App\DTO\Cart;
 
 use Symfony\Component\Validator\Constraints as Assert;
-#ToDo: revise
+
+#ToDo: manage relation with cart, variant, discount
+
 class CartItemDTO
 {
 
@@ -17,7 +19,6 @@ class CartItemDTO
 
     private ?string $discountCode = null;
 
-    #todo: remove cartid
     public function getCartId(): ?int
     {
         return $this->Cart_Id;

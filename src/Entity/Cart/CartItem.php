@@ -2,12 +2,12 @@
 
 namespace App\Entity\Cart;
 
-use App\Entity\Cart\Cart;
 use App\Entity\Variant\Variant;
 use App\Repository\Cart\CartItemRepository;
 use App\Entity\Discount;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
 class CartItem
@@ -31,7 +31,6 @@ class CartItem
 
     #[ORM\ManyToOne(inversedBy: 'appliedTo')]
     private ?Discount $discount = null;
-    #todo: remove
 
     public function getId(): ?int
     {
@@ -62,7 +61,6 @@ class CartItem
         return $this;
     }
 
-    #ToDo: should not exceed the
     public function increaseQuantity(int $n = 1){
         $this->quantity += $n;
     }

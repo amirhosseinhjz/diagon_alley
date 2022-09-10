@@ -1,26 +1,40 @@
 <?php
-#ToDo: write transformer
+
 namespace App\DTO\Cart;
 
+use App\Entity\Cart\Cart;
 use Symfony\Component\Validator\Constraints as Assert;
-#ToDo: revise
+
+#? is finalizedat really needed here?
+
 class CartDTO
 {
 
     public $id;
 
     #[Assert\DateTime]
-    private ?\DateTimeInterface $finalizedAt = null;   #check if it is in the past
+    private ?\DateTimeInterface $finalizedAt = null;   #ToDo check the time range
 
     #ToDo: extra validation
     #[Assert\Collection]
     public array $items;
 
     #[Assert\Choice(
-        choices: ['INIT', 'PENDING', 'EXPIRED', 'SUCCESS'],
-        message: 'Choose a valid genre.',
+        choices: [Cart::STATUS_INIT,Cart::STATUS_PENDING,Cart::STATUS_SUCCESS,Cart::STATUS_EXPIRED],
+        message: 'invalid status value.',
     )]
     private ?string $status = null;
+
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): void
+    {
+        $this->status = $status;
+    }
 
     public function __construct()
     {

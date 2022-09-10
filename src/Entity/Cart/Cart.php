@@ -9,11 +9,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#ToDo: generate documents
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 class Cart
 {
-    #ToDO: change the strings used in other files to these constants
+
     public const STATUS_INIT = "INIT";
     public const STATUS_PENDING = "PENDING";
     public const STATUS_SUCCESS = "SUCCESS";
@@ -30,7 +29,6 @@ class Cart
     #[ORM\OneToMany(mappedBy: 'Cart', targetEntity: CartItem::class, orphanRemoval: true)]
     private Collection $items;
 
-    #ToDo: ask Neda to merge this part with her entity
     #[ORM\ManyToOne(inversedBy: 'carts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Customer $customer = null;
@@ -84,6 +82,9 @@ class Cart
             $this->items->add($item);
             $item->setCart($this);
         }
+        else {
+            $item->increaseQuantity();
+        }
         return $this;
     }
 
@@ -106,11 +107,8 @@ class Cart
 
     public function setStatus(string $status): self
     {
-        if ($status === "INIT" || $status == "EXPIRED" || $status === "SUCCESS") {
+        if ($status === self::STATUS_EXPIRED || $status == self::STATUS_INIT || $status === self::STATUS_SUCCESS || $status===self::STATUS_PENDING) {
             $this->status = $status;
-        } elseif ($status === "PENDING") {
-            $this->status = $status;
-            #ToDo: automatic expiration (not here)
         } else {
             throw new \Exception('Invalid value for status');
         }
