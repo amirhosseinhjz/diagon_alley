@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Entity\Cart;
-use App\Entity\Cart\CartItem;
 use App\Entity\User\Customer;
-use App\Entity\Payment\Payment;
 use Exception;
 use App\Repository\Cart\CartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -53,7 +51,6 @@ class Cart
     public function __construct()
     {
         $this->items = new ArrayCollection();
-        $this->payments = new ArrayCollection();
     }
 
     public function getId(): ?int
