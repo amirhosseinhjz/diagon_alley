@@ -1,13 +1,16 @@
 <?php
 
 namespace App\Controller\Authentication;
+use App\CacheEntityManager\CacheEntityManager;
 use App\CacheRepository\UserRepository\CacheSellerRepository;
 use App\DTO\AuthenticationDTO\LoginDTO;
+use App\Entity\User\Seller;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Interface\Cache\CacheInterface;
 use App\Repository\UserRepository\SellerRepository;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
+use Doctrine\ORM\EntityManager;
 use Exception;
 use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('/api',name: 'user_auth_api')]
 class UserAuthenticationController extends AbstractController
@@ -85,14 +89,29 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/gogo/{id}', name: 'gogo',methods: ['GET'])]
-    public function update(UserService $userService, CacheSellerRepository $repository, $id): Response
+    public function update(UserService $userService, EntityManagerInterface $em, $id): Response
     {
         try{
-            $seller = $repository->findAll($id);
+            $seller = $em->getRepository(Seller::class)->find($id);
 //            $userService->updatePhoneNumberById($id,'+989666665676');
             dd($seller);
         }catch(Exception $e){
-            return $this->json(json_decode(4165456), Response::HTTP_OK);
+            return $this->json(json_decode($e), Response::HTTP_OK);
         }
     }
+
+    #[Route('/gogol/{id}', name: 'gogol',methods: ['GET'])]
+    public function _update(CacheEntityManager $em, int $id, CacheInterface $cache): Response
+    {
+        try{
+            $repo = $em->getRepository(Seller::class);
+            $seller = $repo->findAll();
+            $repo->deleteAllFromCache();
+//            $userService->updatePhoneNumberById($id,'+989666665676');
+            dd($seller);
+        }catch(Exception $e){
+            return $this->json(json_decode($e), Response::HTTP_OK);
+        }
+    }
+
 }

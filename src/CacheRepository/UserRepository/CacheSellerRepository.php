@@ -12,7 +12,7 @@ class CacheSellerRepository extends BaseCacheRepository
 
     public function __construct(SellerRepository $repository, CacheInterface $cache)
     {
-        parent::__construct($repository, $cache, 'seller', 'seller', 60);
+        parent::__construct($repository, $cache, 'seller', 60);
     }
 
     public static function getCacheKeys(): array

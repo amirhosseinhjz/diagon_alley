@@ -3,38 +3,31 @@
 namespace App\EventListener\Cache\User;
 
 
+use App\CacheEntityManager\CacheEntityManager;
 use App\Entity\User\Seller;
 use App\Interface\Cache\CacheInterface;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
-use App\CacheRepository\UserRepository\CacheSellerRepository;
 use App\Abstract\ChangeNotifier\EntityChangeNotifier;
+
 class SellerChangedNotifier extends EntityChangeNotifier
 {
+    public function __construct(CacheEntityManager $em, CacheInterface $cache)
+    {
+        $this->repository = $em->getRepository(Seller::class);
+        $this->cache = $cache;
+    }
+
     public function postUpdate(
         Seller $seller,
         LifecycleEventArgs $event,
-        CacheSellerRepository $repository,
-        CacheInterface $cache
     ): void
     {
-        $this->deleteFromCache($cache, $repository, $seller);
+        $this->repository->deleteFromCache($seller);
     }
 
-
-    private function deleteFromCache(
-        CacheInterface $cache,
-        CacheSellerRepository $repository,
-        Seller $seller
-        )
+    public function postPersist(LifecycleEventArgs $event)
     {
-        $keys = $repository::getCacheKeys();
-        foreach ($keys as $key)
-        {
-            $value = $seller->{'get'.ucfirst($key)}();
-            $key = $repository->_getKey($key, $value);
-            $cache->forget($key);
-        }
-        $cache->forget($repository::getKeyAll());
+        $this->repository->deleteAllFromCache();
     }
 
 }

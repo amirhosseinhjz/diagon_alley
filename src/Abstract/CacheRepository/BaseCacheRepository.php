@@ -2,6 +2,7 @@
 namespace App\Abstract\CacheRepository;
 
 
+use App\Entity\User\Seller;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Interface\Cache\CacheInterface;
 
@@ -89,7 +90,7 @@ abstract class BaseCacheRepository
 
     public static function getKeyAll()
     {
-        return static::getNamePrefix().'__all__';
+        return static::getNamePrefix().'.__all__';
     }
 
     public static function _getKey(string $key, string $value)
@@ -105,4 +106,25 @@ abstract class BaseCacheRepository
         $item->set($value);
         $this->cache->getAdapter()->save($item);
     }
+
+    public function deleteAllFromCache()
+    {
+        $this->cache->forget(static::getKeyAll());
+    }
+
+    public function deleteFromCache(
+        $entityObject
+    )
+    {
+        $keys = static::getCacheKeys();
+        foreach ($keys as $key)
+        {
+            $value = $entityObject->{'get'.ucfirst($key)}();
+            $key = $this->_getKey($key, $value);
+            $this->cache->forget($key);
+        }
+        $this->deleteAllFromCache();
+    }
+
+
 }

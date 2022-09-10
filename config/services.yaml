@@ -49,5 +49,4 @@ services:
     class: App\Service\CacheService\RedisCache
     arguments:
       $tagName: 'cacheTag'
-      $namePrefix: 'cachePrefix'
   App\Interface\Cache\CacheInterface: '@app.cache.service'
