@@ -2,9 +2,9 @@
 
 namespace App\Interface\Portal;
 
-use App\DTO\Payment\PaymentDTO;
+use App\DTO\Portal\PortalDTO;
 
 interface portalInterface
 {
-    public function payOrder(PaymentDTO $paymentDTO);
+    public function payOrder(PortalDTO $portalDTO);
 }

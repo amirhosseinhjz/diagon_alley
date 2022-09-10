@@ -8,26 +8,18 @@ use App\Entity\Payment\Payment;
 use App\Entity\Portal\Portal;
 use App\Service\Payment\PaymentService;
 use App\Factory\Portal\PortalFactory;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PortalService extends PaymentService
 {
-    public function __construct(
-        private EntityManagerInterface $em,
-        private ValidatorInterface $validator,
-    ) {
-    }
-
     public function pay(PaymentDTO $paymentDto, $array)
     {
 
-        $portalSevice = PortalFactory::create($array["type"]);
+        $portalSevice = PortalFactory::create($array["type"],$this->em);
 
         $portalDTO = $this->portalDtoFromArray($array);
         $this->portalEntityFromDto($portalDTO);
 
-        $responce = $portalSevice->pay($paymentDto);
+        $responce = $portalSevice->payOrder($portalDTO);
 
         return $responce;
     }
@@ -37,16 +29,17 @@ class PortalService extends PaymentService
         $payment = $this->em->getRepository(Payment::class)->find($array["payment"]);
         if (is_null($payment))
             throw (new \Exception(json_encode("This payment is not exist.")));
-        $array["payment"] = $payment;
+        unset($array["payment"]); 
 
-        $poratalDTO = $this->serializer->deserialize(json_encode($array), PortalDTO::class, 'json');
+        $portalDTO = $this->serializer->deserialize(json_encode($array), PortalDTO::class, 'json');
+        $portalDTO->payment = $payment;
 
-        $DTOErrors = $this->validate($poratalDTO);
+        $DTOErrors = $this->validate($portalDTO);
         if (count($DTOErrors) > 0) {
             throw (new \Exception(json_encode($DTOErrors)));
         }
 
-        return $poratalDTO;
+        return $portalDTO;
     }
 
     public function portalEntityFromDto(PortalDTO $poratalDTO, $flash = true)

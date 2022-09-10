@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class PortalDTO
 {
-    #[Assert\Choice(['SAMAN'], message: 'This portal is not available.')]
+    #[Assert\Choice(['saman'], message: 'This portal is not available.')]
     public ?string $type = null;
 
     #[Assert\NotBlank(message: 'Code can not be blank.')]

@@ -3,6 +3,8 @@
 namespace App\Service\Portal;
 
 use App\DTO\Payment\PaymentDTO;
+use App\DTO\Portal\PortalDTO;
+use App\Entity\Payment\Payment;
 use App\Entity\Portal\Portal;
 use App\Interface\Portal\portalInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,29 +13,29 @@ use nusoap_client;
 
 class SamanPortalService implements portalInterface
 {
-    public const terminalId = 'kBkvJ7sq-zH8Z7r';
+    public const terminalId = 'ZrMEqyno-3Q76mj';
 
     public function __construct(
         private EntityManagerInterface $em,
     ) {
     }
 
-    public function payOrder(PaymentDTO $paymentDTO)
+    public function payOrder(PortalDTO $portalDTO)
     {
-        $token = $this->getToken($paymentDTO);
+        $token = $this->getToken($portalDTO);
 
         return $this->directToPayment($token);
     }
 
-    public function getToken(PaymentDTO $paymentDTO)
+    public function getToken(PortalDTO $portalDTO)
     {
         $data = [
             'TermID' => self::terminalId,
-            'Amounts' => $paymentDTO->paidAmount,
-            'ResNum' => $paymentDTO->portal->getId() . ":" .  $paymentDTO->portal->getType(),
+            'Amounts' => $portalDTO->payment->getPaidAmount(),
+            'ResNum' => $portalDTO->payment->getId() . ":" .  $portalDTO->type,
         ];
 
-        $client = new nusoap_client('https://banktest.ir/gateway/saman/Payments/InitPayment?wsdl', 'wsdl');
+        $client = new nusoap_client('https://sandbox.banktest.ir/saman/sep.shaparak.ir/payments/initpayment.asmx?wsdl', 'wsdl');
         $token = $client->call('RequestMultiSettleTypeToken', $data);
 
         return $token;
@@ -50,18 +52,18 @@ class SamanPortalService implements portalInterface
 
     public function changeStatus($result)
     {
-        $portal = $this->em->getRepository(Portal::class)->find($result['ResNum']);
+        $payment = $this->em->getRepository(Payment::class)->find($result['ResNum']);
 
         if ($result["State"] == "OK") {
-            $portal->getPayment()->setStatus("SUCCESS");
+            $payment->setStatus("SUCCESS");
             //change status of order
         } else {
-            $portal->getPayment()->setStatus("FAILED");
+            $payment->setStatus("FAILED");
         }
 
-        $portal->getPayment()->setCode($result['TraceNo']);
+        $payment->getPortal()->setCode($result['TraceNo']);
         $this->em->flush();
 
-        return ["Id" => $portal->getPayment()->getPurchase()->getId(), "Status" => $result["State"]];
+        return ["Id" => $payment->getPurchase()->getId(), "Status" => $result["State"]];
     }
 }

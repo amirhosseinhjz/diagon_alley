@@ -2,6 +2,7 @@
 
 namespace App\Service\Payment;
 
+use App\Entity\User\User;
 use App\DTO\Payment\PaymentDTO;
 use App\Entity\Order\Purchase;
 use App\Entity\Payment\Payment;
@@ -14,10 +15,10 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 abstract class PaymentService implements paymentInterface
 {
-    private Serializer $serializer;
+    protected Serializer $serializer;
     public function __construct(
-        private EntityManagerInterface $em,
-        private ValidatorInterface $validator,
+        protected EntityManagerInterface $em,
+        protected ValidatorInterface $validator,
     ) {
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
     }
@@ -29,11 +30,12 @@ abstract class PaymentService implements paymentInterface
             throw (new \Exception("This order is not exist."));
         if ($purchase->getStatus() != Purchase::STATUS_PENDING)
             throw (new \Exception("This order is not suitable for payment."));
-        $array["purchase"] = $purchase;
+        unset($array["purchase"]); 
 
         $array["paidAmount"] = $purchase->getTotalPrice();
         $paymentDTO = $this->serializer->deserialize(json_encode($array), PaymentDTO::class, 'json');
-
+        $paymentDTO->purchase = $purchase;
+        
         $DTOErrors = $this->validate($paymentDTO);
         if (count($DTOErrors) > 0) {
             throw (new \Exception(json_encode($DTOErrors)));

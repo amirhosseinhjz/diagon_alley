@@ -10,8 +10,8 @@ class PaymentDTO
 {
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    #[Assert\Choice(['WALLET', 'PORTAL'], message: 'This method is not available.')]
-    public readonly ?string $method;
+    #[Assert\Choice(['wallet', 'portal'], message: 'This method is not available.')]
+    public ?string $method;
 
     #[Assert\PositiveOrZero]
     #[Assert\NotNull]
@@ -19,8 +19,8 @@ class PaymentDTO
 
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    #[Assert\Choice(['PENDING', 'FAILED', 'SUCCESS'], message: 'This method is not available.')]
-    public ?string $status = "PENDING";
+    #[Assert\Choice(['pending', 'failed', 'success'], message: 'This type is not available.')]
+    public ?string $status = "pending";
 
     public ?Purchase $purchase = null;
 

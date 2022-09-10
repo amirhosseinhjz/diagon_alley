@@ -4,22 +4,30 @@ namespace App\Controller\Payment;
 
 use App\Factory\Payment\PaymentFactory;
 use App\Factory\Portal\PortalFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/payment')]
 class PaymentController extends AbstractController
 {
-    #[Route('/{orderId}/{method}', name: 'app_payment_new', methods: ['GET'])]
+    public function __construct(
+        private EntityManagerInterface $em,
+        private ValidatorInterface $validator,
+    ) {
+    }
+
+    #[Route('/{orderId}/{method}', name: 'app_payment_new', methods: ['POST'])]
     public function new(
         Request $request,
         int $orderId,
         string $method,
     ): Response {
         try {
-            $paymentService = PaymentFactory::create($method);
+            $paymentService = PaymentFactory::create($method, $this->em, $this->validator);
 
             $requestDto = $paymentService->dtoFromOrderArray(["purchase" => $orderId, "method" => $method]);
             $paymentId = $paymentService->entityFromDto($requestDto);
@@ -28,8 +36,8 @@ class PaymentController extends AbstractController
             $array["payment"] = $paymentId;
 
             $response = $paymentService->pay($requestDto, $array);
-
-            if ($method == "PORTAL")
+            dd($response);
+            if ($method == "portal")
                 return $this->render('Payment/payment.html.twig', $response);
             else
                 return $this->json($response);
@@ -47,7 +55,7 @@ class PaymentController extends AbstractController
 
             sscanf($requestToArray['ResNum'], "%d:%s", $requestToArray['ResNum'], $type);
 
-            $portalService = PortalFactory::create($type);
+            $portalService = PortalFactory::create($type,$this->em);
             $responce = $portalService->changeStatus($requestToArray);
 
             return $this->json($responce);
