@@ -139,7 +139,7 @@ class ProductManager implements ProductManagerInterface
 
     public function findBrandProducts(int $id, array $options): array
     {
-        return $this->em->getRepository(Product::class)->findProductByBrandId($id, $options);
+        return $this->em->getRepository(Product::class)->findProductsByBrandId($id, $options);
     }
 
     public function findCategoryProducts(int $id, array $options): array
