@@ -38,24 +38,24 @@ class OrderService implements OrderManagementInterface
     {
         $this->em->getConnection()->beginTransaction();
         try{
-            foreach ($cart->getItems() as $cartItem) {
-                $quantity = $cartItem->getCount();
-                $variant = $cartItem->getVariant();
-                if ($variant->getQuantity() < $quantity) {
-                    throw new \Exception('Not enough items of '.$variant->getSerial().' in stock');
-                }
-                $variant->setQuantity($variant->getQuantity() - $quantity);
-                $purchaseItem = new PurchaseItem();
-                $purchaseItem->setVariant($variant);
-                $purchaseItem->setQuantity($quantity);
-                $purchaseItem->setTotalPrice($cartItem->getTotalPrice());
-                $purchaseItem->setPurchase($purchase);
-
-                $purchase->addPurchaseItem($purchaseItem);
-                $this->em->persist($purchaseItem);
+        foreach ($cart->getItems() as $cartItem) {
+            $quantity = $cartItem->getCount();
+            $variant = $cartItem->getVariant();
+            if ($variant->getQuantity() < $quantity) {
+                throw new \Exception('Not enough items of '.$variant->getSerial().' in stock');
             }
-            $this->em->flush();
-            $this->em->getConnection()->commit();
+            $variant->setQuantity($variant->getQuantity() - $quantity);
+            $purchaseItem = new PurchaseItem();
+            $purchaseItem->setVariant($variant);
+            $purchaseItem->setQuantity($quantity);
+            $purchaseItem->setTotalPrice($cartItem->getTotalPrice());
+            $purchaseItem->setPurchase($purchase);
+
+            $purchase->addPurchaseItem($purchaseItem);
+            $this->em->persist($purchaseItem);
+        }
+        $this->em->flush();
+        $this->em->getConnection()->commit();
         }
         catch(\Exception $e){
             $this->em->getConnection()->rollBack();
@@ -89,7 +89,8 @@ class OrderService implements OrderManagementInterface
         return $purchase->getId();
     }
 
-    public function finalizeOrder(array $params): int
+
+    public function submitOrder(array $params): int
     {
         if (!isset($params['cartId']) || !isset($params['addressId'])) {
             throw new \Exception('Invalid params');
@@ -106,6 +107,14 @@ class OrderService implements OrderManagementInterface
             throw new \Exception('Order not found');
         }
         return $order;
+    }
+
+    public function finalizeOrder($orderId): void
+    {
+        $order = $this->getOrderById($orderId);
+        $order->setStatus($order::STATUS_PAID);
+        $this->em->flush();
+//        TODO: call shipping service
     }
 
     public function getPurchaseItemsBySellerIdAndPurchaseId(array $criteria)
