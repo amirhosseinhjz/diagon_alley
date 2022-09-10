@@ -52,6 +52,18 @@ services:
     class: App\Service\Payment\SamanPortalService
   App\Interface\Payment\BankPortalInterface: '@app.saman.service'
 
+  app.feature.management:
+    class: App\Service\FeatureService\FeatureManagement
+  App\Interface\Feature\FeatureManagementInterface: '@app.feature.management'
+
+  app.featureValue.management:
+    class: App\Service\FeatureService\FeatureValueManagement
+  App\Interface\Feature\FeatureValueManagementInterface: '@app.featureValue.management'
+
+  app.variant.management:
+    class: App\Service\VariantService\VariantManagement
+  App\Interface\Variant\VariantManagementInterface: '@app.variant.management'
+
   app.email.service:
     class: App\Service\Email\EmailManagement
   App\Interface\Email\EmailManagementInterface: '@app.email.service'

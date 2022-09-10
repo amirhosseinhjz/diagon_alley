@@ -8,8 +8,9 @@ use App\Repository\FeatureRepository\FeatureValueRepository;
 use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use App\Interface\Feature\FeatureValueManagementInterface;
 
-class FeatureValueManagement
+class FeatureValueManagement implements FeatureValueManagementInterface
 {
     private $em;
     private $featureValueRepository;

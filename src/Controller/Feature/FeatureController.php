@@ -2,7 +2,7 @@
 
 namespace App\Controller\Feature;
 
-use App\Service\FeatureService\FeatureManagement;
+use App\Interface\Feature\FeatureManagementInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,12 +13,19 @@ use OpenApi\Attributes as OA;
 #[Route("/api/feature")]
 class FeatureController extends AbstractController
 {
+    private FeatureManagementInterface $featureManagement;
+
+    public function __construct(FeatureManagementInterface $featureManagement)
+    {
+        $this->featureManagement = $featureManagement;
+    }
+
     #[Route('/define', name: 'app_feature_label_define', methods:['POST'])]
-    public function define(Request $request , FeatureManagement $featureManagement)
+    public function define(Request $request)
     {
         try {
             $body = $request->toArray();
-            $featureManagement->addLabelsToDB($body['features']);
+            $this->featureManagement->addLabelsToDB($body['features']);
             return $this->json(
                 ["message" => "Features have been added!"],
                 status: 200
@@ -29,9 +36,9 @@ class FeatureController extends AbstractController
     }
 
     #[Route('/read/{id}', name: 'app_feature_label_read', methods:['GET'])]
-    public function read(FeatureManagement $featureManagement, $id){
+    public function read($id){
         try {
-            $temp = $featureManagement->readFeatureLabel($id);
+            $temp = $this->featureManagement->readFeatureLabel($id);
             return $this->json(
                 $temp,
                 status: 200,
@@ -43,10 +50,10 @@ class FeatureController extends AbstractController
     }
 
     #[Route('/update/{id}', name: 'app_feature_label_update', methods:['POST'])]
-    public function update(Request $request , FeatureManagement $featureManagement, $id){
+    public function update(Request $request, $id){
         $body = $request->toArray();
         try {
-            $temp = $featureManagement->updateFeatureLabel($id,$body);
+            $temp = $this->featureManagement->updateFeatureLabel($id,$body);
             return $this->json(
                 $temp,
                 status: 200,
@@ -58,9 +65,9 @@ class FeatureController extends AbstractController
     }
 
     #[Route('/delete/{id}', name: 'app_feature_label_delete', methods:['GET'])]
-    public function delete(FeatureManagement $featureManagement, $id){
+    public function delete($id){
         try{
-            $featureManagement->deleteFeatureLabel($id);
+            $this->featureManagement->deleteFeatureLabel($id);
             return $this->json(
                 ["message" => "Feature have been deleted"],
                 status: 200
@@ -71,9 +78,9 @@ class FeatureController extends AbstractController
     }
 
     #[Route('/show', name: 'app_feature_label_show', methods:['GET'])]
-    public function show(FeatureManagement $featureManagement){
+    public function show(){
         return $this->json(
-            $featureManagement->showFeatureLabel(),
+            $this->featureManagement->showFeatureLabel(),
             status: 200,
             context: [AbstractNormalizer::GROUPS => 'showFeature']
         );

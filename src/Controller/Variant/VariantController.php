@@ -3,26 +3,32 @@
 namespace App\Controller\Variant;
 
 use App\Entity\Variant\Variant;
-use App\Repository\VariantRepository\VariantRepository;
-use App\Service\FeatureService\FeatureValueManagement;
-use App\Service\FeatureService\ItemValueManagement;
-use App\Service\VariantService\VariantManagement;
+use App\Interface\Feature\FeatureValueManagementInterface;
+use App\Interface\Variant\VariantManagementInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route("/api/variant")]
 class VariantController extends AbstractController
 {
+    private FeatureValueManagementInterface $featureValueManagement;
+    private VariantManagementInterface $variantManagement;
+
+    public function __construct(FeatureValueManagementInterface $featureValueManagement , VariantManagementInterface $variantManagement)
+    {
+        $this->featureValueManagement = $featureValueManagement;
+        $this->variantManagement = $variantManagement;
+    }
+
     #[Route('/create', name: 'app_variant_create', methods: ['POST'])]
-    public function create(Request $request, VariantManagement $variantManager, FeatureValueManagement $featureValueManagement , ValidatorInterface $validator): Response
+    public function create(Request $request,ValidatorInterface $validator): Response
     {
         $body = $request->toArray();
-        $variantDto = $variantManager->arrayToDTO($body['variant']);
+        $variantDto = $this->variantManagement->arrayToDTO($body['variant']);
         try{
             $errors = $validator->validate($variantDto);
 
@@ -32,9 +38,9 @@ class VariantController extends AbstractController
                 return new Response($errorsString);
             }
 
-            $variant = $variantManager->createVariantFromDTO($variantDto);
+            $variant = $this->variantManagement->createVariantFromDTO($variantDto);
 
-            $variant = $featureValueManagement->addFeatureValueToVariant($body['feature'],$variant);
+            $variant = $this->featureValueManagement->addFeatureValueToVariant($body['feature'],$variant);
             
             return $this->json(
                 $variant,
@@ -48,8 +54,8 @@ class VariantController extends AbstractController
     }
 
     #[Route('/create/{serial}/denied', name: 'app_variant_create_serial_denied', methods: ['GET'])]
-    public function denied($serial, VariantRepository $variantRepository , VariantManagement $variantManager){
-        $variantManager->deleteVariant($serial,$variantRepository);
+    public function denied($serial){
+        $this->variantManagement->deleteVariant($serial);
         return $this->json(
             ["message" => "Variant denied successfully"],
             status: 200
@@ -57,9 +63,9 @@ class VariantController extends AbstractController
     }
 
     #[Route('/create/{serial}/confirm', name: 'app_variant_create_serial_confirm', methods: ['GET'])]
-    public function confirmCreate($serial, VariantRepository $variantRepository, VariantManagement $variantManager): Response
+    public function confirmCreate($serial): Response
     {
-        $variantManager->confirmVariant($serial,$variantRepository);
+        $this->variantManagement->confirmVariant($serial);
         return $this->json(
             ["message" => "Variant confirmed successfully"],
             status: 200
@@ -67,10 +73,10 @@ class VariantController extends AbstractController
     }
 
     #[Route('/read/{serial}', name: 'app_variant_read', methods: ['GET'])]
-    public function read($serial, VariantRepository $variantRepository, VariantManagement $variantManager):Response
+    public function read($serial):Response
     {
         try {
-            $variant = $variantManager->readVariant($serial,$variantRepository);
+            $variant = $this->variantManagement->readVariant($serial);
             return $this->json(
                 $variant,
                 status: 200,
@@ -82,11 +88,11 @@ class VariantController extends AbstractController
     }
 
     #[Route('/update/{serial}', name: 'app_variant_update', methods: ['POST'])]
-    public function update($serial, Request $request, VariantRepository $variantRepository , VariantManagement $variantManager): Response
+    public function update($serial, Request $request): Response
     {
         $body = $request->toArray();
         try {
-            $variantManager->updateVariant($serial,$body['quantity'],$body['price'],$variantRepository);
+            $this->variantManagement->updateVariant($serial,$body['quantity'],$body['price']);
             return $this->json(
                 ["message" => "Variant updated successfully"],
                 status: 200
@@ -97,9 +103,9 @@ class VariantController extends AbstractController
     }
 
     #[Route('/delete/{serial}', name: 'app_variant_delete', methods: ['GET'])]
-    public function delete($serial, VariantRepository $variantRepository , VariantManagement $variantManager){
+    public function delete($serial){
         try {
-            $variantManager->updateVariant($serial, 0,2, $variantRepository);
+            $this->variantManagement->updateVariant($serial, 0,2);
             return $this->json(
                 ["message" => "Variant deleted successfully"],
                 status: 200
@@ -108,12 +114,13 @@ class VariantController extends AbstractController
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
+
     #[Route('/show', name: 'app_variant_show', methods: ['GET'])]
-    public function show(VariantRepository $variantRepository): Response
+    public function show(): Response
     {
         $filters_eq = array("status" => Variant::STATUS_VALIDATE_SUCCESS);
         $filters_gt = array("quantity" => 0);
-        $variants = $variantRepository->showVariant($filters_eq,$filters_gt);
+        $variants = $this->variantManagement->showVariant($filters_eq,$filters_gt);
         return $this->json(
             $variants,
             status: 200,
@@ -122,10 +129,10 @@ class VariantController extends AbstractController
     }
 
     #[Route('/create', name: 'app_variant_create_request', methods: ['GET'])]
-    public function createRequest(VariantRepository $variantRepository): Response
+    public function createRequest(): Response
     {
         $filters_eq = array("status" => Variant::STATUS_VALIDATE_PENDING);
-        $variants = $variantRepository->showVariant($filters_eq,array());
+        $variants = $this->variantManagement->showVariant($filters_eq,array());
         return $this->json(
             $variants,
             status: 200,

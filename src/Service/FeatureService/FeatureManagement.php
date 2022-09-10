@@ -5,18 +5,17 @@ namespace App\Service\FeatureService;
 use App\Entity\Feature\Feature;
 use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Interface\Feature\FeatureManagementInterface;
 
-class FeatureManagement
+class FeatureManagement implements FeatureManagementInterface
 {
     private $em;
     private $featureRepository;
-    private $defineFeatureManagement;
 
     public function __construct(EntityManagerInterface $em , FeatureRepository $featureRepository , FeatureValueManagement $defineFeatureManagement)
     {
         $this->em = $em;
         $this->featureRepository = $featureRepository;
-        $this->defineFeatureManagement = $defineFeatureManagement;
     }
 
     public function addLabelsToDB(array $features){
