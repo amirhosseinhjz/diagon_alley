@@ -53,9 +53,9 @@ class Variant
     #[ORM\Column]
     private ?int $soldNumber = null;
 
-     #[ORM\ManyToOne(inversedBy: 'variants')]
-     #[ORM\JoinColumn(nullable: false)]
-     private ?Product $product = null;
+    #[ORM\ManyToOne(inversedBy: 'variants')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Product $product = null;
 
     public function __construct()
     {
