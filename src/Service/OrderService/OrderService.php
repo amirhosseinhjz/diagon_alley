@@ -111,4 +111,23 @@ class OrderService implements OrderManagementInterface
 //        TODO: call shipping service
     }
 
+    private function cancelOrderItem(PurchaseItem $orderItem): int
+    {
+        $orderItem->setStatus($orderItem::STATUS_CANCELED);
+        $this->em->flush();
+        return $orderItem->getTotalPrice();
+    }
+
+    public function cancelOrderItemById(int $orderId, int $orderItemId): int
+    {
+        $order = $this->getOrderById($orderId);
+        $orderItem = $this->em->getRepository(PurchaseItem::class)->find($orderItemId);
+        if (!$orderItem) {
+            throw new \Exception('Order item not found');
+        }
+        if ($orderItem->getPurchase() != $order) {
+            throw new \Exception('Order item does not belong to order');
+        }
+        return $this->cancelOrderItem($orderItem);
+    }
 }

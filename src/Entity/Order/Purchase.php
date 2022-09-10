@@ -15,9 +15,10 @@ use phpDocumentor\Reflection\Types\Integer;
 class Purchase
 {
 
-    public const STATUS_PENDING = 0;
-    public const STATUS_PAID = 1;
-    public const STATUS_SHIPPED = 2;
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_CANCELED = 'canceled';
+    public const STATUS_SHIPPED = 'shipped';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -47,8 +48,8 @@ class Purchase
     #[ORM\ManyToOne]
     private ?Address $address = null;
 
-    #[ORM\Column]
-    private ?int $status = null;
+    #[ORM\Column(length: 10)]
+    private ?string $status = Purchase::STATUS_PENDING;
 
     public function __construct()
     {
@@ -179,4 +180,10 @@ class Purchase
 
         return $this;
     }
+
+//    #[ORM\PrePersist]
+//    public function setStatusOnCreate()
+//    {
+//        $this->setStatus(self::STATUS_PENDING);
+//    }
 }
