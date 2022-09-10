@@ -6,17 +6,20 @@ use App\DTO\Payment\PaymentDTO;
 use App\DTO\Portal\PortalDTO;
 use App\Entity\Payment\Payment;
 use App\Entity\Portal\Portal;
+use App\Interface\Order\OrderManagementInterface;
 use App\Interface\Portal\portalInterface;
+use App\Service\OrderService\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
 
 use nusoap_client;
 
 class SamanPortalService implements portalInterface
 {
-    public const terminalId = 'ZrMEqyno-3Q76mj';
+    public const terminalId = 'kBkvJ7sq-zH8Z7r';
 
     public function __construct(
         private EntityManagerInterface $em,
+        private OrderService $orderService,
     ) {
     }
 
@@ -35,7 +38,7 @@ class SamanPortalService implements portalInterface
             'ResNum' => $portalDTO->payment->getId() . ":" .  $portalDTO->type,
         ];
 
-        $client = new nusoap_client('https://sandbox.banktest.ir/saman/sep.shaparak.ir/payments/initpayment.asmx?wsdl', 'wsdl');
+        $client = new nusoap_client('https://old.banktest.ir/gateway/saman/Payments/InitPayment?wsdl', 'wsdl');
         $token = $client->call('RequestMultiSettleTypeToken', $data);
 
         return $token;
@@ -44,9 +47,9 @@ class SamanPortalService implements portalInterface
     public function directToPayment($token)
     {
         return [
-            'url' => "https://banktest.ir/gateway/saman/gate",
+            'url' => "https://old.banktest.ir/gateway/saman/gate",
             "token" => $token,
-            "redirect_url" => "http://localhost:70/api/payment/status",
+            "redirect_url" => "http://localhost:70/payment/status",
         ];
     }
 
@@ -56,7 +59,7 @@ class SamanPortalService implements portalInterface
 
         if ($result["State"] == "OK") {
             $payment->setStatus("SUCCESS");
-            //change status of order
+            $this->orderService->finalizeOrder($payment->getOrder());
         } else {
             $payment->setStatus("FAILED");
         }

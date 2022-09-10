@@ -4,6 +4,7 @@ namespace App\Controller\Payment;
 
 use App\Factory\Payment\PaymentFactory;
 use App\Factory\Portal\PortalFactory;
+use App\Service\OrderService\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,12 +12,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/payment')]
+#[Route('/payment')]
 class PaymentController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
         private ValidatorInterface $validator,
+        private OrderService $orderService,
     ) {
     }
 
@@ -27,16 +29,16 @@ class PaymentController extends AbstractController
         string $method,
     ): Response {
         try {
-            $paymentService = PaymentFactory::create($method, $this->em, $this->validator);
-
+            $paymentService = PaymentFactory::create($method, $this->em, $this->validator,$this->orderService);
+            
             $requestDto = $paymentService->dtoFromOrderArray(["purchase" => $orderId, "method" => $method]);
             $paymentId = $paymentService->entityFromDto($requestDto);
-
+            
             $array = $request->toArray();
             $array["payment"] = $paymentId;
 
             $response = $paymentService->pay($requestDto, $array);
-            dd($response);
+
             if ($method == "portal")
                 return $this->render('Payment/payment.html.twig', $response);
             else
@@ -55,7 +57,7 @@ class PaymentController extends AbstractController
 
             sscanf($requestToArray['ResNum'], "%d:%s", $requestToArray['ResNum'], $type);
 
-            $portalService = PortalFactory::create($type,$this->em);
+            $portalService = PortalFactory::create($type,$this->em,$this->orderService);
             $responce = $portalService->changeStatus($requestToArray);
 
             return $this->json($responce);

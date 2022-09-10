@@ -36,7 +36,6 @@ class CartItemService implements CartItemServiceInterface
         $this->validator = $validator;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
         #todo: change
-        $this->vm = new VarientManagement($entityManager);
     }
 
     public function arrayToDTO(array $array)

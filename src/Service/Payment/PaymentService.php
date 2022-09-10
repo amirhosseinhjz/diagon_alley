@@ -7,6 +7,7 @@ use App\DTO\Payment\PaymentDTO;
 use App\Entity\Order\Purchase;
 use App\Entity\Payment\Payment;
 use App\Interface\Payment\paymentInterface;
+use App\Service\OrderService\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -19,6 +20,7 @@ abstract class PaymentService implements paymentInterface
     public function __construct(
         protected EntityManagerInterface $em,
         protected ValidatorInterface $validator,
+        protected OrderService $orderService,
     ) {
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
     }

@@ -13,8 +13,7 @@ class PortalService extends PaymentService
 {
     public function pay(PaymentDTO $paymentDto, $array)
     {
-
-        $portalSevice = PortalFactory::create($array["type"],$this->em);
+        $portalSevice = PortalFactory::create($array["type"],$this->em,$this->orderService);
 
         $portalDTO = $this->portalDtoFromArray($array);
         $this->portalEntityFromDto($portalDTO);
