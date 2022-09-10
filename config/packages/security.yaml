@@ -36,10 +36,9 @@ security:
         - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
         - { path: ^/api/user/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/doc, roles: PUBLIC_ACCESS}
+        - { path: ^/api/variant/read, roles: PUBLIC_ACCESS}
+        - { path: ^/api/variant/1, roles: PUBLIC_ACCESS}
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/user/logout, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/user/new-password, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/user/new-phone-number, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
