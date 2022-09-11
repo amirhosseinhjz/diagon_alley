@@ -101,13 +101,13 @@ class FeatureControllerTest extends BaseJsonApiTestCase
         //Valid Id
         $this->client->request(
             'GET',
-            self::ROUTE . 'read/2'
+            self::ROUTE . 'read/3'
         );
 
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals('Color1', $data[self::NAME]);
         $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals("Color2",$data['label']);
 
         //Invalid Id
         $this->client->request(

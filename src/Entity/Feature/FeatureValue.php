@@ -20,7 +20,7 @@ class FeatureValue
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['showFeatureValue', 'showFeature', 'showVariant'])]
+    #[Groups(['showFeatureValue' , 'showFeature' , 'showVariant' ,'FeatureValueOA'])]
     private ?string $value = null;
 
     #[ORM\Column]
