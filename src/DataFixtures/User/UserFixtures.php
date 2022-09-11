@@ -33,7 +33,6 @@ class UserFixtures extends Fixture implements FixtureGroupInterface
             $sellers[]=$seller;
         }
         $manager->flush();
-        $this->addReference(self::SELLER, (object)$sellers);
     }
 
     public function loadCustomer(ObjectManager $manager)

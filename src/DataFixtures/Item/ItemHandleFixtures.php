@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures\Item;
 
+use App\DataFixtures\User\UserFixtures;
 use App\Entity\Feature\FeatureValue;
 use App\Entity\Feature\Feature;
 use App\Entity\Variant\Variant;
