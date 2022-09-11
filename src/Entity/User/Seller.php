@@ -24,7 +24,7 @@ class Seller extends User
     #[ORM\OneToMany(mappedBy: 'seller', targetEntity: Shipment::class)]
     private Collection $shipments;
 
-    #[ORM\OneToMany(mappedBy: 'seller', targetEntity: Variant::class)]
+    #[ORM\OneToMany(mappedBy: 'seller', targetEntity: Variant::class, orphanRemoval: true)]
     private Collection $variants;
 
     public function __construct()
