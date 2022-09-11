@@ -39,7 +39,7 @@ class VariantManagement implements VariantManagementInterface
         $variant->setQuantity($dto->quantity);
         $variant->setPrice($dto->price);
         $variant->setSerial("0");
-        $variant->setStatus(false);
+        $variant->setValid(false);
         $variant->setDescription($dto->description);
         $variant->setSoldNumber(0);
         $variant->setSeller($seller);
@@ -78,7 +78,7 @@ class VariantManagement implements VariantManagementInterface
     public function confirmVariant($serial){
         $variant = $this->readVariant($serial);
         $time = new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran'));
-        $variant->setStatus(true);
+        $variant->setValid(true);
         $variant->setCreatedAt($time);
         $this->em->flush();
         return $variant;

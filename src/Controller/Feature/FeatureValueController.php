@@ -2,8 +2,10 @@
 
 namespace App\Controller\Feature;
 
+use App\Entity\Feature\FeatureValue as FeatureValueEntity;
 use App\Interface\Feature\FeatureValueManagementInterface;
-use App\Service\FeatureService\FeatureValueManagement;
+use App\Utils\Swagger\Feature\FeatureValue;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use OpenApi\Attributes as OA;
 
-#[Route("/api/feature/value" , name: 'app_feature_value_')]
+#[Route("/api/feature-value" , name: 'app_feature-value_')]
 class FeatureValueController extends AbstractController
 {
     private FeatureValueManagementInterface $featureValueManagement;
@@ -24,6 +26,22 @@ class FeatureValueController extends AbstractController
 
     #[Route('', name: 'create', methods:['POST'])]
     #[IsGranted('FEATURE_VALUE_CREATE' , message: 'ONLY ADMIN CAN ADD FEATURE VALUE')]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns success message',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        description: "Define Features Value",
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: FeatureValue::class)
+        )
+    )]
+    #[OA\Tag(name: 'FeatureValue')]
     public function define(Request $request)
     {
         $body = $request->toArray();
@@ -39,6 +57,19 @@ class FeatureValueController extends AbstractController
 
     #[Route('/{id}', name: 'read', methods:['GET'] , condition: "params['id'] > 0")]
     #[IsGranted('FEATURE_VALUE_SHOW' , message: 'ONLY ADMIN OR SELLER CAN ACCESS FEATURE VALUE')]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns FeatureValue information',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: FeatureValueEntity::class, groups: ['showFeatureValue']))
+        ),
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\Tag(name: 'FeatureValue')]
     public function read(int $id){
         try {
             $temp = $this->featureValueManagement->readFeatureValueById($id);
@@ -53,6 +84,22 @@ class FeatureValueController extends AbstractController
 
     #[Route('/{id}', name: 'update', methods:['PATCH'] , condition: "params['id'] > 0")]
     #[IsGranted('FEATURE_VALUE_CREATE' , message: 'ONLY ADMIN CAN UPDATE FEATURE VALUE')]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns success message on updating',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        description: "Update Features Value",
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: FeatureValueEntity::class, groups: ['FeatureValueOA'])
+        )
+    )]
+    #[OA\Tag(name: 'FeatureValue')]
     public function update(Request $request , int $id){
         $body = $request->toArray();
         try {
@@ -68,6 +115,15 @@ class FeatureValueController extends AbstractController
 
     #[Route('/{id}', name: 'delete', methods:['DELETE'] , condition: "params['id'] > 0")]
     #[IsGranted('FEATURE_VALUE_CREATE' , message: 'ONLY ADMIN CAN DELETE FEATURE VALUE')]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns success message on deletion',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\Tag(name: 'FeatureValue')]
     public function delete(int $id){
         try {
             $this->featureValueManagement->deleteFeatureValue($id);
@@ -81,6 +137,19 @@ class FeatureValueController extends AbstractController
 
     #[Route('', name: 'show', methods:['GET'])]
     #[IsGranted('FEATURE_VALUE_SHOW' , message: 'ONLY ADMIN OR SELLER CAN ACCESS FEATURE VALUE')]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns All FeatureValue information',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: FeatureValueEntity::class, groups: ['showFeatureValue']))
+        ),
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\Tag(name: 'FeatureValue')]
     public function show(){
         $temp = $this->featureValueManagement->showFeaturesValue();
         return $this->json(

@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures\Item;
 
+use App\DataFixtures\User\UserFixtures;
 use App\Entity\Feature\FeatureValue;
 use App\Entity\Feature\Feature;
 use App\Entity\Variant\Variant;
@@ -25,24 +26,26 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface , Depe
         for ($i = 0; $i < 4; $i++) {
             $feature = new Feature();
             $feature->setLabel("Color$i");
-            $feature->setStatus(1);
+            $feature->setActive(1);
             $manager->persist($feature);
 
             $featureValue = new FeatureValue();
             $featureValue->setValue("RED$i");
-            $featureValue->setStatus(1);
+            $featureValue->setActive(1);
             $featureValue->setFeature($feature);
             $manager->persist($featureValue);
 
             $variant = new Variant();
             $variant
-                ->setStatus(1)
+                ->setValid(1)
                 ->setPrice($i*5)
                 ->setDescription("some $i hj")
                 ->setQuantity(8*$i+1)
                 ->setCreatedAt(new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran')))
                 ->setSerial(md5($i))
                 ->setSoldNumber(0)
+                ->setType('physical')
+                ->setSeller($this->getReference('seller'))
                 ->setSeller($sellers[$i % 2])
                 ->addFeatureValue($featureValue);
             $manager->persist($variant);

@@ -3,8 +3,8 @@
 namespace App\Entity\Variant;
 
 use App\Entity\Feature\FeatureValue;
-use App\Entity\Product\Product;
 use App\Entity\User\Seller;
+use App\Entity\Product\Product;
 use App\Repository\VariantRepository\VariantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -26,34 +26,35 @@ class Variant
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     private ?string $serial = null;
 
     #[ORM\Column(type: Types::BIGINT)]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant' , 'VariantOAUpdate'])]
     private ?int $price = null;
 
     #[ORM\Column]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant' , 'VariantOAUpdate'])]
     private ?int $quantity = null;
 
     #[ORM\Column]
-    #[Groups('showVariant')]
-    private ?bool $status = null;
+    #[Groups(['showVariant'])]
+    private ?bool $valid = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[Groups('showVariant')]
+    #[Groups(['showVariant'])]
     #[ORM\ManyToMany(targetEntity: FeatureValue::class, mappedBy: 'variants')]
     private Collection $featureValues;
 
     #[ORM\Column]
+    #[Groups(['showVariant'])]
     private ?int $soldNumber = null;
 
     #[ORM\ManyToOne(inversedBy: 'variants')]
@@ -113,14 +114,14 @@ class Variant
         return $this;
     }
 
-    public function isStatus(): ?bool
+    public function isValid(): ?bool
     {
-        return $this->status;
+        return $this->valid;
     }
 
-    public function setStatus(bool $status): self
+    public function setValid(bool $valid): self
     {
-        $this->status = $status;
+        $this->valid = $valid;
 
         return $this;
     }
@@ -183,6 +184,7 @@ class Variant
 
     public function setProduct(Product $product): self
     {
+
         $this->product = $product;
 
         return $this;
@@ -200,18 +202,6 @@ class Variant
         return $this;
     }
 
-    public function getSeller(): ?Seller
-    {
-        return $this->seller;
-    }
-
-    public function setSeller(?Seller $seller): self
-    {
-        $this->seller = $seller;
-
-        return $this;
-    }
-
     public function getType(): ?string
     {
         return $this->type;
@@ -220,6 +210,18 @@ class Variant
     public function setType(string $type): self
     {
         $this->type = $type;
+        
+        return $this;
+    }
+    
+    public function getSeller(): ?Seller
+    {
+        return $this->seller;
+    }
+
+    public function setSeller(?Seller $seller): self
+    {
+        $this->seller = $seller;
 
         return $this;
     }

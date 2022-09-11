@@ -31,7 +31,7 @@ class FeatureValueManagement implements FeatureValueManagementInterface
             }
             $featureValue = new FeatureValue();
             $featureValue->setValue($value);
-            $featureValue->setStatus(true);
+            $featureValue->setActive(true);
             $featureValue->setFeature($itemfeature);
             $this->featureValueRepository->add($featureValue,true);
 
@@ -50,7 +50,7 @@ class FeatureValueManagement implements FeatureValueManagementInterface
             //FeatureValueId validation
             if (count($this->featureValueRepository->showFeature(array("id" => $FeatureValueId)))) {
                 $temp = $this->featureValueRepository->showOneFeature(array("id" => $FeatureValueId));
-                if ($temp->getFeature()->getId() != $featureId || !$temp->isStatus() || !$temp->getFeature()->getStatus()) throw new \Exception("Invalid Item feature value");
+                if ($temp->getFeature()->getId() != $featureId || !$temp->isStatus() || !$temp->getFeature()->getActive()) throw new \Exception("Invalid Item feature value");
                 $featureValue = $temp;
             } else {
                 $this->em->remove($variant);
@@ -78,15 +78,17 @@ class FeatureValueManagement implements FeatureValueManagementInterface
 
     public function updateFeatureValue($id, $value){
         $featureValue = $this->readFeatureValueById($id);
-        $featureValue->setValue($value[$id]);
+        $featureValue->setValue($value);
         return $this->featureValueRepository->add($featureValue,true);
     }
 
     public function showFeaturesValue(){
-        return $this->featureValueRepository->showFeature(['status' => 1]);
+        return $this->featureValueRepository->showFeature(['active' => 1]);
     }
 
     public function deleteFeatureValue($id){
-        return $this->readFeatureValueById($id)->setStatus(false);
+        $temp =  $this->readFeatureValueById($id)->setActive(false);
+        $this->em->flush();
+        return $temp;
     }
 }

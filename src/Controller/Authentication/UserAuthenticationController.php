@@ -1,12 +1,19 @@
 <?php
 
 namespace App\Controller\Authentication;
-
+use App\CacheEntityManager\CacheEntityManager;
+use App\CacheRepository\UserRepository\CacheSellerRepository;
 use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Interface\Authentication\JWTManagementInterface;
+use App\Interface\Cache\CacheInterface;
+use App\Repository\UserRepository\SellerRepository;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
+use Doctrine\ORM\EntityManager;
 use Exception;
+use phpDocumentor\Reflection\Types\This;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes\JsonContent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api',name: 'user_auth_api')]
 class UserAuthenticationController extends AbstractController
@@ -38,6 +47,7 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/user/register', name: 'app_user_register',methods: ['POST'])]
+    #[OA\Tag(name: 'Authentication')]
     public function create(Request $request): Response
     {
 //        try{
@@ -51,6 +61,7 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/user/logout', name: 'app_user_logout',methods: ['GET'])]
+    #[OA\Tag(name: 'Authentication')]
     public function logout(): Response
     {
         $this->JWTManager->invalidateToken();
@@ -61,6 +72,25 @@ class UserAuthenticationController extends AbstractController
     }
 
     #[Route('/user/login', name: 'app_user_login',methods: ['POST'])]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the token and refresh token of an user',
+    )]
+    #[OA\Response(
+        response: 401,
+        description: 'Invalid credentials',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: LoginDto::class)
+        )
+    )]
+    #[OA\Tag(name: 'Authentication')]
     public function login(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
     {
         try{
@@ -116,6 +146,33 @@ class UserAuthenticationController extends AbstractController
             );
         } catch (Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+
+    #[Route('/gogo/{id}', name: 'gogo',methods: ['GET'])]
+    public function update(UserService $userService, EntityManagerInterface $em, $id): Response
+    {
+        try{
+            $seller = $em->getRepository(Seller::class)->find($id);
+//            $userService->updatePhoneNumberById($id,'+989666665676');
+            dd($seller);
+        }catch(Exception $e){
+            return $this->json(json_decode($e), Response::HTTP_OK);
+        }
+    }
+
+    #[Route('/gogol/{id}', name: 'gogol',methods: ['GET'])]
+    public function _update(CacheEntityManager $em, int $id, CacheInterface $cache): Response
+    {
+        try{
+            $repo = $em->getRepository(Seller::class);
+            $seller = $repo->findAll();
+            $repo->deleteAllFromCache();
+//            $userService->updatePhoneNumberById($id,'+989666665676');
+            dd($seller);
+        }catch(Exception $e){
+            return $this->json(json_decode($e), Response::HTTP_OK);
         }
     }
 }

@@ -7,6 +7,7 @@ use App\Repository\Cart\CartItemRepository;
 //use App\Entity\Discount;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\This;
 
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
@@ -85,4 +86,12 @@ class CartItem
     {
         return $this->variant->getPrice()*$this->quantity;
     }
+
+
+//    public function clearCache()
+//    {
+//        'user.'.$this->id;
+//        'user.name';
+//    }
+
 }

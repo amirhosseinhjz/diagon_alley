@@ -68,7 +68,7 @@ class Customer extends User
     }
 
     /**
-     * @return Collection<int, Purchase>
+     * @return Collection<int, \App\Entity\Order\Purchase>
      */
     public function getPurchases(): Collection
     {
