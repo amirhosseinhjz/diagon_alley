@@ -3,6 +3,7 @@
 namespace App\Entity\Order;
 
 use App\Entity\Address\Address;
+use App\Entity\Discount;
 use App\Entity\Payment\Payment;
 use App\Entity\User\Customer;
 use App\Repository\OrderRepository\PurchaseRepository;
@@ -49,6 +50,9 @@ class Purchase
 
     #[ORM\Column]
     private ?int $status = null;
+
+    #[ORM\ManyToOne(inversedBy: 'usedOn')]
+    private ?Discount $discount = null;
 
     public function __construct()
     {
@@ -176,6 +180,18 @@ class Purchase
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getDiscount(): ?Discount
+    {
+        return $this->discount;
+    }
+
+    public function setDiscount(?Discount $discount): self
+    {
+        $this->discount = $discount;
 
         return $this;
     }

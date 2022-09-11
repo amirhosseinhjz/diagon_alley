@@ -29,8 +29,7 @@ class CartItem
     #[ORM\JoinColumn(nullable: false)]
     private ?Variant $variant = null;
 
-    #[ORM\ManyToOne(inversedBy: 'appliedTo')]
-    private ?Discount $discount = null;
+
 
     public function getId(): ?int
     {
@@ -74,7 +73,7 @@ class CartItem
 
     public function getPrice(): ?int
     {
-        return $this->variant->getPrice()*$this->quantity*(1.0 - $this->discount->getRatio()); #check, do i need to check the stocks too?
+        return $this->variant->getPrice()*$this->quantity; #check, do i need to check the stocks too?
     }
 
     public function getVariant(): ?Variant
@@ -85,18 +84,6 @@ class CartItem
     public function setVariant(?Variant $variant): self
     {
         $this->variant = $variant;
-
-        return $this;
-    }
-
-    public function getDiscount(): ?Discount
-    {
-        return $this->discount;
-    }
-
-    public function setDiscount(?Discount $discount): self
-    {
-        $this->discount = $discount;
 
         return $this;
     }

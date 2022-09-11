@@ -90,7 +90,7 @@ class CartService implements CartServiceInterface
         return $cart;
     }
 
-    private function clearCart(Cart $cart, bool $flush = true)
+    public function clearCart(Cart $cart, bool $flush = true)
     {
         foreach($cart->getItems() as $item){
             $this->entityManager->remove($item);

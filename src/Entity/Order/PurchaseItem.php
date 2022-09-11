@@ -2,6 +2,7 @@
 
 namespace App\Entity\Order;
 
+use App\Entity\Discount;
 use App\Entity\Variant\Variant;
 use App\Repository\OrderRepository\PurchaseItemRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,6 +31,9 @@ class PurchaseItem
 
     #[ORM\Column]
     private ?int $totalPrice = null;
+
+    #[ORM\ManyToOne(inversedBy: 'appliedTo')]
+    private ?Discount $discount = null;
 
     public function getId(): ?int
     {
@@ -92,6 +96,18 @@ class PurchaseItem
     public function setTotalPrice(int $totalPrice): self
     {
         $this->totalPrice = $totalPrice;
+
+        return $this;
+    }
+
+    public function getDiscount(): ?Discount
+    {
+        return $this->discount;
+    }
+
+    public function setDiscount(?Discount $discount): self
+    {
+        $this->discount = $discount;
 
         return $this;
     }
