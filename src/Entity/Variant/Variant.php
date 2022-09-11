@@ -3,7 +3,7 @@
 namespace App\Entity\Variant;
 
 use App\Entity\Feature\FeatureValue;
-use App\Entity\Feature\ItemValue;
+use App\Entity\Product\Product;
 use App\Repository\VariantRepository\VariantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -54,9 +54,9 @@ class Variant
     #[Groups(['showVariant'])]
     private ?int $soldNumber = null;
 
-//    #[ORM\ManyToOne(inversedBy: 'variants')]
-//    #[ORM\JoinColumn(nullable: false)]
-//    private ?Product $product = null;
+    #[ORM\ManyToOne(inversedBy: 'variants')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Product $product = null;
 
     public function __construct()
     {
@@ -166,28 +166,28 @@ class Variant
 
         return $this;
     }
-//
-//    public function getProduct(): ?Product
-//    {
-//        return $this->product;
-//    }
-//
-//    public function setProduct(?Product $product): self
-//    {
-//        $this->product = $product;
-//
-//        return $this;
-//    }
 
-    public function getSoldNumber(): ?int
-    {
-        return $this->soldNumber;
-    }
+     public function getProduct(): ?Product
+     {
+         return $this->product;
+     }
 
-    public function setSoldNumber(int $soldNumber): self
-    {
-        $this->soldNumber = $soldNumber;
+     public function setProduct(Product $product): self
+     {
+         $this->product = $product;
 
-        return $this;
-    }
+         return $this;
+     }
+
+public function getSoldNumber(): ?int
+{
+    return $this->soldNumber;
+}
+
+public function setSoldNumber(int $soldNumber): self
+{
+    $this->soldNumber = $soldNumber;
+
+    return $this;
+}
 }

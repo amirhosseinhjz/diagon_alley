@@ -3,19 +3,26 @@
 namespace App\Controller\Feature;
 
 use App\Entity\Feature\FeatureValue as FeatureValueEntity;
-use App\Service\FeatureService\FeatureValueManagement;
+use App\Interface\Feature\FeatureValueManagementInterface;
 use App\Utils\Swagger\Feature\FeatureValue;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use OpenApi\Attributes as OA;
 
 #[Route("/api/feature/value")]
 class FeatureValueController extends AbstractController
 {
+    private FeatureValueManagementInterface $featureValueManagement;
+
+    public function __construct(FeatureValueManagementInterface $featureValueManagement)
+    {
+        $this->featureValueManagement = $featureValueManagement;
+    }
+
     #[Route('/define', name: 'app_define_feature_define', methods:['POST'])]
     #[OA\Response(
         response: 200,
@@ -33,13 +40,13 @@ class FeatureValueController extends AbstractController
         )
     )]
     #[OA\Tag(name: 'FeatureValue')]
-    public function define(Request $request , FeatureValueManagement $defineFeatureManagement)
+    public function define(Request $request)
     {
         $body = $request->toArray();
         try {
-            $defineFeatureManagement->defineFeatureValue($body);
+            $this->featureValueManagement->defineFeatureValue($body);
             return $this->json(
-                ["message" => "Feature values have been defiend!"],
+                ["message" => "Feature values have been defined!"],
                 status: 200
             );
         } catch (\Exception $e){
@@ -61,9 +68,9 @@ class FeatureValueController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'FeatureValue')]
-    public function read(FeatureValueManagement $featureValueManagement, $id){
+    public function read($id){
         try {
-            $temp = $featureValueManagement->readFeatureValueById($id);
+            $temp = $this->featureValueManagement->readFeatureValueById($id);
             return $this->json(
                 $temp,
                 status: 200,
@@ -91,10 +98,10 @@ class FeatureValueController extends AbstractController
         )
     )]
     #[OA\Tag(name: 'FeatureValue')]
-    public function update(Request $request , FeatureValueManagement $defineFeatureManagement, $id){
+    public function update(Request $request , $id){
         $body = $request->toArray();
         try {
-            $defineFeatureManagement->updateFeatureValue($id,$body['value']);
+            $this->featureValueManagement->updateFeatureValue($id,$body);
             return $this->json(
                 ["message" => "Feature Value updated successfully"],
                 status: 200
@@ -115,9 +122,9 @@ class FeatureValueController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'FeatureValue')]
-    public function delete(FeatureValueManagement $defineFeatureManagement, $id){
+    public function delete($id){
         try {
-            $defineFeatureManagement->deleteFeatureValue($id);
+            $this->featureValueManagement->deleteFeatureValue($id);
             return $this->json(
                 ["message" => "Feature Value deleted successfully"],
                 status: 200
@@ -141,8 +148,8 @@ class FeatureValueController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'FeatureValue')]
-    public function show(FeatureValueManagement $defineFeatureManagement){
-        $temp = $defineFeatureManagement->showFeaturesValue();
+    public function show(){
+        $temp = $this->featureValueManagement->showFeaturesValue();
         return $this->json(
             $temp,
             status: 200,

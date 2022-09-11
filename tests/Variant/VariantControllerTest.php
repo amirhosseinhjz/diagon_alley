@@ -27,8 +27,7 @@ class VariantControllerTest extends BaseJsonApiTestCase
                 'description' => 'This is first Valid variant'
             ],
             'feature' => [
-                1 => 1,
-                2 => 2,
+                4 => 4,
                 3 => 3
             ]
         ];
@@ -44,8 +43,8 @@ class VariantControllerTest extends BaseJsonApiTestCase
 
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
-        $this->assertEquals('RED1',$data['featureValues'][1]['value']);
-        $this->assertEquals('RED2',$data['featureValues'][2]['value']);
+        $this->assertEquals('RED3',$data['featureValues'][0]['value']);
+        $this->assertEquals('RED2',$data['featureValues'][1]['value']);
         $this->assertEquals(55,$data['price']);
         $this->assertEquals(40,$data['quantity']);
         $this->assertEquals(false,$data['status']);
@@ -88,7 +87,7 @@ class VariantControllerTest extends BaseJsonApiTestCase
 
         $this->client->request(
             'GET',
-            self::ROUTE.'create/a87ff679a2f3e71d9181a67b7542122c/confirm'
+            self::ROUTE.'create/eccbc87e4b5ce2fe28308fd9f2a7baf3/confirm'
         );
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
@@ -106,7 +105,7 @@ class VariantControllerTest extends BaseJsonApiTestCase
 
         $this->client->request(
             'GET',
-            self::ROUTE.'create/a87ff679a2f3e71d9181a67b7542122c/denied'
+            self::ROUTE.'create/eccbc87e4b5ce2fe28308fd9f2a7baf3/denied'
         );
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
@@ -118,7 +117,7 @@ class VariantControllerTest extends BaseJsonApiTestCase
     {
         $this->client->request(
             'GET',
-            self::ROUTE.'read/a87ff679a2f3e71d9181a67b7542122c'
+            self::ROUTE.'read/eccbc87e4b5ce2fe28308fd9f2a7baf3'
         );
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);

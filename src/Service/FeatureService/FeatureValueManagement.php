@@ -8,8 +8,9 @@ use App\Repository\FeatureRepository\FeatureValueRepository;
 use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use App\Interface\Feature\FeatureValueManagementInterface;
 
-class FeatureValueManagement
+class FeatureValueManagement implements FeatureValueManagementInterface
 {
     private $em;
     private $featureValueRepository;
@@ -51,7 +52,7 @@ class FeatureValueManagement
             //FeatureValueId validation
             if (count($this->featureValueRepository->showFeature(array("id" => $FeatureValueId)))) {
                 $temp = $this->featureValueRepository->showOneFeature(array("id" => $FeatureValueId));
-                if ($temp->getFeature()->getId() != $featureId) throw new \Exception("Invalid Item feature value");
+                if ($temp->getFeature()->getId() != $featureId || !$temp->isStatus() || !$temp->getFeature()->getStatus()) throw new \Exception("Invalid Item feature value");
                 $featureValue = $temp;
             } else {
                 $this->em->remove($variant);
@@ -66,7 +67,7 @@ class FeatureValueManagement
     }
 
     public function readFeatureValueById($id): FeatureValue{
-        if(!$this->featureValueRepository->find($id)){
+        if(!$this->featureValueRepository->find($id) || !$this->featureValueRepository->find($id)->isStatus()){
             throw new \Exception("Feature value not found");
         }
         return $this->featureValueRepository->find($id);

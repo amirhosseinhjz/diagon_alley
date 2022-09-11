@@ -3,19 +3,27 @@
 namespace App\Controller\Feature;
 
 use App\Entity\Feature\Feature as FeatureEntity;
-use App\Service\FeatureService\FeatureManagement;
 use App\Utils\Swagger\Feature\Feature;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
+use App\Interface\Feature\FeatureManagementInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use OpenApi\Attributes as OA;
 
 #[Route("/api/feature")]
 class FeatureController extends AbstractController
 {
+    private FeatureManagementInterface $featureManagement;
+
+    public function __construct(FeatureManagementInterface $featureManagement)
+    {
+        $this->featureManagement = $featureManagement;
+    }
+
     #[Route('/define', name: 'app_feature_label_define', methods:['POST'])]
     #[OA\Response(
         response: 200,
@@ -33,11 +41,11 @@ class FeatureController extends AbstractController
         )
     )]
     #[OA\Tag(name: 'Feature')]
-    public function define(Request $request , FeatureManagement $featureManagement)
+    public function define(Request $request)
     {
         try {
             $body = $request->toArray();
-            $featureManagement->addLabelsToDB($body['features']);
+            $this->featureManagement->addLabelsToDB($body['features']);
             return $this->json(
                 ["message" => "Features have been added!"],
                 status: 200
@@ -61,9 +69,9 @@ class FeatureController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Feature')]
-    public function read(FeatureManagement $featureManagement, $id){
+    public function read($id){
         try {
-            $temp = $featureManagement->readFeatureLabel($id);
+            $temp = $this->featureManagement->readFeatureLabel($id);
             return $this->json(
                 $temp,
                 status: 200,
@@ -94,10 +102,10 @@ class FeatureController extends AbstractController
         )
     )]
     #[OA\Tag(name: 'Feature')]
-    public function update(Request $request , FeatureManagement $featureManagement, $id){
+    public function update(Request $request, $id){
         $body = $request->toArray();
         try {
-            $temp = $featureManagement->updateFeatureLabel($id,$body);
+            $temp = $this->featureManagement->updateFeatureLabel($id,$body);
             return $this->json(
                 $temp,
                 status: 200,
@@ -118,9 +126,9 @@ class FeatureController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Feature')]
-    public function delete(FeatureManagement $featureManagement, $id){
+    public function delete($id){
         try{
-            $featureManagement->deleteFeatureLabel($id);
+            $this->featureManagement->deleteFeatureLabel($id);
             return $this->json(
                 ["message" => "Feature have been deleted"],
                 status: 200
@@ -144,9 +152,9 @@ class FeatureController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Feature')]
-    public function show(FeatureManagement $featureManagement){
+    public function show(){
         return $this->json(
-            $featureManagement->showFeatureLabel(),
+            $this->featureManagement->showFeatureLabel(),
             status: 200,
             context: [AbstractNormalizer::GROUPS => 'showFeature']
         );
