@@ -40,13 +40,14 @@ class UserAuthenticationController extends AbstractController
     #[Route('/user/register', name: 'app_user_register',methods: ['POST'])]
     public function create(Request $request): Response
     {
-        try{
+//        try{
+//            dd(155);
             $user = $this->userService->createFromArray($request->toArray());
             $token = $this->JWTManager->getTokenUser($user,$request);
             return new JsonResponse($token);
-        }catch(\Exception $e){
-            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
-        }
+//        }catch(\Exception $e){
+//            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+//        }
     }
 
     #[Route('/user/logout', name: 'app_user_logout',methods: ['GET'])]

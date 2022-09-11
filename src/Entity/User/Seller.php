@@ -23,6 +23,7 @@ class Seller extends User
 
     public function __construct()
     {
+        parent::__construct();
         $this->variants = new ArrayCollection();
     }
 

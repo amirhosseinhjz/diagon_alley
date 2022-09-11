@@ -4,7 +4,7 @@ namespace App\Entity\Cart;
 
 use App\Entity\Variant\Variant;
 use App\Repository\Cart\CartItemRepository;
-use App\Entity\Discount;
+//use App\Entity\Discount;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -29,8 +29,8 @@ class CartItem
     #[ORM\JoinColumn(nullable: false)]
     private ?Variant $variant = null;
 
-    #[ORM\ManyToOne(inversedBy: 'appliedTo')]
-    private ?Discount $discount = null;
+//    #[ORM\ManyToOne(inversedBy: 'appliedTo')]
+//    private ?Discount $discount = null;
 
     public function getId(): ?int
     {
@@ -66,15 +66,7 @@ class CartItem
     }
 
     public function decreaseQuantity(int $n = 1){
-        if($n>$this->quantity)
-            $this->quantity = 0;
-        else
-            $this->quantity = $this->quantity - $n;
-    }
-
-    public function getPrice(): ?int
-    {
-        return $this->variant->getPrice()*$this->quantity*(1.0 - $this->discount->getRatio()); #check, do i need to check the stocks too?
+        $this->quantity -= $n;
     }
 
     public function getVariant(): ?Variant
@@ -89,15 +81,8 @@ class CartItem
         return $this;
     }
 
-    public function getDiscount(): ?Discount
+    public function getPrice()
     {
-        return $this->discount;
-    }
-
-    public function setDiscount(?Discount $discount): self
-    {
-        $this->discount = $discount;
-
-        return $this;
+        return $this->variant->getPrice()*$this->quantity;
     }
 }

@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "type", type: "string")]
 #[ORM\DiscriminatorMap(['seller' => 'Seller', 'admin' => 'Admin', 'customer' => 'Customer'])]
-#[UniqueEntity(fields: ["Email"], message: "This Email is already in use")]
+#[UniqueEntity(fields: ["email"], message: "This Email is already in use")]
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {

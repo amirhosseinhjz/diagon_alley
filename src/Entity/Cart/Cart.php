@@ -2,38 +2,43 @@
 
 namespace App\Entity\Cart;
 use App\Entity\User\Customer;
-use Exception;
 use App\Repository\Cart\CartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 class Cart
 {
 
     public const STATUS_INIT = "INIT";
-    public const STATUS_PENDING = "PENDING";
+//    public const STATUS_PENDING = "PENDING";
     public const STATUS_SUCCESS = "SUCCESS";
     public const STATUS_EXPIRED = "EXPIRED";
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['Cart.create', 'Cart.read'])]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Serializer\Groups(['Cart.read'])]
     private ?\DateTimeInterface $finalizedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'Cart', targetEntity: CartItem::class, orphanRemoval: true)]
+//    #[Serializer\Groups(['Cart.read'])]
     private Collection $items;
 
     #[ORM\ManyToOne(inversedBy: 'carts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Serializer\Groups(['Cart.read'])]
     private ?Customer $customer = null;
 
     #[ORM\Column(length: 8)]
+    #[Serializer\Groups(['Cart.read'])]
     private ?string $status = null;
 
     public function getCustomer(): ?Customer
@@ -115,6 +120,14 @@ class Cart
         return $this;
     }
 
+    public function getTotalPrice()
+    {
+        $total = 0;
+        foreach ($this->getItems() as $item) {
+            $total += $item->getPrice();
+        }
+        return $total;
+    }
 }
 
 
