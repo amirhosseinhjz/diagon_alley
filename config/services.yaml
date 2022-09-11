@@ -20,6 +20,14 @@ services:
       - "../src/Entity/"
       - "../src/Kernel.php"
 
+  App\EventListener\Cache\User\SellerChangedNotifier:
+    tags:
+      -
+        # these are the options required to define the entity listener
+        name: 'doctrine.orm.entity_listener'
+        event: 'postUpdate'
+        entity: 'App\Entity\User\Seller'
+
   App\Service\UserService\UserService:
       public: true
   #      synthetic: true
@@ -47,7 +55,7 @@ services:
   app.cart.service:
     class: App\Service\CartService\CartService
   App\Service\CartService\CartServiceInterface: '@app.cart.service'
-  
+
   app.saman.service:
     class: App\Service\Payment\SamanPortalService
   App\Interface\Payment\BankPortalInterface: '@app.saman.service'
@@ -75,3 +83,9 @@ services:
   app.order.management:
     class: App\Service\OrderService\OrderService
   App\Interface\Order\OrderManagementInterface: '@app.order.management'
+
+  app.cache.service:
+    class: App\Service\CacheService\RedisCache
+    arguments:
+      $tagName: 'cacheTag'
+  App\Interface\Cache\CacheInterface: '@app.cache.service'

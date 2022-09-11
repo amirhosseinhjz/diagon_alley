@@ -2,53 +2,36 @@
 
 namespace App\Service\CacheService;
 
+use App\Abstract\Cache\BaseCache;
 use App\Interface\Cache\CacheInterface;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Symfony\Contracts\Cache\ItemInterface;
 
-class RedisCache implements CacheInterface
+class RedisCache extends BaseCache implements CacheInterface
 {
-
-    private static ?TagAwareAdapter $adapter = null;
-    private string $tagName;
-    private string $namePrefix;
-    private TagAwareAdapter $redis;
-
-    public function __construct(string $tagName, string $namePrefix)
+    public static function adapter()
     {
-        $this->tagName = $tagName;
-        $this->namePrefix = $namePrefix;
-        $this->redis = $this->getAdapter();
+        return new RedisAdapter(RedisAdapter::createConnection("redis://redis:6379"));
     }
 
-    private static function getAdapter()
-    {
-        if (!RedisCache::$adapter) {
-            RedisCache::$adapter = new TagAwareAdapter(
-                new RedisAdapter(RedisAdapter::createConnection("redis://redis:6379")));
-        }
-        return RedisCache::$adapter;
-    }
-
-    public function remember($key, $exp, $callable, $tagName = null)
+    public function remember($key, $exp, $callable, $tagName = null, $expNull=null)
     {
         if (!$tagName) {
             $tagName = $this->tagName;
         }
-        $key = $this->namePrefix . $key;
-        return $this->redis->get($key, function (ItemInterface $item) use ($tagName, $exp, $callable) {
+        if (!$expNull)
+        {
+            $expNull = $this->expNull;
+        }
+
+        return $this->adapter->get($key, function (ItemInterface $item) use ($tagName, $exp, $callable, $expNull) {
+            $value = $callable();
+            $exp = $value ? $exp : $expNull;
             $item->expiresAfter($exp);
             $item->tag([$tagName]);
-            return $callable();
+            return $value;
         });
     }
 }
-//    public function test()
-//    {
-//        $this->remember('Email.32', 30, function () {
-//            return $userService->getUserById($jwt->authenticatedUser()->getId());
-//        }, 'hhuu');
-
-//    }
 
 
