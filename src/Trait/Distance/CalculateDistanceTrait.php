@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Trait;
+namespace App\Trait\Distance;
 
-trait AddressTrait
+trait CalculateDistanceTrait
 {
     public function findDistanceOfTwoPoints($latA, $lngA, $latB, $lngB)
     {

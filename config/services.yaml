@@ -56,10 +56,6 @@ services:
     class: App\Service\CartService\CartService
   App\Service\CartService\CartServiceInterface: '@app.cart.service'
 
-  app.saman.service:
-    class: App\Service\Payment\SamanPortalService
-  App\Interface\Payment\BankPortalInterface: '@app.saman.service'
-
   app.feature.management:
     class: App\Service\FeatureService\FeatureManagement
   App\Interface\Feature\FeatureManagementInterface: '@app.feature.management'

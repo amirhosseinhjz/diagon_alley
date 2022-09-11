@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Payment;
+namespace App\Tests\Payment2;
 
 use App\Tests\Base\BaseJsonApiTestCase;
 
