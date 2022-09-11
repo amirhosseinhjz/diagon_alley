@@ -6,6 +6,8 @@ use App\DTO\ProductItem\VariantDTO;
 use App\Entity\Variant\Variant;
 use App\Repository\VariantRepository\VariantRepository;
 use App\Interface\Variant\VariantManagementInterface;
+use App\Entity\User\Seller;
+use App\Service\Product\ProductManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -16,12 +18,14 @@ class VariantManagement implements VariantManagementInterface
     private $em;
     private $serializer;
     private $varientRepository;
+    private $productManager;
 
-    public function __construct(EntityManagerInterface $em , VariantRepository $variantRepository )
+    public function __construct(EntityManagerInterface $em , VariantRepository $variantRepository , ProductManager $productManager)
     {
         $this->em = $em;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
         $this->varientRepository = $variantRepository;
+        $this->productManager = $productManager;
     }
 
     public function arrayToDTO(array $array)
@@ -29,15 +33,18 @@ class VariantManagement implements VariantManagementInterface
         return $this->serializer->deserialize(json_encode($array), VariantDTO::class, 'json');
     }
 
-    public function createVariantFromDTO(VariantDTO $dto, $flush=true) : Variant
+    public function createVariantFromDTO(VariantDTO $dto,Seller $seller, $flush=true) : Variant
     {
         $variant = new Variant();
         $variant->setQuantity($dto->quantity);
         $variant->setPrice($dto->price);
         $variant->setSerial("0");
-        $variant->setStatus(false);
+        $variant->setValid(false);
         $variant->setDescription($dto->description);
         $variant->setSoldNumber(0);
+        $variant->setSeller($seller);
+        $variant->setType($dto->type);
+        $variant->setProduct($this->productManager->findOneById($dto->productId));
         $this->em->persist($variant);
         if ($flush) {
             $this->em->flush();
@@ -71,7 +78,7 @@ class VariantManagement implements VariantManagementInterface
     public function confirmVariant($serial){
         $variant = $this->readVariant($serial);
         $time = new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran'));
-        $variant->setStatus(true);
+        $variant->setValid(true);
         $variant->setCreatedAt($time);
         $this->em->flush();
         return $variant;

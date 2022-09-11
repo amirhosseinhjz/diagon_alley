@@ -2,18 +2,22 @@
 
 namespace App\Tests\Variant;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Base\BaseJsonApiTestCase;
 
 /**
  * @group ItemHandleTest
  */
-class VariantControllerTest extends WebTestCase
+class VariantControllerTest extends BaseJsonApiTestCase
 {
-    protected const ROUTE = "/api/variant/";
+    protected const ROUTE = "/api/variant/" , FEATUREVALUE = 'featureValues' , VALUE = 'value' , STATUS = 'status';
 
     public function testCreate()
     {
-        $client = static::createClient();
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $body = [
             'variant' => [
@@ -27,7 +31,7 @@ class VariantControllerTest extends WebTestCase
             ]
         ];
 
-        $client->request(
+        $this->client->request(
             'POST',
             self::ROUTE.'create',
             [],
@@ -36,13 +40,13 @@ class VariantControllerTest extends WebTestCase
             json_encode($body)
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
-        $this->assertEquals('RED3',$data['featureValues'][0]['value']);
-        $this->assertEquals('RED2',$data['featureValues'][1]['value']);
+        $this->assertEquals('QWE',$data[self::FEATUREVALUE][1][self::VALUE]);
+        $this->assertEquals('RED3',$data[self::FEATUREVALUE][0][self::VALUE]);
         $this->assertEquals(55,$data['price']);
         $this->assertEquals(40,$data['quantity']);
-        $this->assertEquals(false,$data['status']);
+        $this->assertEquals(false,$data[self::STATUS]);
         $this->assertEquals(null,$data['createdAt']);
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -58,7 +62,7 @@ class VariantControllerTest extends WebTestCase
             ]
         ];
 
-        $client->request(
+        $this->client->request(
             'POST',
             self::ROUTE.'create',
             [],
@@ -66,7 +70,7 @@ class VariantControllerTest extends WebTestCase
             [],
             json_encode($body)
         );
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals("Invalid Item feature value",$data);
@@ -74,12 +78,17 @@ class VariantControllerTest extends WebTestCase
 
     public function testConfirmCreate()
     {
-        $client = static::createClient();
-        $client->request(
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
+
+        $this->client->request(
             'GET',
-            self::ROUTE.'create/eccbc87e4b5ce2fe28308fd9f2a7baf3/confirm'
+            self::ROUTE.'create/e4da3b7fbbce2345d7772b0674a318d5/confirm'
         );
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Variant confirmed successfully",$data['message']);
@@ -87,12 +96,17 @@ class VariantControllerTest extends WebTestCase
 
     public function testDenied()
     {
-        $client = static::createClient();
-        $client->request(
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
+
+        $this->client->request(
             'GET',
-            self::ROUTE.'create/eccbc87e4b5ce2fe28308fd9f2a7baf3/denied'
+            self::ROUTE.'create/1679091c5a880faf6fb5e6087eb1b2dc/denied'
         );
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Variant denied successfully",$data['message']);
@@ -100,21 +114,20 @@ class VariantControllerTest extends WebTestCase
 
     public function testRead()
     {
-        $client = static::createClient();
-        $client->request(
+        $this->client->request(
             'GET',
-            self::ROUTE.'read/eccbc87e4b5ce2fe28308fd9f2a7baf3'
+            self::ROUTE.'read/1679091c5a880faf6fb5e6087eb1b2dc'
         );
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals("Invalid serial number",$data);
 
-        $client->request(
+        $this->client->request(
             'GET',
             self::ROUTE.'read/c4ca4238a0b923820dcc509a6f75849b'
         );
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals('RED1',$data['featureValues'][0]['value']);
         $this->assertEquals(5,$data['price']);
@@ -126,14 +139,18 @@ class VariantControllerTest extends WebTestCase
 
     public function testUpdate()
     {
-        $client = static::createClient();
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $body = [
             'price' => 653,
             'quantity' => 42
         ];
 
-        $client->request(
+        $this->client->request(
             'POST',
             self::ROUTE.'update/c4ca4238a0b923820dcc509a6f75849b',
             [],
@@ -142,7 +159,7 @@ class VariantControllerTest extends WebTestCase
             json_encode($body)
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals('Variant updated successfully',$data['message']);
         $this->assertEquals(200, $response->getStatusCode());
@@ -153,7 +170,7 @@ class VariantControllerTest extends WebTestCase
             'quantity' => -4
         ];
 
-        $client->request(
+        $this->client->request(
             'POST',
             self::ROUTE.'update/c4ca4238a0b923820dcc509a6f75849b',
             [],
@@ -161,7 +178,7 @@ class VariantControllerTest extends WebTestCase
             [],
             json_encode($body)
         );
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertEquals("Invalid data",$data);

@@ -120,7 +120,7 @@ class CategoryManager implements CategoryManagerInterface
                 $product->setActive($active);
                 $variants = $product->getVariants();
                 foreach ($variants as $variant) {
-                    $variant->setStatus($active);
+                    $variant->setValid($active);
                     $this->em->persist($variant);
                 }
                 $this->em->persist($product);

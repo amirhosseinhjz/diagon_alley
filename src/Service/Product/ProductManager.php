@@ -183,4 +183,8 @@ class ProductManager implements ProductManagerInterface
     {
         return $this->em->getRepository(Product::class)->findProductsByCategoryId($options);
     }
+
+    public function findOneById(int $id){
+        return $this->em->getRepository(self::class)->findOneBy(['id' => $id]);
+    }
 }
