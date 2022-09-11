@@ -10,13 +10,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\SerializerInterface;
 use App\Service\Cart\CartService;
-use App\Entity\Cart\Cart;
-use App\Entity\Cart\CartItem;
+use App\Trait\ControllerTrait;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #ToDo: remove all the user methods
 #[Route('/api/cart', name: 'app_cart')]
 class CartController extends AbstractController
 {
+    use ControllerTrait;
     protected CartService $cartManager;
 
     public function __construct(
@@ -55,6 +56,8 @@ class CartController extends AbstractController
             return $this->json([
                 'm' => 'Cart expired successfully'
             ], Response::HTTP_OK);
+        } catch (AccessDeniedHttpException $exception) {
+            return $this->unAuthorizedResponse();
         } catch (Exception $exception) {
             return $this->json(['m' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -70,6 +73,8 @@ class CartController extends AbstractController
             return $this->json([
                     'cart' => $data
                 ]);
+        } catch (AccessDeniedHttpException $exception) {
+            return $this->unAuthorizedResponse();
         } catch (Exception $exception) {
             return $this->json(['m' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -86,6 +91,8 @@ class CartController extends AbstractController
             return $this->json([
                 'item' => $data
             ], Response::HTTP_OK);
+        } catch (AccessDeniedHttpException $exception) {
+            return $this->unAuthorizedResponse();
         } catch (Exception $exception) {
             return $this->json(['Error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -103,6 +110,8 @@ class CartController extends AbstractController
             return $this->json([
                 'item' => $data
             ], Response::HTTP_OK);
+        } catch (AccessDeniedHttpException $exception) {
+            return $this->unAuthorizedResponse();
         } catch (Exception $exception) {
             return $this->json(['Error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -118,6 +127,8 @@ class CartController extends AbstractController
             return $this->json([
                 'm' => 'Cart cleared successfully'
             ], Response::HTTP_OK);
+        } catch (AccessDeniedHttpException $exception) {
+            return $this->unAuthorizedResponse();
         } catch (Exception $exception) {
             return $this->json(['Error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
