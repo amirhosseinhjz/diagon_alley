@@ -75,6 +75,7 @@ class ProductRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('product');
         $qb = Filters::addBaseFilters($qb, $options);
+        $qb = Filters::addCategoryIdFilter($qb, $id);
         $qb = Filters::addBrandsFilter($qb, $options);
         $qb = Filters::addFeaturesFilter($qb, $options);
         return $qb->getQuery()->getResult();
@@ -84,8 +85,8 @@ class ProductRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('product');
         $qb = Filters::addBaseFilters($qb, $options);
-//        $qb = Filters::addCategoriesFilter($qb, $options);
-        //TOdo add brand id filter
+        $qb = Filters::addBrandIdFilter($qb, $id);
+        $qb = Filters::addCategoriesFilter($qb, $options);
         return $qb->getQuery()->getResult();
     }
 }
