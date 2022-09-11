@@ -14,7 +14,6 @@ class Cart
 {
 
     public const STATUS_INIT = "INIT";
-//    public const STATUS_PENDING = "PENDING";
     public const STATUS_SUCCESS = "SUCCESS";
     public const STATUS_EXPIRED = "EXPIRED";
 
@@ -26,7 +25,7 @@ class Cart
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Serializer\Groups(['Cart.read'])]
-    private ?\DateTimeInterface $finalizedAt = null;
+    public ?\DateTimeInterface $finalizedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'Cart', targetEntity: CartItem::class, orphanRemoval: true)]
 //    #[Serializer\Groups(['Cart.read'])]

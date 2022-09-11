@@ -50,14 +50,13 @@ class UserAuthenticationController extends AbstractController
     #[OA\Tag(name: 'Authentication')]
     public function create(Request $request): Response
     {
-//        try{
-//            dd(155);
+        try{
             $user = $this->userService->createFromArray($request->toArray());
             $token = $this->JWTManager->getTokenUser($user,$request);
             return new JsonResponse($token);
-//        }catch(\Exception $e){
-//            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
-//        }
+        }catch(\Exception $e){
+            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+        }
     }
 
     #[Route('/user/logout', name: 'app_user_logout',methods: ['GET'])]

@@ -45,7 +45,6 @@ class CartController extends AbstractController
         }
     }
 
-    //Question: do I need to take an extra step and remove all cart items?
     #[Route('/{id}', name: 'expire_cart', methods: ['DELETE'])]
     public function delete(int $id): Response
     {
@@ -80,7 +79,7 @@ class CartController extends AbstractController
         }
     }
 
-    #[Route('/additem', name: 'add_item_to_cart', methods: ['POST'])]
+    #[Route('/item', name: 'add_item_to_cart', methods: ['POST'])]
     public function addItem(Request $request): Response
     {
         try {
@@ -99,7 +98,7 @@ class CartController extends AbstractController
     }
 
 
-    #[Route('/removeitem', name: 'remove_item_from_cart', methods: ['POST'])]
+    #[Route('/item', name: 'remove_item_from_cart', methods: ['DELETE'])]
     public function removeItem(Request $request): Response
     {
         try {
