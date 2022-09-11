@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Security\Voter\Shipment;
 
-use App\Entity\Shipment\Shipment;
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -12,7 +11,8 @@ use Symfony\Component\Security\Core\Security;
 
 class ShipmentVoter extends Voter
 {
-    public const HANDLE = 'SHIPMENT_ACCESS';
+    public const SHIPMENT = 'SHIPMENT_ACCESS';
+    public const SHIPMENT_ITEM = 'SHIPMENT_ITEM_ACCESS';
     private $security;
 
     public function __construct(Security $security)
@@ -22,8 +22,7 @@ class ShipmentVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [self::HANDLE])
-            && $subject instanceof \App\Entity\Shipment\Shipment;
+        return in_array($attribute, [self::SHIPMENT,self::SHIPMENT_ITEM]);
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -34,20 +33,25 @@ class ShipmentVoter extends Voter
             return true;
         }
 
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof UserInterface || !$this->security->isGranted('ROLE_SELLER')) {
             return false;
         }
 
-        if (!$this->isAllow($subject, $user))
-        {
-            throw new \Exception(json_encode('access denied'));
-        }
+        $accessIsGranted = match ($attribute){
+            self::SHIPMENT => $this->isAllow($subject, $user),
+            self::SHIPMENT_ITEM => $this->updateAccess($subject , $user)
+        };
 
-        return true;
+        return $accessIsGranted;
     }
 
-    private function isAllow($subject, $user)
+    private function isAllow($subject, User $user)
     {
-        return $user === $subject->getSeller();
+        return $user->getId() === $subject->getSeller()->getId();
+    }
+
+    private function updateAccess($subject, User $user)
+    {
+        return $user->getId() === $subject->getShipment()->getSeller()->getId();
     }
 }

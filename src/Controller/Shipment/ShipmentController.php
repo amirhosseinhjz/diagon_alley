@@ -3,10 +3,7 @@
 namespace App\Controller\Shipment;
 
 use App\DTO\ShipmentDTO\ShipmentAndShipmentItemUpdateDTO;
-use App\Entity\Shipment\Shipment;
-use App\Entity\Shipment\ShipmentItem;
 use App\Interface\Shipment\ShipmentManagementInterface;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,9 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-
-
 
 #[Route('/api',name: '_api_shipment_')]
 class ShipmentController extends AbstractController
@@ -40,13 +34,16 @@ class ShipmentController extends AbstractController
         $this->serializer = $serializer;
     }
 
-//    #[IsGranted('ROLE_SELLER')]
     #[Route('/shipment/{id}/shipment-items', name: 'app_shipment_items_show',methods: ['GET'])]
     public function shipmentItemIndex($id): Response
     {
-        dd($id);
+        $this->denyAccessUnlessGranted
+        (
+            'SHIPMENT_ACCESS',
+            subject: $this->managementShipment->getShipmentById($id)
+            ,message: 'Access Denied, not the owner of the shipment'
+        );
         try {
-//            $this->isGranted('SHIPMENT_ACCESS', $this->managementShipment->getShipmentById($id));
             $shipmentItems = $this->managementShipment->getShipmentItems($id);
             $data = $this->serializer->normalize($shipmentItems, null, ['groups' => ['shipment.shipmentItem.read']]);
             return $this->json
@@ -62,6 +59,12 @@ class ShipmentController extends AbstractController
     #[Route('/shipment-seller/{id}', name: 'app_shipment_seller',methods: ['GET'])]
     public function shipmentSellerIndex($id): Response
     {
+        $this->denyAccessUnlessGranted
+        (
+            'SHIPMENT_ACCESS',
+            subject: $this->managementShipment->getShipmentBySellerId($id),
+            message:  'Access Denied, not the owner of the shipment'
+        );
         try {
             $shipment = $this->managementShipment->getShipmentBySellerId($id);
             $data = $this->serializer->normalize($shipment, null, ['groups' => ['shipment.seller.read','shipment.read']]);
@@ -78,6 +81,12 @@ class ShipmentController extends AbstractController
     #[Route('/shipment/{id}', name: 'app_shipment_status_update',methods: ['PUT','PATCH'])]
     public function shipmentStatusUpdate(Request $request,$id): Response
     {
+        $this->denyAccessUnlessGranted
+        (
+            'SHIPMENT_ACCESS',
+            subject: $this->managementShipment->getShipmentById($id),
+            message:  'Access Denied, not the owner of the shipment'
+        );
         try {
             $request = $request->toArray();
             (new ShipmentAndShipmentItemUpdateDTO($request,$this->validator))
@@ -101,6 +110,12 @@ class ShipmentController extends AbstractController
     #[Route('/shipment-item/{id}', name: 'app_shipment_item_status_update',methods: ['PUT','PATCH'])]
     public function shipmentItemStatusUpdate(Request $request,$id): Response
     {
+        $this->denyAccessUnlessGranted
+        (
+            'SHIPMENT_ITEM_ACCESS',
+            subject: $this->managementShipment->getShipmentItemById($id),
+            message:  'Access Denied, not the owner of the shipment-item'
+        );
         try {
             $request = $request->toArray();
             (new ShipmentAndShipmentItemUpdateDTO($request,$this->validator))
