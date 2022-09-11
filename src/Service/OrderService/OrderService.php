@@ -2,21 +2,26 @@
 
 namespace App\Service\OrderService;
 
-use App\Interface\Order\OrderManagementInterface;
+use App\Entity\Address\Address;
+use App\Entity\Cart\Cart;
 use App\Entity\Order\Purchase;
 use App\Entity\Order\PurchaseItem;
-use App\Entity\Cart\Cart;
+use App\Interface\Order\OrderManagementInterface;
+use App\Service\Address\AddressService;
 use App\Service\Cart\CartService;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\Address\Address;
-use App\Service\Address\AddressService;
+
 
 class OrderService implements OrderManagementInterface
 {
-    public function __construct(CartService $cartService, AddressService $addressService, EntityManagerInterface $em)
+    public function __construct(
+//        CartService $cartService,
+//        AddressService $addressService,
+        EntityManagerInterface $em
+    )
     {
-        $this->cartService = $cartService;
-        $this->addressService = $addressService;
+//        $this->cartService = $cartService;
+//        $this->addressService = $addressService;
         $this->em = $em;
     }
 
@@ -84,6 +89,7 @@ class OrderService implements OrderManagementInterface
         return $purchase->getId();
     }
 
+
     public function submitOrder(array $params): int
     {
         if (!isset($params['cartId']) || !isset($params['addressId'])) {
@@ -110,4 +116,13 @@ class OrderService implements OrderManagementInterface
 //        TODO: call shipping service
     }
 
+    public function getPurchaseItemsBySellerIdAndPurchaseId(array $criteria)
+    {
+        return $this->em->getRepository(PurchaseItem::class)->findBySellerIdAndPurchaseId($criteria);
+    }
+
+    public function getPurchaseItemById($id)
+    {
+        return $this->em->getRepository(PurchaseItem::class)->findOneBy(['id'=>$id]);
+    }
 }

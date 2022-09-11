@@ -2,7 +2,6 @@
 
 namespace App\Service\UserService;
 
-
 use App\Entity\User;
 use App\DTO\UserDTOs;
 use Doctrine\ORM\EntityManagerInterface;
@@ -215,6 +214,7 @@ class UserService
             throw (new \Exception("Phone number already exists"));
         } catch (\Exception $e) {}
         $user->setPhoneNumber($phoneNumber);
+        $this->em->persist($user);
         $this->em->flush();
         return $user;
     }
@@ -250,5 +250,10 @@ class UserService
         }
         $user->setIsActive(false);
         $this->em->flush();
+    }
+
+    public function getSellerIdsByPurchaseId($purchaseId)
+    {
+        return $this->em->getRepository(User\User::class)->findBySellerIds($purchaseId);
     }
 }

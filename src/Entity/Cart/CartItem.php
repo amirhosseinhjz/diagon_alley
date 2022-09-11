@@ -5,6 +5,7 @@ namespace App\Entity\Cart;
 use App\Repository\CartRepository\CartItemRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\This;
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
 class CartItem
@@ -136,5 +137,12 @@ class CartItem
 
         return $this;
     }
+
+
+//    public function clearCache()
+//    {
+//        'user.'.$this->id;
+//        'user.name';
+//    }
 
 }

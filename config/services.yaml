@@ -20,6 +20,14 @@ services:
       - "../src/Entity/"
       - "../src/Kernel.php"
 
+  App\EventListener\Cache\User\SellerChangedNotifier:
+    tags:
+      -
+        # these are the options required to define the entity listener
+        name: 'doctrine.orm.entity_listener'
+        event: 'postUpdate'
+        entity: 'App\Entity\User\Seller'
+
   App\Service\UserService\UserService:
       public: true
   #      synthetic: true
@@ -27,12 +35,12 @@ services:
   # please note that last definitions always *replace* previous ones
   
   app.jwt.management:
-      class: App\Service\Authentication\JWTManagement
+    class: App\Service\Authentication\JWTManagement
   App\Interface\Authentication\JWTManagmentInterface: '@app.jwt.management'
 
   App\Listener\AuthenticationProcesses\JWTDecodedEventListener:
-      tags:
-          - { name: kernel.event_listener, event: 'lexik_jwt_authentication.on_jwt_decoded', method: onJWTDecoded }
+    tags:
+      - { name: kernel.event_listener, event: 'lexik_jwt_authentication.on_jwt_decoded', method: onJWTDecoded }
 
 
 #  App\Service\Cart\CartService:
@@ -63,3 +71,17 @@ services:
   app.email.service:
     class: App\Service\Email\EmailManagement
   App\Interface\Email\EmailManagementInterface: '@app.email.service'
+
+  app.shipment.management:
+    class: App\Service\Shipment\ShipmentManagement
+  App\Interface\Shipment\ShipmentManagementInterface: '@app.shipment.management'
+
+  app.order.management:
+    class: App\Service\OrderService\OrderService
+  App\Interface\Order\OrderManagementInterface: '@app.order.management'
+
+  app.cache.service:
+    class: App\Service\CacheService\RedisCache
+    arguments:
+      $tagName: 'cacheTag'
+  App\Interface\Cache\CacheInterface: '@app.cache.service'
