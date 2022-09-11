@@ -5,18 +5,17 @@ namespace App\Service\FeatureService;
 use App\Entity\Feature\Feature;
 use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Interface\Feature\FeatureManagementInterface;
 
-class FeatureManagement
+class FeatureManagement implements FeatureManagementInterface
 {
     private $em;
     private $featureRepository;
-    private $defineFeatureManagement;
 
     public function __construct(EntityManagerInterface $em , FeatureRepository $featureRepository , FeatureValueManagement $defineFeatureManagement)
     {
         $this->em = $em;
         $this->featureRepository = $featureRepository;
-        $this->defineFeatureManagement = $defineFeatureManagement;
     }
 
     public function addLabelsToDB(array $features){
@@ -24,14 +23,14 @@ class FeatureManagement
             if($this->featureRepository->readFeatureById($feature) === null){
                 $temp = new Feature();
                 $temp->setLabel($feature);
-                $temp->setStatus(true);
+                $temp->setActive(true);
                 $this->featureRepository->add($temp,true);
             }
         }
     }
 
     public function readFeatureLabel($id){
-        if(!$this->featureRepository->find($id) || !$this->featureRepository->find($id)->getStatus()){
+        if(!$this->featureRepository->find($id) || !$this->featureRepository->find($id)->getActive()){
             throw new \Exception("Feature not found");
         }
         return $this->featureRepository->find($id);
@@ -40,7 +39,7 @@ class FeatureManagement
     public function updateFeatureLabel($id , $body){
         if($body['status'] === null  || !$body['label'])throw new \Exception("Wrong data type");
         $feature = $this->readFeatureLabel($id);
-        $feature->setStatus($body['status']);
+        $feature->setActive($body['active']);
         $feature->setLabel($body['label']);
         $this->em->flush();
         return $feature;
@@ -48,12 +47,12 @@ class FeatureManagement
 
     public function deleteFeatureLabel($id){
         $feature = $this->readFeatureLabel($id);
-        $feature->setStatus(false);
+        $feature->setActive(false);
         $this->em->flush();
         return $feature;
     }
 
     public function showFeatureLabel(){
-        return $this->featureRepository->showFeature(array('status' => true));
+        return $this->featureRepository->showFeature(array('active' => true));
     }
 }

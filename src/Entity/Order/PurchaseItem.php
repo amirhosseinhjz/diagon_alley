@@ -2,6 +2,7 @@
 
 namespace App\Entity\Order;
 
+use App\Entity\Shipment\ShipmentItem;
 use App\Entity\Variant\Variant;
 use App\Repository\OrderRepository\PurchaseItemRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,6 +25,15 @@ class PurchaseItem
 
     #[ORM\Column]
     private ?int $paidPrice = null;
+
+    #[ORM\OneToOne(mappedBy: 'purchaseItem', cascade: ['persist', 'remove'])]
+    private ?ShipmentItem $shipmentItem = null;
+
+    #[ORM\Column]
+    private ?int $quantity = null;
+
+    #[ORM\Column]
+    private ?int $totalPrice = null;
 
     public function getId(): ?int
     {
@@ -63,6 +73,45 @@ class PurchaseItem
     {
         $this->paidPrice = $paidPrice;
 
+        return $this;
+    }
+
+    public function getShipmentItem(): ?ShipmentItem
+    {
+        return $this->shipmentItem;
+    }
+
+    public function setShipmentItem(ShipmentItem $shipmentItem): self
+    {
+        // set the owning side of the relation if necessary
+        if ($shipmentItem->getPurchaseItem() !== $this) {
+            $shipmentItem->setPurchaseItem($this);
+        }
+
+        $this->shipmentItem = $shipmentItem;
+        return $this;
+    }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): self
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getTotalPrice(): ?int
+    {
+        return $this->totalPrice;
+    }
+
+    public function setTotalPrice(int $totalPrice): self
+    {
+        $this->totalPrice = $totalPrice;
         return $this;
     }
 }

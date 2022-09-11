@@ -10,15 +10,12 @@ use App\Tests\Base\BaseJsonApiTestCase;
  */
 class AuthControllerTest extends BaseJsonApiTestCase
 {
-
-    protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789'];
-
     public function testUserRegister()
     {
 
         $body = [
             'name'=>'jery',
-            'email'=>'cacvoaasfdsaqsgweo@gmail.com',
+            'Email'=>'cacvoaasfdsaqsgweo@gmail.com',
             'lastName'=>'coca',
             'phoneNumber'=>'09182836949',
             'password'=>'123456789W1',
@@ -61,7 +58,7 @@ class AuthControllerTest extends BaseJsonApiTestCase
             [],
             [],
             [],
-            json_encode(['username'=>$this->defaultUser['username'],'password'=>$wrongPassword])
+            json_encode(['username'=>parent::$defaultUser['username'],'password'=>$wrongPassword])
         );
 
         $response = $this->client->getResponse()->getContent();
@@ -95,8 +92,58 @@ class AuthControllerTest extends BaseJsonApiTestCase
         $data = json_decode($response,true);
 
         self::assertArrayHasKey('message',$data);
-        self::assertSame($data['message'],"you logged out");
-        self::assertSame($data['status'],200);
+        self::assertSame("you logged out",$data['message']);
+        self::assertSame(200,$data['status']);
     }
 
+    public function testUserSetNewPassword()
+    {
+
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
+
+        $this->client->request(
+            'POST',
+            'http://localhost:70/api/user/new-password',
+            [],
+            [],
+            [],
+            json_encode(['password'=>'Zz*123456789'])
+        );
+
+        $response = $this->client->getResponse();
+        $data = json_decode($response->getContent(),true);
+
+        self::assertEquals("password changed successfully",$data['message']);
+        self::assertEquals(200,$response->getStatusCode());
+        parent::$defaultUser['password'] = 'Zz*123456789';
+    }
+
+    public function testUserSetNewPhoneNumber()
+    {
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
+
+        $this->client->request(
+            'POST',
+            'http://localhost:70/api/user/new-phone-number',
+            [],
+            [],
+            [],
+            json_encode(['phone number'=>'09121112233'])
+        );
+
+        $response = $this->client->getResponse();
+        $data = json_decode($response->getContent(),true);
+
+        self::assertEquals("phone number changed successfully",$data['message']);
+        self::assertEquals(200,$response->getStatusCode());
+        parent::$defaultUser['username'] = '09121112233';
+    }
 }

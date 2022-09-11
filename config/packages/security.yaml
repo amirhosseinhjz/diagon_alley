@@ -14,7 +14,7 @@ security:
             pattern: ^/api/login
             stateless: true
             json_login:
-#                username_path: phone
+                #                username_path: phone
                 password_path: password
                 check_path: /api/login_check
                 success_handler: lexik_jwt_authentication.handler.authentication_success
@@ -38,8 +38,11 @@ security:
         - { path: ^/api/gogo, roles: PUBLIC_ACCESS }
         - { path: ^/api/gogol, roles: PUBLIC_ACCESS }
         - { path: ^/api/doc, roles: PUBLIC_ACCESS}
+        - { path: ^/api/variant/read, roles: PUBLIC_ACCESS}
+        - { path: ^/api/variant/1, roles: PUBLIC_ACCESS}
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/user/logout, roles: IS_AUTHENTICATED_FULLY }
+
+
 
 when@test:
     security:
