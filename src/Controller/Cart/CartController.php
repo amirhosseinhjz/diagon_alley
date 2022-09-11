@@ -49,7 +49,9 @@ class CartController extends AbstractController
     public function delete(int $id): Response
     {
         try {
-            $cart = $this->cartManager->expireCart($id);
+            $cart = $this->cartManager->getCartById($id);
+            $this->isGranted('CART_ACCESS', $cart);
+            $this->cartManager->expireCart($cart);
             return $this->json([
                 'm' => 'Cart expired successfully'
             ], Response::HTTP_OK);
@@ -59,10 +61,11 @@ class CartController extends AbstractController
     }
 
     #[Route('/{id}', name: 'get_cart', methods: ['GET'])]
-    public function show(int $id): Response  #DTO
+    public function show(int $id): Response
     {
         try {
             $cart = $this->cartManager->getCartById($id);
+            $this->isGranted('CART_ACCESS', $cart);
             $data = $this->serializer->normalize($cart, 'json', ['groups' => 'Cart.read']);
             return $this->json([
                     'cart' => $data
@@ -72,83 +75,51 @@ class CartController extends AbstractController
         }
     }
 
-//    #[Route('/additem', name: 'add_item_to_cart', methods: ['POST'])]
-//    public function addItem(Request $request): Response
-//    {
-//        try {
-//            $cart = $this->cartManager->addToCartFromRequest($request->toArray());
-//            return $this->json([
-//                'item' => $data
-//            ], Response::HTTP_OK);
-//        } catch (Exception $exception) {
-//            return $this->json(['m' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
-//        }
-//    }
-
-    #[Route('/{id}/close', name: 'successful_payment', methods: ['GET'])]  #t: right name?
-    public function success($id): Response
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        try {
-            $cart = $this->cartManager->getCartById($id);
-            $this->denyAccessUnlessGranted('_EDIT', $cart);
-            $this->cartManager->updateStatus($cart, 'SUCCESS');
-            return $this->json([
-                'm' => 'Status changed'
-            ],Response::HTTP_OK);
-        } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    #[Route('/{id}/revert', name: 'revert_pending_cart', methods: ['GET'])]
-    public function revert($id): Response   #todo: what if the customer creates a new card while they have another waiting for payment
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        try {
-            $cart = $this->cartManager->getCartById($id);
-            $this->denyAccessUnlessGranted('_BACK', $cart);
-            $this->cartManager->updateStatus($cart, 'INIT');
-            return $this->json([
-                'm' => 'Status changed'
-            ],Response::HTTP_OK);
-        } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    #[Route('/items/add', name: 'add_item_to_cart', methods: ['POST'])]
+    #[Route('/additem', name: 'add_item_to_cart', methods: ['POST'])]
     public function addItem(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
-            $array = $this->cartManager->getRequestBody($request);
-            #ToDo: access control
-            $this->cartManager->addItemToCart($array);
+            $cart = $this->cartManager->getCartById($request->get('cartId'));
+            $this->isGranted('CART_ACCESS', $cart);
+            $cart = $this->cartManager->addToCartFromRequest($request->toArray());
+            $data = $this->serializer->normalize($cart, 'json', ['groups' => 'Cart.read']);
             return $this->json([
-                'm' => "item added"
-                ,Response::HTTP_OK]);
+                'item' => $data
+            ], Response::HTTP_OK);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json(['Error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #[Route('/items/remove', name: 'remove_item_from_cart', methods: ['POST'])]
+
+    #[Route('/removeitem', name: 'remove_item_from_cart', methods: ['POST'])]
     public function removeItem(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         try {
-            $array = $this->cartManager->getRequestBody($request);
-            #ToDo: access management
-            $this->cartManager->removeItemFromCart($array);
+            $cart = $this->cartManager->getCartById($request->get('cartId'));
+            $this->isGranted('CART_ACCESS', $cart);
+            $cart = $this->cartManager->removeFromCartFromRequest($request->toArray());
+            $data = $this->serializer->normalize($cart, 'json', ['groups' => 'Cart.read']);
             return $this->json([
-                'm' => 'item removed successfully'
-            ],Response::HTTP_OK);
+                'item' => $data
+            ], Response::HTTP_OK);
         } catch (Exception $exception) {
-            return $this->json(['m' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json(['Error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #ToDo: remove item just by id
-
+    #[Route('/clear', name: 'clear_cart', methods: ['POST'])]
+    public function clearCart(Request $request): Response
+    {
+        try {
+            $cart = $this->cartManager->getCartById($request->get('cartId'));
+            $this->isGranted('CART_ACCESS', $cart);
+            $cart = $this->cartManager->clearCartFromRequest($request->toArray());
+            return $this->json([
+                'm' => 'Cart cleared successfully'
+            ], Response::HTTP_OK);
+        } catch (Exception $exception) {
+            return $this->json(['Error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
 }
