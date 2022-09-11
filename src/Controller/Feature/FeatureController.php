@@ -5,8 +5,8 @@ namespace App\Controller\Feature;
 use App\Entity\Feature\Feature as FeatureEntity;
 use App\Utils\Swagger\Feature\Feature;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Attributes as OA;
 use App\Interface\Feature\FeatureManagementInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use OpenApi\Attributes as OA;
 
-#[Route("/api/feature")]
+#[Route("/api/feature" , name: 'app_feature_')]
 class FeatureController extends AbstractController
 {
     private FeatureManagementInterface $featureManagement;
@@ -24,7 +24,8 @@ class FeatureController extends AbstractController
         $this->featureManagement = $featureManagement;
     }
 
-    #[Route('/define', name: 'app_feature_label_define', methods:['POST'])]
+    #[Route('', name: 'define', methods:['POST'])]
+    #[IsGranted('FEATURE_CREATE' , message: 'ONLY ADMIN CAN ADD FEATURE')]
     #[OA\Response(
         response: 200,
         description: 'Returns success message',
@@ -48,14 +49,14 @@ class FeatureController extends AbstractController
             $this->featureManagement->addLabelsToDB($body['features']);
             return $this->json(
                 ["message" => "Features have been added!"],
-                status: 200
             );
         }catch (\Exception $e){
             return $this->json($e->getMessage(),Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #[Route('/read/{id}', name: 'app_feature_label_read', methods:['GET'])]
+    #[Route('/{id}', name: 'read', methods:['GET'] , condition: "params['id'] > 0")]
+    #[IsGranted('FEATURE_SHOW' , message: 'ONLY ADMIN OR SELLER CAN ACCESS FEATURE')]
     #[OA\Response(
         response: 200,
         description: 'Returns the feature information',
@@ -69,7 +70,7 @@ class FeatureController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Feature')]
-    public function read($id){
+    public function read(int $id){
         try {
             $temp = $this->featureManagement->readFeatureLabel($id);
             return $this->json(
@@ -82,7 +83,8 @@ class FeatureController extends AbstractController
         }
     }
 
-    #[Route('/update/{id}', name: 'app_feature_label_update', methods:['POST'])]
+    #[Route('/{id}', name: 'update' , methods:['PATCH']  , condition: "params['id'] > 0")]
+    #[IsGranted('FEATURE_CREATE' , message: 'ONLY ADMIN CAN UPDATE FEATURE')]
     #[OA\Response(
         response: 200,
         description: 'Updates the feature and returns it',
@@ -102,13 +104,12 @@ class FeatureController extends AbstractController
         )
     )]
     #[OA\Tag(name: 'Feature')]
-    public function update(Request $request, $id){
+    public function update(Request $request, int $id){
         $body = $request->toArray();
         try {
             $temp = $this->featureManagement->updateFeatureLabel($id,$body);
             return $this->json(
                 $temp,
-                status: 200,
                 context: [AbstractNormalizer::GROUPS => 'showFeature']
             );
         } catch(\Exception $e){
@@ -116,7 +117,8 @@ class FeatureController extends AbstractController
         }
     }
 
-    #[Route('/delete/{id}', name: 'app_feature_label_delete', methods:['GET'])]
+    #[Route('/{id}', name: 'delete', methods:['DELETE']  , condition: "params['id'] > 0")]
+    #[IsGranted('FEATURE_CREATE' , message: 'ONLY ADMIN CAN DELETE FEATURE')]
     #[OA\Response(
         response: 200,
         description: 'Returns success message on deletion',
@@ -126,7 +128,7 @@ class FeatureController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Feature')]
-    public function delete($id){
+    public function delete(int $id){
         try{
             $this->featureManagement->deleteFeatureLabel($id);
             return $this->json(
@@ -138,7 +140,8 @@ class FeatureController extends AbstractController
         }
     }
 
-    #[Route('/show', name: 'app_feature_label_show', methods:['GET'])]
+    #[Route('', name: 'show', methods:['GET'])]
+    #[IsGranted('FEATURE_SHOW' , message: 'ONLY ADMIN OR SELLER CAN ACCESS FEATURE')]
     #[OA\Response(
         response: 200,
         description: 'Returns all features',

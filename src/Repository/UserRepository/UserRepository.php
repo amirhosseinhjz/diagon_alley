@@ -4,6 +4,7 @@ namespace App\Repository\UserRepository;
 
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -66,7 +67,6 @@ class UserRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-
     public function loadUserByIdentifier(string $identifier): ?UserInterface
     {
         $entityManager = $this->getEntityManager();
@@ -80,4 +80,19 @@ class UserRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findBySellerIds($purchaseId): ?array
+    {
+        $entityManager = $this->getEntityManager();
+        $connection = $entityManager->getConnection();
+        $query = $connection->prepare
+        (
+            "SELECT DISTINCT seller_id FROM variant 
+                WHERE id IN 
+                      (SELECT variant_id 
+                      FROM purchase_item 
+                      WHERE purchase_id=:id)"
+        );
+        $query->bindValue('id',$purchaseId,ParameterType::INTEGER);
+        return $query->executeQuery()->fetchAllAssociative();
+    }
 }

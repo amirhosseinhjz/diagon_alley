@@ -9,8 +9,7 @@ use App\Tests\Base\BaseJsonApiTestCase;
  */
 class FeatureValueControllerTest extends BaseJsonApiTestCase
 {
-    protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789'];
-    protected const ROUTE = "/api/feature/value/";
+    protected const ROUTE = "/api/feature/value/" , VALUE = 'value';
 
     public function testDefine()
     {
@@ -21,7 +20,7 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $body = [
-            1 => 'RED',
+            4 => 'RED',
             2 => 'BLUE',
             3 => 'YELLOW'
         ];
@@ -39,7 +38,7 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
         $this->assertEquals(200, $response->getStatusCode());
         //Invalid body
         $body = [
-            1 => 'gr',
+            2 => 'gr',
             1235 => 'oppk'
         ];
 
@@ -86,12 +85,12 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $body = [
-            1 => 'QWE'
+            3 => 'QWE'
         ];
 
         $this->client->request(
             'POST',
-            self::ROUTE.'update/1',
+            self::ROUTE.'update/3',
             [],
             [],
             [],
@@ -116,12 +115,12 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
         //Valid Id
         $this->client->request(
             'GET',
-            self::ROUTE . 'read/1'
+            self::ROUTE . 'read/3'
         );
 
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals('QWE', $data['value']);
+        $this->assertEquals('QWE', $data[self::VALUE]);
         $this->assertEquals(200, $response->getStatusCode());
 
         //Invalid Id

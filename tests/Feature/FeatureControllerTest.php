@@ -9,8 +9,7 @@ use App\Tests\Base\BaseJsonApiTestCase;
  */
 class FeatureControllerTest extends BaseJsonApiTestCase
 {
-    protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789'];
-    protected const ROUTE = "/api/feature/";
+    protected const ROUTE = "/api/feature/" , STATUS = 'status' , NAME = 'label';
 
     public function testDefine()
     {
@@ -68,7 +67,7 @@ class FeatureControllerTest extends BaseJsonApiTestCase
         //Valid Data
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
-        $this->assertEquals(false, $data['status']);
+        $this->assertEquals(false, $data[self::STATUS]);
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = [
@@ -109,17 +108,6 @@ class FeatureControllerTest extends BaseJsonApiTestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Color2",$data['label']);
-
-        //Valid Id but deleted Feature
-        $client->request(
-            'GET',
-            self::ROUTE . 'read/1'
-        );
-
-        $response = $client->getResponse();
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals("Feature not found", $data);
-        $this->assertEquals(400, $response->getStatusCode());
 
         //Invalid Id
         $this->client->request(

@@ -9,8 +9,7 @@ use App\Tests\Base\BaseJsonApiTestCase;
  */
 class VariantControllerTest extends BaseJsonApiTestCase
 {
-    protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789'];
-    protected const ROUTE = "/api/variant/";
+    protected const ROUTE = "/api/variant/" , FEATUREVALUE = 'featureValues' , VALUE = 'value' , STATUS = 'status';
 
     public function testCreate()
     {
@@ -43,11 +42,11 @@ class VariantControllerTest extends BaseJsonApiTestCase
 
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
-        $this->assertEquals('RED3',$data['featureValues'][0]['value']);
-        $this->assertEquals('RED2',$data['featureValues'][1]['value']);
+        $this->assertEquals('QWE',$data[self::FEATUREVALUE][1][self::VALUE]);
+        $this->assertEquals('RED3',$data[self::FEATUREVALUE][0][self::VALUE]);
         $this->assertEquals(55,$data['price']);
         $this->assertEquals(40,$data['quantity']);
-        $this->assertEquals(false,$data['status']);
+        $this->assertEquals(false,$data[self::STATUS]);
         $this->assertEquals(null,$data['createdAt']);
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -87,7 +86,7 @@ class VariantControllerTest extends BaseJsonApiTestCase
 
         $this->client->request(
             'GET',
-            self::ROUTE.'create/eccbc87e4b5ce2fe28308fd9f2a7baf3/confirm'
+            self::ROUTE.'create/e4da3b7fbbce2345d7772b0674a318d5/confirm'
         );
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
@@ -105,7 +104,7 @@ class VariantControllerTest extends BaseJsonApiTestCase
 
         $this->client->request(
             'GET',
-            self::ROUTE.'create/eccbc87e4b5ce2fe28308fd9f2a7baf3/denied'
+            self::ROUTE.'create/1679091c5a880faf6fb5e6087eb1b2dc/denied'
         );
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
@@ -117,7 +116,7 @@ class VariantControllerTest extends BaseJsonApiTestCase
     {
         $this->client->request(
             'GET',
-            self::ROUTE.'read/eccbc87e4b5ce2fe28308fd9f2a7baf3'
+            self::ROUTE.'read/1679091c5a880faf6fb5e6087eb1b2dc'
         );
         $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);

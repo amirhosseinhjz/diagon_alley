@@ -3,6 +3,7 @@
 namespace App\Entity\Variant;
 
 use App\Entity\Feature\FeatureValue;
+use App\Entity\User\Seller;
 use App\Entity\Product\Product;
 use App\Repository\VariantRepository\VariantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -16,6 +17,8 @@ class Variant
 {
     public const STATUS_VALIDATE_SUCCESS = 1;
     public const STATUS_VALIDATE_PENDING = 0;
+    const validTypes = ['digital', 'physical'];
+    const defaultType = 'physical';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -36,7 +39,7 @@ class Variant
 
     #[ORM\Column]
     #[Groups(['showVariant'])]
-    private ?bool $status = null;
+    private ?bool $valid = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['showVariant'])]
@@ -53,6 +56,13 @@ class Variant
     #[ORM\Column]
     #[Groups(['showVariant'])]
     private ?int $soldNumber = null;
+
+    #[ORM\ManyToOne(inversedBy: 'variants')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Seller $seller = null;
+
+    #[ORM\Column(length: 30)]
+    private ?string $type = null;
 
     #[ORM\ManyToOne(inversedBy: 'variants')]
     #[ORM\JoinColumn(nullable: false)]
@@ -104,14 +114,14 @@ class Variant
         return $this;
     }
 
-    public function isStatus(): ?bool
+    public function isValid(): ?bool
     {
-        return $this->status;
+        return $this->valid;
     }
 
-    public function setStatus(bool $status): self
+    public function setValid(bool $valid): self
     {
-        $this->status = $status;
+        $this->valid = $valid;
 
         return $this;
     }
@@ -167,27 +177,52 @@ class Variant
         return $this;
     }
 
-     public function getProduct(): ?Product
-     {
-         return $this->product;
-     }
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
 
-     public function setProduct(Product $product): self
-     {
-         $this->product = $product;
+    public function setProduct(Product $product): self
+    {
 
-         return $this;
-     }
+        $this->product = $product;
 
-public function getSoldNumber(): ?int
-{
-    return $this->soldNumber;
-}
+        return $this;
+    }
 
-public function setSoldNumber(int $soldNumber): self
-{
-    $this->soldNumber = $soldNumber;
+    public function getSoldNumber(): ?int
+    {
+        return $this->soldNumber;
+    }
 
-    return $this;
-}
+    public function setSoldNumber(int $soldNumber): self
+    {
+        $this->soldNumber = $soldNumber;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+        
+        return $this;
+    }
+    
+    public function getSeller(): ?Seller
+    {
+        return $this->seller;
+    }
+
+    public function setSeller(?Seller $seller): self
+    {
+        $this->seller = $seller;
+
+        return $this;
+    }
 }

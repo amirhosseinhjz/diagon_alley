@@ -3,8 +3,8 @@
 namespace App\Controller\Variant;
 
 use App\Entity\Variant\Variant as VariantEntity;
-use App\Repository\VariantRepository\VariantRepository;
 use App\Utils\Swagger\Variant\Variant;
+use App\Interface\Authentication\JWTManagementInterface;
 use App\Interface\Feature\FeatureValueManagementInterface;
 use App\Interface\Variant\VariantManagementInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,20 +15,28 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
-#[Route("/api/variant")]
+#[Route("/api/variant" , name: 'app_variant_')]
 class VariantController extends AbstractController
 {
     private FeatureValueManagementInterface $featureValueManagement;
     private VariantManagementInterface $variantManagement;
+    private JWTManagementInterface $JWTManager;
 
-    public function __construct(FeatureValueManagementInterface $featureValueManagement , VariantManagementInterface $variantManagement)
+    public function __construct(
+        FeatureValueManagementInterface $featureValueManagement ,
+        VariantManagementInterface $variantManagement,
+        JWTManagementInterface $JWTManager
+    )
     {
         $this->featureValueManagement = $featureValueManagement;
         $this->variantManagement = $variantManagement;
+        $this->JWTManager = $JWTManager;
     }
 
-    #[Route('/create', name: 'app_variant_create', methods: ['POST'])]
+    #[Route('',name: 'create', methods: ['POST'])]
+    #[IsGranted('VARIANT_CREATE' , message: 'ONLY SELLER CAN ADD VARIANT')]
     #[OA\Response(
         response: 200,
         description: 'Returns Variant',
@@ -51,6 +59,7 @@ class VariantController extends AbstractController
     #[OA\Tag(name: 'Variant')]
     public function create(Request $request,ValidatorInterface $validator): Response
     {
+        $seller = $this->JWTManager->authenticatedUser();
         $body = $request->toArray();
         $variantDto = $this->variantManagement->arrayToDTO($body['variant']);
         try{
@@ -62,7 +71,7 @@ class VariantController extends AbstractController
                 return new Response($errorsString);
             }
 
-            $variant = $this->variantManagement->createVariantFromDTO($variantDto);
+            $variant = $this->variantManagement->createVariantFromDTO($variantDto,$seller);
 
             $variant = $this->featureValueManagement->addFeatureValueToVariant($body['feature'],$variant);
             
@@ -77,7 +86,8 @@ class VariantController extends AbstractController
         }
     }
 
-    #[Route('/create/{serial}/denied', name: 'app_variant_create_serial_denied', methods: ['GET'])]
+    #[Route('/{serial}/validation', name: 'serial_denied', methods: ['DELETE'])]
+    #[IsGranted('VARIANT_DENY' , message: 'ONLY ADMIN CAN ACCESS')]
     #[OA\Response(
         response: 200,
         description: 'Delete Denied Variant',
@@ -87,19 +97,15 @@ class VariantController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Variant')]
-    public function denied($serial, VariantRepository $variantRepository){
-        try {
-            $this->variantManager->deleteVariant($serial);
-            return $this->json(
-                ["message" => "Variant denied successfully"],
-                status: 200
-            );
-        } catch (\Exception $e){
-            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
-        }
+    public function denied($serial){
+        $this->variantManagement->deleteVariant($serial);
+        return $this->json(
+            ["message" => "Variant denied successfully"]
+        );
     }
 
-    #[Route('/create/{serial}/confirm', name: 'app_variant_create_serial_confirm', methods: ['GET'])]
+    #[Route('/{serial}/validation', name: 'serial_confirm', methods: ['GET'])]
+    #[IsGranted('VARIANT_CONFIRM' , message: 'ONLY ADMIN CAN ACCESS')]
     #[OA\Response(
         response: 200,
         description: 'Returns success message on variant confirmation',
@@ -111,18 +117,40 @@ class VariantController extends AbstractController
     #[OA\Tag(name: 'Variant')]
     public function confirmCreate($serial): Response
     {
-        try {
-            $this->variantManager->confirmVariant($serial);
-            return $this->json(
-                ["message" => "Variant confirmed successfully"],
-                status: 200
-            );
-        }catch (\Exception $e){
-            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
-        }
+        $this->variantManagement->confirmVariant($serial);
+        return $this->json(
+            ["message" => "Variant confirmed successfully"],
+        );
     }
 
-    #[Route('/read/{serial}', name: 'app_variant_read', methods: ['GET'])]
+    #[Route('/{valid}', name: 'show', requirements: ['valid' => '[0,1]'], defaults: ['valid' => 1], methods: ['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: '1 := Returns all valid variant information
+                      0 := Returns all pending variant information', 
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: VariantEntity::class, groups: ['showVariant']))
+        ),
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\Tag(name: 'Variant')]
+    public function show(bool $valid): Response
+    {
+        if(!$valid)$this->denyAccessUnlessGranted('VARIANT_SHOW', subject: $valid , message: 'Access Denied For Customers');
+        $filters_eq = array("valid" => $valid);
+        $filters_gt = array("quantity" => 0);
+        $variants = $this->variantManagement->showVariant($filters_eq,$filters_gt);
+        return $this->json(
+            $variants,
+            context:[AbstractNormalizer::GROUPS => 'showVariant']
+        );
+    }
+
+    #[Route('/{serial}', name: 'read', methods: ['GET'])]
     #[OA\Response(
         response: 200,
         description: 'Returns variant information',
@@ -136,13 +164,12 @@ class VariantController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Variant')]
-    public function read($serial, VariantRepository $variantRepository):Response
+    public function read($serial):Response
     {
         try {
             $variant = $this->variantManagement->readVariant($serial);
             return $this->json(
                 $variant,
-                status: 200,
                 context: [AbstractNormalizer::GROUPS => 'showVariant']
             );
         } catch(\Exception $e){
@@ -150,7 +177,7 @@ class VariantController extends AbstractController
         }
     }
 
-    #[Route('/update/{serial}', name: 'app_variant_update', methods: ['POST'])]
+    #[Route('/{serial}', name: 'update', methods: ['PATCH'])]
     #[OA\Response(
         response: 200,
         description: 'Returns success message on updating variant',
@@ -171,17 +198,17 @@ class VariantController extends AbstractController
     {
         $body = $request->toArray();
         try {
+            $this->denyAccessUnlessGranted('VARIANT_UPDATE',subject: $this->variantManagement->readVariant($serial),message: 'You are not the owner of this variant');
             $this->variantManagement->updateVariant($serial,$body['quantity'],$body['price']);
             return $this->json(
-                ["message" => "Variant updated successfully"],
-                status: 200
+                ["message" => "Variant updated successfully"]
             );
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #[Route('/delete/{serial}', name: 'app_variant_delete', methods: ['GET'])]
+    #[Route('/{serial}', name: 'delete', methods: ['DELETE'])]
     #[OA\Response(
         response: 200,
         description: 'Delete Variant (set quantity to zero)',
@@ -193,7 +220,8 @@ class VariantController extends AbstractController
     #[OA\Tag(name: 'Variant')]
     public function delete($serial){
         try {
-            $this->variantManagement->updateVariant($serial, 0,2);
+            $this->denyAccessUnlessGranted('VARIANT_UPDATE',subject: $this->variantManagement->readVariant($serial),message: 'You are not the owner of this variant');
+            $this->variantManagement->updateVariant($serial, 0,1);
             return $this->json(
                 ["message" => "Variant deleted successfully"],
                 status: 200
@@ -201,56 +229,5 @@ class VariantController extends AbstractController
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
-    }
-
-    #[Route('/show', name: 'app_variant_show', methods: ['GET'])]
-    #[OA\Response(
-        response: 200,
-        description: 'Returns all variant information',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: VariantEntity::class, groups: ['showVariant']))
-        ),
-    )]
-    #[OA\Response(
-        response: 400,
-        description: 'Invalid Request',
-    )]
-    #[OA\Tag(name: 'Variant')]
-    public function show(): Response
-    {
-        $filters_eq = array("status" => VariantEntity::STATUS_VALIDATE_SUCCESS);
-        $filters_gt = array("quantity" => 0);
-        $variants = $this->variantManagement->showVariant($filters_eq,$filters_gt);
-        return $this->json(
-            $variants,
-            status: 200,
-            context:[AbstractNormalizer::GROUPS => 'showVariant']
-        );
-    }
-
-    #[Route('/create', name: 'app_variant_create_request', methods: ['GET'])]
-    #[OA\Response(
-        response: 200,
-        description: 'Returns all pending variant information',
-        content: new OA\JsonContent(
-            type: 'array',
-            items: new OA\Items(ref: new Model(type: VariantEntity::class, groups: ['showVariant']))
-        ),
-    )]
-    #[OA\Response(
-        response: 400,
-        description: 'Invalid Request',
-    )]
-    #[OA\Tag(name: 'Variant')]
-    public function createRequest(): Response
-    {
-        $filters_eq = array("status" => VariantEntity::STATUS_VALIDATE_PENDING);
-        $variants = $this->variantManagement->showVariant($filters_eq,array());
-        return $this->json(
-            $variants,
-            status: 200,
-            context:[AbstractNormalizer::GROUPS => 'showVariant']
-        );
     }
 }

@@ -16,7 +16,7 @@ class FeatureValue
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['showFeatureValue' , 'showFeature'])]
+    #[Groups(['showFeatureValue', 'showFeature'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -25,23 +25,23 @@ class FeatureValue
 
     #[ORM\Column]
     #[Groups(['showFeature'])]
-    private ?bool $status = null;
+    private ?bool $active = null;
 
     #[ORM\ManyToOne(inversedBy: 'featureValues')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['showFeatureValue' , 'showVariant'])]
+    #[Groups(['showFeatureValue', 'showVariant'])]
     private ?Feature $feature = null;
 
     #[ORM\ManyToMany(targetEntity: Variant::class, inversedBy: 'featureValues')]
     private Collection $variants;
 
-//    #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'featureValues')]
-//    private Collection $products;
+    #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'featureValues')]
+    private Collection $products;
 
     public function __construct()
     {
         $this->variants = new ArrayCollection();
-//        $this->products = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -61,14 +61,14 @@ class FeatureValue
         return $this;
     }
 
-    public function isStatus(): ?bool
+    public function isActive(): ?bool
     {
-        return $this->status;
+        return $this->active;
     }
 
-    public function setStatus(bool $status): self
+    public function setActive(bool $active): self
     {
-        $this->status = $status;
+        $this->active = $active;
 
         return $this;
     }
@@ -109,27 +109,27 @@ class FeatureValue
         return $this;
     }
 
-//    /**
-//     * @return Collection<int, Product>
-//     */
-//    public function getProducts(): Collection
-//    {
-//        return $this->products;
-//    }
-//
-//    public function addProduct(Product $product): self
-//    {
-//        if (!$this->products->contains($product)) {
-//            $this->products->add($product);
-//        }
-//
-//        return $this;
-//    }
-//
-//    public function removeProduct(Product $product): self
-//    {
-//        $this->variants->removeElement($product);
-//
-//        return $this;
-//    }
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products->add($product);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        $this->variants->removeElement($product);
+
+        return $this;
+    }
 }

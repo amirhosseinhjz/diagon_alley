@@ -15,7 +15,7 @@ class Feature
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['showFeatureValue' , 'showFeature'])]
+    #[Groups(['showFeatureValue', 'showFeature'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -24,19 +24,19 @@ class Feature
 
     #[ORM\Column]
     #[Groups(['showFeature','FeatureOA'])]
-    private ?bool $status = null;
+    private ?bool $active = null;
 
     #[ORM\OneToMany(mappedBy: 'feature', targetEntity: FeatureValue::class)]
     #[Groups(['showFeature'])]
     private Collection $featureValues;
 
-//     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'features')]
-//     private Collection $categories;
+    #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'features')]
+    private Collection $categories;
 
     public function __construct()
     {
         $this->featureValues = new ArrayCollection();
-//        $this->categories = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -59,17 +59,17 @@ class Feature
     /**
      * @return bool|null
      */
-    public function getStatus(): ?bool
+    public function getActive(): ?bool
     {
-        return $this->status;
+        return $this->active;
     }
 
     /**
-     * @param bool|null $status
+     * @param bool|null $active
      */
-    public function setStatus(?bool $status): void
+    public function setActive(?bool $active): void
     {
-        $this->status = $status;
+        $this->active = $active;
     }
 
     /**
@@ -102,30 +102,30 @@ class Feature
         return $this;
     }
 
-//     /**
-//      * @return Collection<int, Category>
-//      */
-//     public function getCategories(): Collection
-//     {
-//         return $this->categories;
-//     }
-//
-//     public function addCategory(Category $category): self
-//     {
-//         if (!$this->categories->contains($category)) {
-//             $this->categories->add($category);
-//             $category->addFeature($this);
-//         }
-//
-//         return $this;
-//     }
-//
-//     public function removeCategory(Category $category): self
-//     {
-//         if ($this->categories->removeElement($category)) {
-//             $category->removeFeature($this);
-//         }
-//
-//         return $this;
-//     }
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addFeature($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeFeature($this);
+        }
+
+        return $this;
+    }
 }
