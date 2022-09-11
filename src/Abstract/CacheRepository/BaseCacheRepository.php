@@ -2,7 +2,6 @@
 namespace App\Abstract\CacheRepository;
 
 
-use App\Entity\User\Seller;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Interface\Cache\CacheInterface;
 
@@ -45,16 +44,16 @@ abstract class BaseCacheRepository
         if (!$key)
         {
             if ($cache){
-            throw new \Exception('Cache not allowed');
+                throw new \Exception('Cache not allowed');
             } else {
                 return $this->repository->findOneBy($criteria, $orderBy);
             }
         }
         if ($cache)
         {
-        return $this->cache->remember($key, $this->exp, function () use ($criteria, $orderBy) {
-            return $this->repository->findOneBy($criteria, $orderBy);
-        });
+            return $this->cache->remember($key, $this->exp, function () use ($criteria, $orderBy) {
+                return $this->repository->findOneBy($criteria, $orderBy);
+            });
         } else {
             $result = $this->repository->findOneBy($criteria, $orderBy);
             $this->saveToCache($key, $result);
@@ -95,7 +94,8 @@ abstract class BaseCacheRepository
 
     public static function _getKey(string $key, string $value)
     {
-        return static::getNamePrefix() . '.' . $key . '_' . $value;
+        $result =  static::getNamePrefix() . '.' . $key . '_' . $value;
+        return static::removeSpecialCharacters($result);
     }
 
     private function saveToCache($key, $value)
@@ -126,5 +126,27 @@ abstract class BaseCacheRepository
         $this->deleteAllFromCache();
     }
 
+    private static function removeSpecialCharacters($string) {
 
+        $specChars = array(
+            ' ' => '-',    '!' => '',    '"' => '',
+            '#' => '',    '$' => '',    '%' => '',
+            '&' => '',    '\'' => '',   '(' => '',
+            ')' => '',    '*' => '',    '+' => '',
+            ',' => '',    '₹' => '',    '.' => '',
+            '/-' => '',    ':' => '',    ';' => '',
+            '<' => '',    '=' => '',    '>' => '',
+            '?' => '',    '@' => '',    '[' => '',
+            '\\' => '',   ']' => '',    '^' => '',
+            '_' => '',    '`' => '',    '{' => '',
+            '|' => '',    '}' => '',    '~' => '',
+            '-----' => '-',    '----' => '-',    '---' => '-',
+            '/' => '',    '--' => '-',   '/_' => '-',
+        );
+
+        foreach ($specChars as $k => $v) {
+            $string = str_replace($k, $v, $string);
+        }
+        return $string;
+    }
 }
