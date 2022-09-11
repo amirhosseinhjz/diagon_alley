@@ -89,7 +89,3 @@ services:
     arguments:
       $tagName: 'cacheTag'
   App\Interface\Cache\CacheInterface: '@app.cache.service'
-
-  App\Listener\Exception\ExceptionCustomizeListener:
-    tags:
-      - { name: kernel.event_listener, event: kernel.exception, method: onChange }
