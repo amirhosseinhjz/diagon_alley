@@ -2,7 +2,6 @@
 
 namespace App\Service\UserService;
 
-
 use App\Entity\User;
 use App\DTO\UserDTOs;
 use Doctrine\ORM\EntityManagerInterface;
@@ -250,5 +249,10 @@ class UserService
         }
         $user->setIsActive(false);
         $this->em->flush();
+    }
+
+    public function getSellerIdsByPurchaseId($purchaseId)
+    {
+        return $this->em->getRepository(User\User::class)->findBySellerIds($purchaseId);
     }
 }

@@ -3,6 +3,9 @@
 namespace App\Entity\Variant;
 
 use App\Entity\Feature\FeatureValue;
+
+use App\Entity\Feature\ItemValue;
+use App\Entity\User\Seller;
 use App\Entity\Product\Product;
 use App\Entity\User\Seller;
 use App\Repository\VariantRepository\VariantRepository;
@@ -66,6 +69,13 @@ class Variant
     #[ORM\ManyToOne(inversedBy: 'variants')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
+
+    #[ORM\Column(length: 30)]
+    private ?string $type = null;
+
+    #[ORM\ManyToOne(inversedBy: 'variants')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Seller $seller = null;
 
     public function __construct()
     {
@@ -183,6 +193,7 @@ class Variant
 
     public function setProduct(Product $product): self
     {
+
         $this->product = $product;
 
         return $this;
@@ -200,18 +211,6 @@ class Variant
         return $this;
     }
 
-    public function getSeller(): ?Seller
-    {
-        return $this->seller;
-    }
-
-    public function setSeller(?Seller $seller): self
-    {
-        $this->seller = $seller;
-
-        return $this;
-    }
-
     public function getType(): ?string
     {
         return $this->type;
@@ -220,6 +219,18 @@ class Variant
     public function setType(string $type): self
     {
         $this->type = $type;
+        
+        return $this;
+    }
+    
+    public function getSeller(): ?Seller
+    {
+        return $this->seller;
+    }
+
+    public function setSeller(?Seller $seller): self
+    {
+        $this->seller = $seller;
 
         return $this;
     }
