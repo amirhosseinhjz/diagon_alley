@@ -3,13 +3,18 @@
 namespace App\Controller\Shipment;
 
 use App\DTO\ShipmentDTO\ShipmentAndShipmentItemUpdateDTO;
+use App\Entity\Shipment\Shipment;
+use App\Entity\Shipment\ShipmentItem;
 use App\Interface\Shipment\ShipmentManagementInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
+
 
 #[Route('/api',name: '_api_shipment')]
 class ShipmentController extends AbstractController
@@ -92,17 +97,18 @@ class ShipmentController extends AbstractController
     public function shipmentItemStatusUpdate(Request $request,$id): Response
     {
         try {
-            (new ShipmentAndShipmentItemUpdateDTO($request->toArray(),$this->validator))
+            $request = $request->toArray();
+            (new ShipmentAndShipmentItemUpdateDTO($request,$this->validator))
                 ->doValidate();
             $shipment = $this->managementShipment->changeStatus
             (
                 $this->managementShipment->getShipmentItemById($id),
                 $request['status']
             );
-            $data = $this->serializer->normalize($shipment, null, ['groups' => ['shipment.read']]);
+            $data = $this->serializer->normalize($shipment, null, ['groups' => ['shipment.shipmentItem.read']]);
             return $this->json
             (
-                ['shipment' => $data],
+                ['shipmentItem' => $data],
                 status: 200
             );
         } catch (\Throwable $exception){

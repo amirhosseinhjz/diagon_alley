@@ -8,8 +8,7 @@ use App\Interface\Order\OrderManagementInterface;
 use App\Interface\Shipment\ShipmentManagementInterface;
 use App\Service\UserService\UserService;
 use Doctrine\ORM\EntityManagerInterface;
-use HttpException;
-use PHPUnit\Util\Exception;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -55,13 +54,18 @@ class ShipmentManagement implements ShipmentManagementInterface
         }
     }
 
-    public function changeStatus(Shipment|ShipmentItem $object,$status)
+    public function changeStatus($object,$status)
     {
-        if (in_array($status,Shipment::STATUS))
+        if (!in_array($status,Shipment::STATUS))
         {
-            $object->setStatus($status);
-            $this->entityManager->flush();
+            throw new Exception
+            (
+                json_encode('not a valid shipment status'),
+                code: Response::HTTP_NOT_FOUND
+            );
         }
+        $object->setStatus($status);
+        $this->entityManager->flush();
         return $object;
     }
 
@@ -80,7 +84,7 @@ class ShipmentManagement implements ShipmentManagementInterface
 
     public function getShipmentItemById($id)
     {
-        if (!$this->entityManager->getRepository(ShipmentItem::class)->find($id))
+        if (!$shipmentItem = $this->entityManager->getRepository(ShipmentItem::class)->find($id))
         {
             throw new Exception
             (
@@ -88,7 +92,7 @@ class ShipmentManagement implements ShipmentManagementInterface
                 code: Response::HTTP_NOT_FOUND
             );
         }
-        return $this->entityManager->getRepository(ShipmentItem::class)->find($id);
+        return $shipmentItem;
     }
 
     public function getShipmentById($id)

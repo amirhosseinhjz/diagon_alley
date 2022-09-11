@@ -34,7 +34,6 @@ class ShipmentItem
     private ?PurchaseItem $purchaseItem = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\Choice([ShipmentItem::STATUS['DIGITAL'], ShipmentItem::TYPES['physical']])]
     #[Serializer\Groups(['shipment.shipmentItem.read'])]
     private ?string $status = null;
 
