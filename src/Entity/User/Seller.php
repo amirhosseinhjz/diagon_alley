@@ -4,6 +4,7 @@ namespace App\Entity\User;
 
 use App\Entity\Shipment\Shipment;
 use App\Entity\Variant\Variant;
+use App\Entity\Wallet\Wallet;
 use App\Repository\UserRepository\SellerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -26,6 +27,10 @@ class Seller extends User
 
     #[ORM\OneToMany(mappedBy: 'seller', targetEntity: Variant::class, orphanRemoval: true)]
     private Collection $variants;
+
+    #[ORM\OneToOne(inversedBy: 'seller', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Wallet $wallet = null;
 
     public function __construct()
     {
@@ -116,6 +121,18 @@ class Seller extends User
                 $variant->setSeller(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getWallet(): ?Wallet
+    {
+        return $this->wallet;
+    }
+
+    public function setWallet(Wallet $wallet): self
+    {
+        $this->wallet = $wallet;
 
         return $this;
     }
