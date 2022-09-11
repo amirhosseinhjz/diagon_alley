@@ -14,9 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 
-#[Route('/api',name: '_api_shipment')]
+
+#[Route('/api',name: '_api_shipment_')]
 class ShipmentController extends AbstractController
 {
     public $managementShipment;
@@ -38,10 +40,13 @@ class ShipmentController extends AbstractController
         $this->serializer = $serializer;
     }
 
+//    #[IsGranted('ROLE_SELLER')]
     #[Route('/shipment/{id}/shipment-items', name: 'app_shipment_items_show',methods: ['GET'])]
     public function shipmentItemIndex($id): Response
     {
+        dd($id);
         try {
+//            $this->isGranted('SHIPMENT_ACCESS', $this->managementShipment->getShipmentById($id));
             $shipmentItems = $this->managementShipment->getShipmentItems($id);
             $data = $this->serializer->normalize($shipmentItems, null, ['groups' => ['shipment.shipmentItem.read']]);
             return $this->json
