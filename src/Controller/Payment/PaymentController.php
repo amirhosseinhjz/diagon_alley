@@ -3,7 +3,6 @@
 namespace App\Controller\Payment;
 
 use App\Factory\Payment\PaymentFactory;
-use App\Factory\Portal\PortalFactory;
 use App\Service\OrderService\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,18 +14,27 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route('/api/payment')]
 class PaymentController extends AbstractController
 {
+    private EntityManagerInterface $em;
+    private ValidatorInterface $validator;
+    private OrderService $orderService;
+    
+    
     public function __construct(
-        private EntityManagerInterface $em,
-        private ValidatorInterface $validator,
-        private OrderService $orderService,
+        EntityManagerInterface $em,
+        ValidatorInterface $validator,
+        OrderService $orderService
     ) {
+        $this->em = $em;
+        $this->validator = $validator;
+        $this->orderService = $orderService;
+
     }
 
     #[Route('/{orderId}/{method}/{type}', name: 'app_payment_new', methods: ['GET'])]
     public function new(
         int $orderId,
         string $method,
-        string $type="",
+        string $type=""
     ): Response {
         try {
             $paymentService = PaymentFactory::create($method, $this->em, $this->validator,$this->orderService);
@@ -50,7 +58,7 @@ class PaymentController extends AbstractController
 
     #[Route('/status', name: 'app_payment_get_status', methods: ['POST'])]
     public function changeStatus(
-        Request $request,
+        Request $request
     ) {
         try {
             $requestToArray = $request->request->all();
