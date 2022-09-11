@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DataFixtures;
+namespace App\DataFixtures\Brand;
 
 use App\Entity\Brand\Brand;
 use Doctrine\Bundle\FixturesBundle\Fixture;
