@@ -3,7 +3,6 @@
 namespace App\Service\Address;
 
 use App\Entity\Address;
-use App\Entity\User;
 use App\Trait\Distance\CalculateDistanceTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
