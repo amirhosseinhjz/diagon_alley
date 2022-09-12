@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 #[Route('/api/category', name: 'app_category_')]
 class CategoryController extends AbstractController
@@ -20,7 +21,7 @@ class CategoryController extends AbstractController
         $this->categoryManager = $categoryManager;
     }
 
-    //TODO: admin auth
+    #[IsGranted('CATEGORY_CRUD' , message: 'only admin is allowed')]
     #[Route('/', name: 'create', methods: ['POST'])]
     public function create(Request $req): Response
     {
@@ -45,7 +46,7 @@ class CategoryController extends AbstractController
         }
     }
 
-    //TODO: admin auth
+    #[IsGranted('CATEGORY_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}', name: 'update', methods: ['PATCH'])]
     public function update(Request $req, int $id): Response
     {
@@ -60,7 +61,7 @@ class CategoryController extends AbstractController
         }
     }
 
-    //TODO: admin auth
+    #[IsGranted('CATEGORY_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     public function delete(int $id): Response
     {
@@ -74,7 +75,7 @@ class CategoryController extends AbstractController
         }
     }
 
-    //TODO: admin auth
+    #[IsGranted('CATEGORY_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}/activity', name: 'toggle_activity', methods: ['PATCH'])]
     public function toggleActivity(Request $req, int $id): Response
     {
@@ -87,7 +88,7 @@ class CategoryController extends AbstractController
         }
     }
 
-    //TODO: admin auth
+    #[IsGranted('CATEGORY_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}/feature', name: 'add_feature', methods: ['POST'])]
     public function addFeature(Request $req, int $id): Response
     {
@@ -103,7 +104,7 @@ class CategoryController extends AbstractController
         }
     }
 
-    //TODO: admin auth
+    #[IsGranted('CATEGORY_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}/feature', name: 'remove_feature', methods: ['DELETE'])]
     public function removeFeature(Request $req, int $id): Response
     {
