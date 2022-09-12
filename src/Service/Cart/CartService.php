@@ -2,45 +2,35 @@
 
 namespace App\Service\Cart;
 
-use App\DataFixtures\Item\ItemHandleFixtures;
-use App\DTO\Cart\CartItemDTO;
-use App\DTO\Cart\CartDTO;
 use App\Entity\Variant\Variant;
 use App\Service\VariantService\VariantManagement;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\This;
-use Symfony\Component\HttpFoundation\Request;
 use Exception;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
 use App\Entity\Cart\Cart;
 use App\Entity\Cart\CartItem;
 use App\Entity\User\Customer;
 use App\Interface\Cart\CartServiceInterface;
-use App\Interface\Cart\CartItemServiceInterface;
 
 
 class CartService implements CartServiceInterface
 {
 
     private EntityManagerInterface $entityManager;
-    private CartItemServiceInterface $cartItemService;
     private $serializer;
     private $validator;
 
     public function __construct(EntityManagerInterface $entityManager,
                                 ValidatorInterface $validator,
-                                CartItemServiceInterface $cartItemService,
                                 VariantManagement $variantManagement
     )
     {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
-        $this->cartItemService = $cartItemService;
         $this->variantManagement = $variantManagement;
     }
 
