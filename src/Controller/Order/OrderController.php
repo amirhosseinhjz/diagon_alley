@@ -59,6 +59,11 @@ class OrderController extends AbstractController
     public function getAllOrders(OrderService $orderService)
     {
         try {
+            $this->checkAccess
+            (
+                'ORDER_VIEW_ALL',
+                null,
+            );
             $customer = $this->getUser();
             $orders = $orderService->getCustomerOrders($customer);
             return $this->json($orders, Response::HTTP_OK);

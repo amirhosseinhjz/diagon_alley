@@ -13,6 +13,7 @@ class OrderVoter extends Voter
     public const FINALIZE = 'ORDER_FINALIZE';
     public const VIEW = 'ORDER_VIEW';
     public const CANCEL = 'ORDER_CANCEL';
+    public const VIEW_ALL = 'ORDER_VIEW_ALL';
 
     private CartServiceInterface $cartService;
     private Security $security;
@@ -26,7 +27,8 @@ class OrderVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [self::FINALIZE, self::VIEW, self::CANCEL]);
+        return in_array($attribute, [self::FINALIZE, self::VIEW, self::CANCEL
+            , self::VIEW_ALL]);
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -45,6 +47,7 @@ class OrderVoter extends Voter
             self::FINALIZE => $this->isAllowFinalize($subject['cartId'], $user),
             self::VIEW => $this->viewOrder($subject, $user),
             self::CANCEL => $this->isAllowCancel($subject, $user),
+            self::VIEW_ALL => true,
         };
 
         return $accessIsGranted;
@@ -65,5 +68,6 @@ class OrderVoter extends Voter
     {
         return $user->getId() === $subject->getCustomer()->getId();
     }
+
 
 }
