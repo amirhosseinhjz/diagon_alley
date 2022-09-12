@@ -1,5 +1,5 @@
 <?php
-#ToDo: write transformer
+
 namespace App\DTO\CartDTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
