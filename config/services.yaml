@@ -23,10 +23,30 @@ services:
   App\EventListener\Cache\User\SellerChangedNotifier:
     tags:
       -
-        # these are the options required to define the entity listener
         name: 'doctrine.orm.entity_listener'
         event: 'postUpdate'
         entity: 'App\Entity\User\Seller'
+
+  App\EventListener\Cache\Feature\FeatureChangedNotifier:
+    tags:
+      -
+        name: 'doctrine.orm.entity_listener'
+        event: 'postUpdate'
+        entity: 'App\Entity\Feature\Feature'
+
+  App\EventListener\Cache\Feature\FeatureValueChangedNotifier:
+    tags:
+      -
+        name: 'doctrine.orm.entity_listener'
+        event: 'postUpdate'
+        entity: 'App\Entity\Feature\FeatureValue'
+
+  App\EventListener\Cache\Variant\VariantChangedNotifier:
+    tags:
+      -
+        name: 'doctrine.orm.entity_listener'
+        event: 'postUpdate'
+        entity: 'App\Entity\Variant\Variant'
 
   App\Service\UserService\UserService:
       public: true

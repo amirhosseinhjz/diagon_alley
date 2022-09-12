@@ -22,6 +22,10 @@ class VariantDTO{
     #[Assert\Type(type:'int')]
     public ?int $productId = null;
 
+    #[Assert\NotNull]
+    #[Assert\Type(type:'int')]
+    public ?int $deliveryEstimate = null;
+
     public function setPrice(int $price): self{
         $this->price = $price;
         return $this;
