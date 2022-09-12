@@ -6,9 +6,11 @@ use App\CacheRepository\UserRepository\CacheSellerRepository;
 use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Interface\Cache\CacheInterface;
+use App\Interface\Wallet\WalletServiceInterface;
 use App\Repository\UserRepository\SellerRepository;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
+use App\Service\Wallet\Wallet\WalletService;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use phpDocumentor\Reflection\Types\This;
@@ -48,11 +50,12 @@ class UserAuthenticationController extends AbstractController
 
     #[Route('/user/register', name: 'app_user_register',methods: ['POST'])]
     #[OA\Tag(name: 'Authentication')]
-    public function create(Request $request): Response
+    public function create(Request $request, WalletServiceInterface $walletService): Response
     {
         try{
             $user = $this->userService->createFromArray($request->toArray());
             $token = $this->JWTManager->getTokenUser($user,$request);
+            $walletService->create($user);
             return new JsonResponse($token);
         }catch(\Exception $e){
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);

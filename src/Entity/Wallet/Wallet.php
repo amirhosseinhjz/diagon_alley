@@ -26,15 +26,12 @@ class Wallet
     private ?int $balance = 0;
 
     #[ORM\OneToOne(mappedBy: 'wallet', cascade: ['persist', 'remove'])]
+    #[Groups(['wallet_user'])]
     private ?Customer $customer = null;
 
     #[ORM\OneToOne(mappedBy: 'wallet', cascade: ['persist', 'remove'])]
+    #[Groups(['wallet_user'])]
     private ?Seller $seller = null;
-
-//    #[ORM\OneToOne(inversedBy: 'wallet', cascade: ['persist', 'remove'])]
-//    #[ORM\JoinColumn(nullable: false)]
-//    #[Groups(['wallet_customer'])]
-//    private ?Customer $customer = null;
 
     public function __construct()
     {
