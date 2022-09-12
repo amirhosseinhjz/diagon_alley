@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Tests\Payment;
+namespace App\Tests\Payment2;
 
-use App\DTO\Payment\PaymentDTO;
+use App\DTO\Payment2\PaymentDTO;
 use App\Service\CartService\CartServiceInterface;
-use App\Service\Payment\SamanPortalService;
+use App\Service\Payment2\SamanPortalService;
 use App\Entity\Cart\Cart;
-use App\Factory\Payment\PortalFactory;
+use App\Factory\Payment2\PortalFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Tests\Base\BaseJsonApiTestCase;
 

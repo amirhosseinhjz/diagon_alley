@@ -109,9 +109,8 @@ class OrderService implements OrderManagementInterface
         return $order;
     }
 
-    public function finalizeOrder($orderId): void
+    public function finalizeOrder($order): void
     {
-        $order = $this->getOrderById($orderId);
         $order->setStatus($order::STATUS_PAID);
         $this->em->flush();
 //        TODO: call shipping service

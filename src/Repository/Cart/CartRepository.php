@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository\CartRepository;
+namespace App\Repository\Cart;
 
 use App\Entity\Cart\Cart;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -38,11 +38,6 @@ class CartRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-
-    public function findCartByUserId(int $userId): ?Cart
-        {
-            return $this->findOneBy(['User_Id'=>$userId]);
-       }
 
 
 //    /**

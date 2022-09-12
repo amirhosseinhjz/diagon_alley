@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Payment;
+namespace App\Tests\Address;
 
 use App\Entity\Address;
 use App\Service\Address\AddressService;
