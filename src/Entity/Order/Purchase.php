@@ -2,6 +2,7 @@
 
 namespace App\Entity\Order;
 
+use App\Entity\Address\Address;
 use App\Entity\Payment\Payment;
 use App\Entity\User\Customer;
 use App\Repository\OrderRepository\PurchaseRepository;
@@ -12,6 +13,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PurchaseRepository::class)]
 class Purchase
 {
+
+    public const STATUS_PENDING = 0;
+    public const STATUS_PAID = 1;
+    public const STATUS_SHIPPED = 2;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -33,6 +39,15 @@ class Purchase
 
     #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: PurchaseItem::class)]
     private Collection $purchaseItems;
+
+    #[ORM\Column]
+    private ?int $totalPrice = null;
+
+    #[ORM\ManyToOne]
+    private ?Address $address = null;
+
+    #[ORM\Column]
+    private ?int $status = null;
 
     public function __construct()
     {
@@ -118,6 +133,48 @@ class Purchase
                 $purchaseItem->setPurchase(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTotalPrice(): ?int
+    {
+        return $this->totalPrice;
+    }
+
+    public function setTotalPrice(int $totalPrice): self
+    {
+        $this->totalPrice = $totalPrice;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue()
+    {
+        $this->setCreatedAt(new \DateTimeImmutable());
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?Address $address): self
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }

@@ -124,6 +124,9 @@
             "config/packages/sensio_framework_extra.yaml"
         ]
     },
+    "symfony-bundles/json-request-bundle": {
+        "version": "4.1.2"
+    },
     "symfony/console": {
         "version": "6.1",
         "recipe": {
@@ -347,6 +350,9 @@
             "version": "1.0",
             "ref": "fe5a50faf580eb58f08ada2abe8afbd2d4941e05"
         }
+    },
+    "theofidry/psysh-bundle": {
+        "version": "4.5.0"
     },
     "twig/extra-bundle": {
         "version": "v3.4.0"

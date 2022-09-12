@@ -4,10 +4,11 @@ namespace App\Repository\OrderRepository;
 
 use App\Entity\Order\PurchaseItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<PurchaseItem>
+ * @extends ServiceEntityRepository<\App\Entity\Order\PurchaseItem>
  *
  * @method PurchaseItem|null find($id, $lockMode = null, $lockVersion = null)
  * @method PurchaseItem|null findOneBy(array $criteria, array $orderBy = null)
@@ -63,4 +64,22 @@ class PurchaseItemRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function findBySellerIdAndPurchaseId(array $criteria): ?array
+    {
+        $entityManager = $this->getEntityManager();
+        $connection = $entityManager->getConnection();
+        $query = $connection->prepare
+        (
+            "select pi.id as purchase_item_id, 
+                v.type as type 
+                from purchase_item pi 
+                join variant v 
+                on v.id = pi.variant_id 
+                where pi.purchase_id=:purchaseId and v.seller_id=:sellerId;"
+        );
+        $query->bindValue('purchaseId',$criteria['purchaseId'],ParameterType::INTEGER);
+        $query->bindValue('sellerId',$criteria['sellerId'],ParameterType::INTEGER);
+        return $query->executeQuery()->fetchAllAssociative();
+    }
 }
