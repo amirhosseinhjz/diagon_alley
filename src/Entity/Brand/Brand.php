@@ -20,12 +20,12 @@ class Brand
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: false, nullable: false)]
-    #[Groups(['brand_basic', 'elastica'])]
+    #[Groups(['brand_basic'])]
     #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(length: 511, nullable: true)]
-    #[Groups(['brand_basic', 'elastica'])]
+    #[Groups(['brand_basic'])]
     private ?string $description = null;
 
     #[ORM\OneToMany(mappedBy: 'brand', targetEntity: Product::class)]

@@ -24,7 +24,7 @@ services:
     container_name: diagonalley_redis
     ports:
       - 9379:6379
-    command: ['redis-server', '/usr/local/etc/redis/redis.conf']
+    command: [ 'redis-server', '/usr/local/etc/redis/redis.conf' ]
     restart: unless-stopped
     volumes:
       - ./docker/cache/redis.conf:/usr/local/etc/redis/redis.conf:cached
@@ -51,7 +51,7 @@ services:
       context: .
       dockerfile: docker/worker/Dockerfile
     working_dir: /etc/supervisor
-    command: ['/usr/bin/supervisord', '-n', '-c', '/etc/supervisord.conf']
+    command: [ '/usr/bin/supervisord', '-n', '-c', '/etc/supervisord.conf' ]
     restart: unless-stopped
     volumes:
       - ./docker/worker/custom_php.ini:/usr/local/etc/php/conf.d/custom_php.ini:cached

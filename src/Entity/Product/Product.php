@@ -25,17 +25,17 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['product_basic', 'elastica'])]
+    #[Groups(['product_basic'])]
     #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(length: 511, nullable: true)]
-    #[Groups(['product_basic', 'elastica'])]
+    #[Groups(['product_basic'])]
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['product_category', 'elastica'])]
+    #[Groups(['product_category'])]
     private ?Category $category = null;
 
     #[ORM\Column]
