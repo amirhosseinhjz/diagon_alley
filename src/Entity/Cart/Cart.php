@@ -28,7 +28,7 @@ class Cart
     public ?\DateTimeInterface $finalizedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'Cart', targetEntity: CartItem::class, orphanRemoval: true)]
-//    #[Serializer\Groups(['Cart.read'])]
+    #[Serializer\Groups(['Cart.read'])]
     private Collection $items;
 
     #[ORM\ManyToOne(inversedBy: 'carts')]
