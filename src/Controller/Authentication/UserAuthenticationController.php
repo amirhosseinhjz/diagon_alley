@@ -93,8 +93,9 @@ class UserAuthenticationController extends AbstractController
     public function login(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
     {
         try{
-            (new LoginDTO($request->toArray(),$validator))->doValidate();
-            if ($user = $repository->findOneBy(['phoneNumber'=>$request->toArray()['username']]))
+            $arrayRequest = $request->toArray();
+            (new LoginDTO($arrayRequest,$validator))->doValidate();
+            if ($user = $repository->findOneBy(['phoneNumber'=>$arrayRequest['username']]))
             {
                 $this->JWTManager->checkIfPasswordIsValid($user,$request);
                 $token = $this->JWTManager->getTokenUser($user);

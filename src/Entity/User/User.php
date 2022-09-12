@@ -22,6 +22,7 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+
     public const PAYLOAD_KEY_FOR_USERNAME = 'phoneNumber';
 
     #[ORM\Id]

@@ -2,10 +2,15 @@
 
 namespace App\Trait;
 
+use Symfony\Component\HttpFoundation\Response;
+
 trait ControllerTrait
 {
-    public function unAuthorizedResponse()
+    public function checkAccess($attribute,$object,$message=null)
     {
-        return $this->json(['message' => 'access denied'], 403);
+        $message = $message ?: 'Access Denied.';
+        if (!$this->isGranted($attribute, $object)) {
+            throw new \Exception(json_encode($message),Response::HTTP_FORBIDDEN);
+        }
     }
 }
