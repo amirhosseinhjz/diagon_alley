@@ -40,22 +40,26 @@ class WalletService extends PaymentService implements WalletServiceInterface
     {
         $wallet = $this->em->getRepository(Wallet::class)->findOneById($walletId);
         $wallet->withdraw($amount);
-        $this->em->getRepository(Wallet::class)->add($wallet, true);
+        $this->em->getRepository(Wallet::class)->add($wallet, false);
     }
 
     public function deposit(int $walletId, int $amount)
     {
         $wallet = $this->em->getRepository(Wallet::class)->findOneById($walletId);
         $wallet->deposit($amount);
-        $this->em->getRepository(Wallet::class)->add($wallet, true);
+        $this->em->getRepository(Wallet::class)->add($wallet, false);
+    }
+
+    public function transaction(int $payerId, int $beneficiaryId, int $amount)
+    {
+        $payer = $this->em->getRepository(Wallet::class)->findOneById($payerId);
+        $beneficiary = $this->em->getRepository(Wallet::class)->findOneById($beneficiaryId);
+        $payer->deposit($amount);
+        $beneficiary->withdraw($amount);
+        $this->em->flush();
     }
 
     public function pay(PaymentDTO $paymentDto, $array)
-    {
-
-    }
-
-    public function transaction()
     {
 
     }
