@@ -9,17 +9,10 @@ use App\Entity\Wallet\Wallet;
 use App\Interface\Wallet\WalletServiceInterface;
 use App\Entity\User\User;
 use App\Service\Payment\PaymentService;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
 class WalletService extends PaymentService implements WalletServiceInterface
 {
-    protected EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        $this->em = $em;
-    }
 
     public function create(User $user)
     {
@@ -61,6 +54,19 @@ class WalletService extends PaymentService implements WalletServiceInterface
 
     public function pay(PaymentDTO $paymentDto, $array)
     {
+        $wallet = $array['user']->getWallet();
+        $amount = $paymentDto->paidAmount;
+        $purchase = $paymentDto->purchase;
 
+        if ($wallet->getBalance() < $amount) {
+            return ["Id" => $purchase->getId(), "Status" => 'not enough balance'];
+        }
+
+        $wallet->deposit($amount);
+        $this->em->getRepository(Wallet::class)->add($wallet, false);
+
+        $this->orderService->finalizeOrder($purchase);
+        $this->em->flush();
+        return ["Id" => $purchase->getId(), "Status" => 'purchase successful'];
     }
 }
