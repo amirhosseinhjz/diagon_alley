@@ -61,6 +61,29 @@ abstract class BaseCacheRepository
         }
     }
 
+    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, $cache=true)
+    {
+        $key = $this->getKey($criteria, true);
+        if (!$key)
+        {
+            if ($cache){
+            throw new \Exception('Cache not allowed');
+            } else {
+                return $this->repository->findBy($criteria, $orderBy, $limit, $offset);
+            }
+        }
+        if ($cache)
+        {
+        return $this->cache->remember($key, $this->exp, function () use ($criteria, $orderBy, $limit, $offset) {
+            return $this->repository->findBy($criteria, $orderBy, $limit, $offset);
+        });
+        } else {
+            $result = $this->repository->findBy($criteria, $orderBy, $limit, $offset);
+            $this->saveToCache($key, $result);
+            return $result;
+        }
+    }
+
     public function findAll($cache=true)
     {
         $key = static::getKeyAll();
@@ -75,7 +98,7 @@ abstract class BaseCacheRepository
         }
     }
 
-    private function getKey(array $criteria)
+    private function getKey(array $criteria, $all=false)
     {
         if (count($criteria) > 1) {
             return null;
@@ -84,7 +107,7 @@ abstract class BaseCacheRepository
         if (!in_array($key, static::getCacheKeys())) {
             return null;
         }
-        return static::_getKey($key, $criteria[$key]);
+        return static::_getKey($key, $criteria[$key], $all);
     }
 
     public static function getKeyAll()
@@ -92,10 +115,13 @@ abstract class BaseCacheRepository
         return static::getNamePrefix().'.__all__';
     }
 
-    public static function _getKey(string $key, string $value)
+    public static function _getKey(string $key, string $value, $all=false)
     {
-        $result =  static::getNamePrefix() . '.' . $key . '_' . $value;
-        return static::removeSpecialCharacters($result);
+        $key = static::getNamePrefix() . '.' . $key . '_' . $value;
+        if ($all) {
+            $key .= '._all';
+        }
+        return $key;
     }
 
     private function saveToCache($key, $value)
