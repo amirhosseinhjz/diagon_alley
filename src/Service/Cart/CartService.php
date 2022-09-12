@@ -180,6 +180,7 @@ class CartService implements CartServiceInterface
 
     public function clearCart(Cart $cart)
     {
+        $this->isEditable($cart);
         foreach ($cart->getItems() as $item) {
             $this->removeItem($cart, $item);
         }

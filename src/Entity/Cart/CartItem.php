@@ -4,10 +4,8 @@ namespace App\Entity\Cart;
 
 use App\Entity\Variant\Variant;
 use App\Repository\Cart\CartItemRepository;
-//use App\Entity\Discount;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\This;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
@@ -16,9 +14,11 @@ class CartItem
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['Cart.read'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['Cart.read'])]
     private ?int $quantity = null;
 
     #[ORM\ManyToOne(inversedBy: 'items')]
@@ -28,6 +28,7 @@ class CartItem
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Serializer\Groups(['Cart.read'])]
     private ?Variant $variant = null;
 
 //    #[ORM\ManyToOne(inversedBy: 'appliedTo')]

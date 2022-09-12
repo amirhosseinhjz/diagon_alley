@@ -26,11 +26,11 @@ class Variant
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['showVariant'])]
+    #[Groups(['showVariant', 'Cart.read'])]
     private ?string $serial = null;
 
     #[ORM\Column(type: Types::BIGINT)]
-    #[Groups(['showVariant' , 'VariantOAUpdate'])]
+    #[Groups(['showVariant' , 'VariantOAUpdate', 'Cart.read'])]
     private ?int $price = null;
 
     #[ORM\Column]
