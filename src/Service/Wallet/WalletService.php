@@ -2,17 +2,19 @@
 
 namespace App\Service\Wallet;
 
+use App\DTO\Payment\PaymentDTO;
 use App\Entity\User\Customer;
 use App\Entity\User\Seller;
 use App\Entity\Wallet\Wallet;
 use App\Interface\Wallet\WalletServiceInterface;
 use App\Entity\User\User;
+use App\Service\Payment\PaymentService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 
-class WalletService implements WalletServiceInterface
+class WalletService extends PaymentService implements WalletServiceInterface
 {
-    private $em;
+    protected EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -32,5 +34,29 @@ class WalletService implements WalletServiceInterface
             $this->em->getRepository(Wallet::class)->add($wallet, true);
         }
         throw new Exception('user type is not valid');
+    }
+
+    public function withdraw(int $walletId, int $amount)
+    {
+        $wallet = $this->em->getRepository(Wallet::class)->findOneById($walletId);
+        $wallet->withdraw($amount);
+        $this->em->getRepository(Wallet::class)->add($wallet, true);
+    }
+
+    public function deposit(int $walletId, int $amount)
+    {
+        $wallet = $this->em->getRepository(Wallet::class)->findOneById($walletId);
+        $wallet->deposit($amount);
+        $this->em->getRepository(Wallet::class)->add($wallet, true);
+    }
+
+    public function pay(PaymentDTO $paymentDto, $array)
+    {
+
+    }
+
+    public function transaction()
+    {
+
     }
 }

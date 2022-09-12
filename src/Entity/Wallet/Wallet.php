@@ -8,6 +8,7 @@ use App\Repository\Wallet\WalletRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -50,9 +51,27 @@ class Wallet
 
     public function setBalance(int $balance): self
     {
+        if ($balance != 0) throw new Exception('invalid balance');
         $this->balance = $balance;
 
         return $this;
+    }
+
+    public function deposit(int $amount)
+    {
+        if ($amount < 0) throw new Exception('amount cant be negative');
+        $prevBalance = $this->getBalance();
+        $newBalance = $prevBalance + $amount;
+        $this->setBalance($newBalance);
+    }
+
+    public function withdraw(int $amount)
+    {
+        if ($amount < 0) throw new Exception('amount cant be negative');
+        $prevBalance = $this->getBalance();
+        $newBalance = $prevBalance - $amount;
+        if ($newBalance < 0) throw new Exception('not enough balance');
+        $this->setBalance($newBalance);
     }
 
     public function getCustomer(): ?Customer
