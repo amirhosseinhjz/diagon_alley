@@ -178,7 +178,7 @@ class CartService implements CartServiceInterface
         return $cart;
     }
 
-    private function clearCart(Cart $cart)
+    public function clearCart(Cart $cart)
     {
         foreach ($cart->getItems() as $item) {
             $this->removeItem($cart, $item);

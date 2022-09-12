@@ -6,6 +6,7 @@ use App\Entity\Address\Address;
 use App\Entity\Cart\Cart;
 use App\Entity\Order\Purchase;
 use App\Entity\Order\PurchaseItem;
+use App\Entity\User\Customer;
 use App\Interface\Order\OrderManagementInterface;
 use App\Service\Address\AddressService;
 use App\Service\Cart\CartService;
@@ -15,23 +16,26 @@ use Doctrine\ORM\EntityManagerInterface;
 class OrderService implements OrderManagementInterface
 {
     public function __construct(
-//        CartService $cartService,
-//        AddressService $addressService,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        CartService $cartService,
     )
     {
-//        $this->cartService = $cartService;
-//        $this->addressService = $addressService;
         $this->em = $em;
+        $this->cartService = $cartService;
     }
 
     public function createFromCart(Cart $cart): Purchase
     {
         $purchase = new Purchase();
-        $purchase->setCustomer($cart->getUser()); # TODO: safa
-        $purchase->setTotalPrice($cart->getTotalPrice()); # TODO: safa
+        $purchase->setCustomer($cart->getCustomer());
+        $purchase->setTotalPrice($cart->getTotalPrice());
         $this->setOrderItems($purchase, $cart);
         return $purchase;
+    }
+
+    public function getCustomerOrders(Customer $customer): array
+    {
+        return $this->em->getRepository(Purchase::class)->findBy(['customer' => $customer]);
     }
 
     private function setOrderItems(Purchase $purchase, Cart $cart)
@@ -74,7 +78,7 @@ class OrderService implements OrderManagementInterface
         if (!$address) {
             throw new \Exception('Address not found');
         }
-        if ($address->getUser() != $cart->getUser()) {
+        if ($address->getUser() != $cart->getCustomer()) {
             throw new \Exception('Address does not belong to user');
         }
         if ($cart->getItems()->count() === 0) {
@@ -84,7 +88,7 @@ class OrderService implements OrderManagementInterface
         $purchase->setAddress($address);
         $purchase->setStatus($purchase::STATUS_PENDING);
         $this->em->persist($purchase);
-        $this->cartService->clearCart($cart); #TODO: safa
+        $this->cartService->clearCart($cart);
         $this->em->flush();
         return $purchase->getId();
     }
@@ -114,6 +118,52 @@ class OrderService implements OrderManagementInterface
         $order->setStatus($order::STATUS_PAID);
         $this->em->flush();
 //        TODO: call shipping service
+    }
+
+    public function cancelOrderItemById(Purchase $purchase, int $orderItemId): int
+    {
+        $orderItem = $this->em->getRepository(PurchaseItem::class)->find($orderItemId);
+        if (!$orderItem) {
+            throw new \Exception('Order item not found');
+        }
+        if ($orderItem->getPurchase() != $purchase) {
+            throw new \Exception('Order item does not belong to order');
+        }
+        return $this->cancelOrderItem($orderItem);
+    }
+
+    public function cancelOrderItem(PurchaseItem $orderItem, bool $flush=false): int
+    {
+        $orderItem->setStatus($orderItem::STATUS_CANCELED);
+        $price = $orderItem->getTotalPrice();
+//        call wallet service
+        $orderItem->getVariant()->increaseQuantity($orderItem->getQuantity());
+        if ($flush) {
+            $this->em->flush();
+        }
+        return $orderItem->getTotalPrice();
+    }
+
+    public function cancelOrderItemByIds(int $orderId, int $orderItemId): int
+    {
+        $order = $this->getOrderById($orderId);
+        $order->isCancellable();
+        return $this->cancelOrderItemById($order, $orderItemId);
+    }
+
+    public function cancelOrderById(int $orderId): int
+    {
+        $order = $this->getOrderById($orderId);
+        return $this->cancelOrder($order);
+    }
+
+    public function cancelOrder(Purchase $order): int
+    {
+        $order->isCancellable();
+        foreach ($order->getPurchaseItems() as $orderItem) {
+            $this->cancelOrderItem($orderItem);
+        }
+        return 0;
     }
 
     public function getPurchaseItemsBySellerIdAndPurchaseId(array $criteria)

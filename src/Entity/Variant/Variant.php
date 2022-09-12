@@ -225,4 +225,16 @@ class Variant
 
         return $this;
     }
+
+    public function increaseQuantity(int $quantity): self
+    {
+        $this->quantity += $quantity;
+        return $this;
+    }
+
+    public function decreaseQuantity(int $quantity): self
+    {
+        $this->quantity -= $quantity;
+        return $this;
+    }
 }

@@ -14,9 +14,10 @@ use Doctrine\ORM\Mapping as ORM;
 class Purchase
 {
 
-    public const STATUS_PENDING = 0;
-    public const STATUS_PAID = 1;
-    public const STATUS_SHIPPED = 2;
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_CANCELED = 'canceled';
+    public const STATUS_SHIPPED = 'shipped';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -42,8 +43,8 @@ class Purchase
     #[ORM\ManyToOne]
     private ?Address $address = null;
 
-    #[ORM\Column]
-    private ?int $status = null;
+    #[ORM\Column(length: 10)]
+    private ?string $status = Purchase::STATUS_PENDING;
 
     #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: Payment::class)]
     private Collection $payments;
@@ -167,6 +168,11 @@ class Purchase
         return $this;
     }
 
+//    #[ORM\PrePersist]
+//    public function setStatusOnCreate()
+//    {
+//        $this->setStatus(self::STATUS_PENDING);
+//    }
     /**
      * @return Collection<int, Payment>
      */
@@ -183,5 +189,20 @@ class Purchase
         }
 
         return $this;
+    }
+
+    public function isEditable()
+    {
+        if ($this->getStatus() != self::STATUS_PENDING) {
+            throw new \Exception('Purchase is not editable.');
+        }
+    }
+
+    public function isCancellable()
+    {
+        if (!$this->getStatus() == self::STATUS_PENDING &&
+            !$this->getStatus() == self::STATUS_PAID) {
+            throw new \Exception('Purchase is not cancellable.');
+        }
     }
 }
