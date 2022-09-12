@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: AddressProvinceRepository::class)]
 #[UniqueEntity(fields: ["name"], message: "This name is already in use")]
@@ -20,6 +21,7 @@ class AddressProvince
 
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\Length(min: 3, max: 255)]
+    #[Serializer\Groups(['Order.read'])]
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'province', targetEntity: AddressCity::class)]

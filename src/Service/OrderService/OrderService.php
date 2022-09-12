@@ -8,20 +8,21 @@ use App\Entity\Order\Purchase;
 use App\Entity\Order\PurchaseItem;
 use App\Entity\User\Customer;
 use App\Interface\Order\OrderManagementInterface;
-use App\Service\Address\AddressService;
 use App\Service\Cart\CartService;
 use Doctrine\ORM\EntityManagerInterface;
-
+//use App\Interface\Shipment\ShipmentManagementInterface;
 
 class OrderService implements OrderManagementInterface
 {
     public function __construct(
         EntityManagerInterface $em,
         CartService $cartService,
+//        ShipmentManagementInterface $shipmentService,
     )
     {
         $this->em = $em;
         $this->cartService = $cartService;
+//        $this->shipmentService = $shipmentService;
     }
 
     public function createFromCart(Cart $cart): Purchase
@@ -113,11 +114,11 @@ class OrderService implements OrderManagementInterface
         return $order;
     }
 
-    public function finalizeOrder($order): void
+    public function finalizeOrder(Purchase $order): void
     {
         $order->setStatus($order::STATUS_PAID);
         $this->em->flush();
-//        TODO: call shipping service
+        $this->shipmentService->add($order->getId());
     }
 
     public function cancelOrderItemById(Purchase $purchase, int $orderItemId): int

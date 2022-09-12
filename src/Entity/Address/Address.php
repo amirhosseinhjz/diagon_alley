@@ -6,6 +6,7 @@ use App\Entity\User\User;
 use App\Repository\Address\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -14,6 +15,7 @@ class Address
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['Order.read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'addresses')]
@@ -24,15 +26,18 @@ class Address
     #[ORM\ManyToOne(inversedBy: 'addresses')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
+    #[Serializer\Groups(['Order.read'])]
     private ?AddressCity $city = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Serializer\Groups(['Order.read'])]
     private ?string $description = null;
 
     #[Assert\Regex(pattern: '/^[0-9]{4,10}$/', message: "The postCode '{{ value }}' is not a valid postCode.")]
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank]
     #[Assert\NotNull]
+    #[Serializer\Groups(['Order.read'])]
     private ?string $postCode = null;
 
     #[ORM\Column]

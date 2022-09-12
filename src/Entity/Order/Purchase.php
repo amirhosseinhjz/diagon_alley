@@ -9,6 +9,7 @@ use App\Repository\OrderRepository\PurchaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: PurchaseRepository::class)]
 class Purchase
@@ -22,6 +23,7 @@ class Purchase
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['Order.read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'purchases')]
@@ -29,6 +31,7 @@ class Purchase
     private ?Customer $customer = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['Order.read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 25)]
@@ -38,12 +41,15 @@ class Purchase
     private Collection $purchaseItems;
 
     #[ORM\Column]
+    #[Serializer\Groups(['Order.read'])]
     private ?int $totalPrice = null;
 
     #[ORM\ManyToOne]
+    #[Serializer\Groups(['Order.read'])]
     private ?Address $address = null;
 
     #[ORM\Column(length: 10)]
+    #[Serializer\Groups(['Order.read'])]
     private ?string $status = Purchase::STATUS_PENDING;
 
     #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: Payment::class)]
