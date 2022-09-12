@@ -1,41 +1,50 @@
 # Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
 fos_elastica:
-  serializer: ~
   clients:
     default: { url: '%env(ELASTICSEARCH_URL)%' }
   indexes:
     product:
+      properties:
+        name:
+          property_path: name
+        description:
+          property_path: description
+        viewCount:
+          property_path: viewCount
       persistence:
         driver: orm
         model: App\Entity\Product\Product
         provider: ~
         finder: ~
-      serializer:
-        groups: [elastica]
 
     category:
+      properties:
+        name:
+          property_path: name
+        description:
+          property_path: description
       persistence:
         driver: orm
         model: App\Entity\Category\Category
         provider: ~
         finder: ~
-      serializer:
-        groups: [elastica]
 
     brand:
+      properties:
+        name:
+          property_path: name
       persistence:
         driver: orm
         model: App\Entity\Brand\Brand
         provider: ~
         finder: ~
-      serializer:
-        groups: [elastica]
 
     seller:
+      properties:
+        shopSlug:
+          property_path: shopSlug
       persistence:
         driver: orm
         model: App\Entity\User\Seller
         provider: ~
         finder: ~
-      serializer:
-        groups: [elastica]
