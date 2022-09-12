@@ -44,7 +44,7 @@ class VariantManagement implements VariantManagementInterface
         $variant->setSoldNumber(0);
         $variant->setSeller($seller);
         $variant->setType($dto->type);
-        $variant->setProduct($this->productManager->findOneById($dto->productId));
+        $variant->setProduct($this->productManager->findById($dto->productId));
         $this->em->persist($variant);
         if ($flush) {
             $this->em->flush();
