@@ -44,16 +44,16 @@ abstract class BaseCacheRepository
         if (!$key)
         {
             if ($cache){
-            throw new \Exception('Cache not allowed');
+                throw new \Exception('Cache not allowed');
             } else {
                 return $this->repository->findOneBy($criteria, $orderBy);
             }
         }
         if ($cache)
         {
-        return $this->cache->remember($key, $this->exp, function () use ($criteria, $orderBy) {
-            return $this->repository->findOneBy($criteria, $orderBy);
-        });
+            return $this->cache->remember($key, $this->exp, function () use ($criteria, $orderBy) {
+                return $this->repository->findOneBy($criteria, $orderBy);
+            });
         } else {
             $result = $this->repository->findOneBy($criteria, $orderBy);
             $this->saveToCache($key, $result);
@@ -152,5 +152,25 @@ abstract class BaseCacheRepository
         $this->deleteAllFromCache();
     }
 
+    private static function removeSpecialCharacters($string) {
 
+        $specChars = array(
+            ' ' => '_',
+            '#' => '',    '$' => '',    '%' => '',
+            '&' => '',    '\'' => '',   '(' => '',
+            ')' => '',    '*' => '',     ';' => '',
+            '--' => '-',   ',' => '',
+            '/-' => '',    ':' => '',   
+            '@' => '',    '[' => '',
+            '\\' => '',   ']' => '',
+            '`' => '',    '{' => '',
+            '}' => '',
+            '/' => '',
+        );
+
+        foreach ($specChars as $k => $v) {
+            $string = str_replace($k, $v, $string);
+        }
+        return $string;
+    }
 }

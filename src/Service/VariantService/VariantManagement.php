@@ -17,14 +17,14 @@ class VariantManagement implements VariantManagementInterface
 {
     private $em;
     private $serializer;
-    private $varientRepository;
+    private $variantRepository;
     private $productManager;
 
     public function __construct(EntityManagerInterface $em , VariantRepository $variantRepository , ProductManager $productManager)
     {
         $this->em = $em;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
-        $this->varientRepository = $variantRepository;
+        $this->variantRepository = $variantRepository;
         $this->productManager = $productManager;
     }
 
@@ -55,7 +55,7 @@ class VariantManagement implements VariantManagementInterface
     }
 
     public function readVariant($serial){
-        $variant = $this->varientRepository->findBy(['serial' => $serial]);
+        $variant = $this->variantRepository->findBy(['serial' => $serial]);
         if(!$variant)throw new \Exception("Invalid serial number");
         return $variant[0];
     }
@@ -86,6 +86,11 @@ class VariantManagement implements VariantManagementInterface
 
     public function showVariant($filters_eq, $filters_gt)
     {
-        return $this->varientRepository->showVariant($filters_eq,$filters_gt);
+        return $this->variantRepository->showVariant($filters_eq,$filters_gt);
+    }
+
+    public function getById(int $id)
+    {
+        return $this->variantRepository->find($id);
     }
 }

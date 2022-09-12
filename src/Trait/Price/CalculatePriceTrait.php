@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Trait;
+namespace App\Trait\Price;
 
-trait PaymentTrait
+trait CalculatePriceTrait
 {
 
     public function calculatePaidAmount($price, $discount, $vatPercentage = 2)

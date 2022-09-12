@@ -14,15 +14,16 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation as Serializer;
 
-
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "type", type: "string")]
 #[ORM\DiscriminatorMap(['seller' => 'Seller', 'admin' => 'Admin', 'customer' => 'Customer'])]
-#[UniqueEntity(fields: ["Email"], message: "This Email is already in use")]
+#[UniqueEntity(fields: ["email"], message: "This Email is already in use")]
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const PAYLOAD_KEY_FOR_USERNAME = 'phoneNumber';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -165,6 +166,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
     /**
      * @return Collection<int, Address>
      */
