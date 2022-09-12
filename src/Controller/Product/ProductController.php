@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 #[Route('/api/product', name: 'app_product_')]
 class ProductController extends AbstractController
@@ -20,7 +21,7 @@ class ProductController extends AbstractController
         $this->productManager = $productManager;
     }
 
-    //TODO: auth
+    #[IsGranted('PRODUCT_CRUD' , message: 'only admin is allowed')]
     #[Route('/', name: 'create', methods: ['POST'])]
     public function create(Request $req): Response
     {
@@ -34,7 +35,7 @@ class ProductController extends AbstractController
         }
     }
 
-    //TODO: auth
+    #[IsGranted('PRODUCT_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}', name: 'update', methods: ['PATCH'])]
     public function update(Request $req, int $id): Response
     {
@@ -49,7 +50,7 @@ class ProductController extends AbstractController
         }
     }
 
-    //TODO: auth
+    #[IsGranted('PRODUCT_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     public function delete(Request $req, int $id): Response
     {
@@ -61,7 +62,7 @@ class ProductController extends AbstractController
         }
     }
 
-    //TODO: auth
+    #[IsGranted('PRODUCT_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}/feature', name: 'add_feature', methods: ['POST'])]
     public function addFeature(Request $req, int $id): Response
     {
@@ -74,7 +75,7 @@ class ProductController extends AbstractController
         }
     }
 
-    //TODO: auth
+    #[IsGranted('PRODUCT_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}/feature', name: 'remove_feature', methods: ['DELETE'])]
     public function removeFeature(Request $req, int $id): Response
     {
@@ -87,7 +88,7 @@ class ProductController extends AbstractController
         }
     }
 
-    //TODO: auth
+    #[IsGranted('PRODUCT_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}/activity', name: 'toggle_activity', methods: ['PATCH'])]
     public function toggleActivity(Request $req, int $id): Response
     {
