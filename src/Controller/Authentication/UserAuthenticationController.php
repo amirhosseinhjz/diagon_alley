@@ -166,8 +166,8 @@ class UserAuthenticationController extends AbstractController
     {
         try{
             $repo = $em->getRepository(Seller::class);
-            $seller = $repo->findAll();
-            $repo->deleteAllFromCache();
+            $seller = $repo->find($id);
+//            $repo->deleteAllFromCache();
 //            $userService->updatePhoneNumberById($id,'+989666665676');
             dd($seller);
         }catch(Exception $e){
