@@ -2,9 +2,13 @@
 
 namespace App\Entity\Cart;
 
-use App\Repository\CartRepository\CartItemRepository;
+use App\Entity\Variant\Variant;
+use App\Repository\Cart\CartItemRepository;
+//use App\Entity\Discount;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\This;
+
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
 class CartItem
@@ -15,126 +19,79 @@ class CartItem
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $varientId = null;
-    #ToDo: turn into a relation
-    /*#[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $expiry_date = null;*/
-
-    #[ORM\Column]
-    private ?int $count = null;
+    private ?int $quantity = null;
 
     #[ORM\ManyToOne(inversedBy: 'items')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Cart $Cart = null;
+    private ?Cart $cart = null;
 
-    #ToDo get from the varient
-    #[ORM\Column]
-    private ?int $price = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $title = null;
-    #todo: remove
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Variant $variant = null;
+
+//    #[ORM\ManyToOne(inversedBy: 'appliedTo')]
+//    private ?Discount $discount = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    #todo: remove cartid or card
-    public function getCartId(): ?int
+    public function getQuantity(): ?int
     {
-        return $this->Cart_Id;
+        return $this->quantity;
     }
 
-    public function setCartId(int $Cart_Id): self
+    public function setQuantity(int $quantity): self
     {
-        $this->Cart_Id = $Cart_Id;
-
-        return $this;
-    }
-
-    public function getVarientId(): ?int
-    {
-        return $this->varientId;
-    }
-
-    public function setVarientId(int $varientId): self
-    {
-        $this->varientId = $varientId;
-
-        return $this;
-    }
-
-    /*public function getExpiryDate(): ?\DateTimeInterface
-    {
-        return $this->expiry_date;
-    }
-
-    public function setExpiryDate(?\DateTimeInterface $expiry_date): self
-    {
-        $this->expiry_date = $expiry_date;
-
-        return $this;
-    }*/
-
-    public function getCount(): ?int
-    {
-        return $this->count;
-    }
-
-    public function setCount(int $count): self
-    {
-        $this->count = $count;
+        $this->quantity = $quantity;
 
         return $this;
     }
 
     public function getCart(): ?Cart
     {
-        return $this->Cart;
+        return $this->cart;
     }
 
-    public function setCart(?Cart $Cart): self
+    public function setCart(?Cart $cart): self
     {
-        $this->Cart = $Cart;
+        $this->cart = $cart;
 
         return $this;
     }
 
-    #ToDo: should not exceed the 
-    public function increaseCount(int $n = 1){
-        $this->count += $n;
+    public function increaseQuantity(int $n = 1){
+        $this->quantity += $n;
     }
 
-    public function decreaseCount(int $n = 1){
-        if($n>$this->count)
-            $this->count = 0;
-        else
-            $this->count = $this->count - $n;
+    public function decreaseQuantity(int $n = 1){
+        $this->quantity -= $n;
     }
 
-    public function getPrice(): ?int
+    public function getVariant(): ?Variant
     {
-        return $this->price;
+        return $this->variant;
     }
 
-    public function setPrice(int $price): self
+    public function setVariant(?Variant $variant): self
     {
-        $this->price = $price;
+        $this->variant = $variant;
 
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getPrice()
     {
-        return $this->title;
+        return $this->variant->getPrice()*$this->quantity;
     }
 
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
 
-        return $this;
-    }
+//    public function clearCache()
+//    {
+//        'user.'.$this->id;
+//        'user.name';
+//    }
 
 }

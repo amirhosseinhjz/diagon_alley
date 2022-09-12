@@ -2,18 +2,22 @@
 
 namespace App\Tests\Feature;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Base\BaseJsonApiTestCase;
 
 /**
  * @group ItemHandleTest
  */
-class FeatureControllerTest extends WebTestCase
+class FeatureControllerTest extends BaseJsonApiTestCase
 {
-    protected const ROUTE = "/api/feature/";
+    protected const ROUTE = "/api/feature/" , STATUS = 'status' , NAME = 'label';
 
     public function testDefine()
     {
-        $client = static::createClient();
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $body = [
             'features' => [
@@ -23,7 +27,7 @@ class FeatureControllerTest extends WebTestCase
             ]
         ];
 
-        $client->request(
+        $this->client->request(
             'POST',
             self::ROUTE.'define',
             [],
@@ -32,7 +36,7 @@ class FeatureControllerTest extends WebTestCase
             json_encode($body)
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals('Features have been added!', $data['message']);
         $this->assertEquals(200, $response->getStatusCode());
@@ -40,14 +44,18 @@ class FeatureControllerTest extends WebTestCase
 
     public function testUpdate()
     {
-        $client = static::createClient();
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $body = [
             'status' => 0,
             'label' => 'THISNEWCOLOR'
         ];
 
-        $client->request(
+        $this->client->request(
             'POST',
             self::ROUTE.'update/1',
             [],
@@ -57,16 +65,16 @@ class FeatureControllerTest extends WebTestCase
         );
 
         //Valid Data
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
-        $this->assertEquals(false, $data['status']);
+        $this->assertEquals(false, $data[self::STATUS]);
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = [
             'status' => 1
         ];
 
-        $client->request(
+        $this->client->request(
             'POST',
             self::ROUTE.'update/1',
             [],
@@ -76,7 +84,7 @@ class FeatureControllerTest extends WebTestCase
         );
 
         //InValid Data
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(),true);
         $this->assertEquals("Undefined array key \"label\"", $data);
         $this->assertEquals(400, $response->getStatusCode());
@@ -84,50 +92,47 @@ class FeatureControllerTest extends WebTestCase
 
     public function testRead()
     {
-        $client = static::createClient();
+        $response = $this->loginDefaultUserGetToken();
+
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         //Valid Id
-        $client->request(
+        $this->client->request(
             'GET',
             self::ROUTE . 'read/3'
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals("Color2",$data['label']);
 
-        //Valid Id but deleted Feature
-        $client->request(
-            'GET',
-            self::ROUTE . 'read/1'
-        );
-
-        $response = $client->getResponse();
-        $data = json_decode($response->getContent(), true);
-        $this->assertEquals("Feature not found", $data);
-        $this->assertEquals(400, $response->getStatusCode());
-
         //Invalid Id
-        $client->request(
+        $this->client->request(
             'GET',
             self::ROUTE . 'read/1000000'
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testDelete()
     {
-        $client = static::createClient();
+        $response = $this->loginDefaultUserGetToken();
 
-        $client->request(
+        $auth = json_decode($response,true);
+
+        $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
+
+        $this->client->request(
             'GET',
             self::ROUTE . 'delete/2'
         );
 
-        $response = $client->getResponse();
+        $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode());
     }
 }

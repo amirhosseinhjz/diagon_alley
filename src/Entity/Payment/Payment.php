@@ -2,7 +2,8 @@
 
 namespace App\Entity\Payment;
 
-use App\Entity\Cart\Cart;
+use App\Entity\Order\Purchase;
+use App\Entity\Portal\Portal;
 use App\Repository\Payment\PaymentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -15,8 +16,8 @@ class Payment
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30)]
-    private ?string $type = null;
+    #[ORM\Column(length: 20)]
+    private ?string $method = null;
 
     #[ORM\Column]
     private ?int $paidAmount = null;
@@ -24,30 +25,30 @@ class Payment
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 20)]
     private ?string $status = null;
 
-    #[ORM\Column(length: 10)]
-    private ?string $code = null;
+    #[ORM\OneToOne(inversedBy: 'payment', cascade: ['persist', 'remove'])]
+    private ?Portal $portal = null;
 
     #[ORM\ManyToOne(inversedBy: 'payments')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Cart $cart = null;
+    private ?Purchase $purchase = null;
 
+    //TODO: walletId
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getType(): ?string
+    public function getMethod(): ?string
     {
-        return $this->type;
+        return $this->method;
     }
 
-    public function setType(string $type): self
+    public function setMethod(string $method): self
     {
-        $this->type = $type;
+        $this->method = $method;
 
         return $this;
     }
@@ -89,26 +90,26 @@ class Payment
         return $this;
     }
 
-    public function getCode(): ?string
+    public function getPortal(): ?Portal
     {
-        return $this->code;
+        return $this->portal;
     }
 
-    public function setCode(?string $code): self
+    public function setPortal(?Portal $portal): self
     {
-        $this->code = $code;
+        $this->portal = $portal;
 
         return $this;
     }
 
-    public function getCart(): ?Cart
+    public function getPurchase(): ?Purchase
     {
-        return $this->cart;
+        return $this->purchase;
     }
 
-    public function setCart(?Cart $cart): self
+    public function setPurchase(?Purchase $purchase): self
     {
-        $this->cart = $cart;
+        $this->purchase = $purchase;
 
         return $this;
     }

@@ -9,7 +9,6 @@ use App\Repository\OrderRepository\PurchaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\Integer;
 
 #[ORM\Entity(repositoryClass: PurchaseRepository::class)]
 class Purchase
@@ -35,10 +34,6 @@ class Purchase
     #[ORM\Column(length: 25)]
     private ?string $serialNumber = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Payment $payment = null;
-
     #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: PurchaseItem::class)]
     private Collection $purchaseItems;
 
@@ -51,9 +46,13 @@ class Purchase
     #[ORM\Column(length: 10)]
     private ?string $status = Purchase::STATUS_PENDING;
 
+    #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: Payment::class)]
+    private Collection $payments;
+
     public function __construct()
     {
         $this->purchaseItems = new ArrayCollection();
+        $this->payments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,18 +92,6 @@ class Purchase
     public function setSerialNumber(string $serialNumber): self
     {
         $this->serialNumber = $serialNumber;
-
-        return $this;
-    }
-
-    public function getPayment(): ?Payment
-    {
-        return $this->payment;
-    }
-
-    public function setPayment(Payment $payment): self
-    {
-        $this->payment = $payment;
 
         return $this;
     }
@@ -186,4 +173,36 @@ class Purchase
 //    {
 //        $this->setStatus(self::STATUS_PENDING);
 //    }
+    /**
+     * @return Collection<int, Payment>
+     */
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
+    public function addPayment(Payment $payment): self
+    {
+        if (!$this->payments->contains($payment)) {
+            $this->payments->add($payment);
+            $payment->setPurchase($this);
+        }
+
+        return $this;
+    }
+
+    public function isEditable()
+    {
+        if ($this->getStatus() != self::STATUS_PENDING) {
+            throw new \Exception('Purchase is not editable.');
+        }
+    }
+
+    public function isCancellable()
+    {
+        if (!$this->getStatus() == self::STATUS_PENDING &&
+            !$this->getStatus() == self::STATUS_PAID) {
+            throw new \Exception('Purchase is not cancellable.');
+        }
+    }
 }

@@ -23,7 +23,7 @@ class UserTest extends KernelTestCase
             'phoneNumber' => '+989333046603',
             'password' => '123456DFFd@',
             'shopSlug' => 'test',
-            'email' => 'seller@user.com',
+            'Email' => 'seller@user.com',
             'name' => 'seller_name',
             'lastName' => 'sellerLastName'
         ];
@@ -33,7 +33,7 @@ class UserTest extends KernelTestCase
         $this->assertEquals($userData['phoneNumber'], $user->getPhoneNumber());
         $this->assertEquals($userData['password'], $user->getPassword());
         $this->assertEquals($userData['shopSlug'], $user->getShopSlug());
-        $this->assertEquals($userData['email'], $user->getEmail());
+        $this->assertEquals($userData['Email'], $user->getEmail());
         $this->assertEquals($userData['name'], $user->getName());
         $this->assertEquals($userData['lastName'], $user->getLastName());
     }

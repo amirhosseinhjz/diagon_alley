@@ -12,28 +12,33 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "type", type: "string")]
 #[ORM\DiscriminatorMap(['seller' => 'Seller', 'admin' => 'Admin', 'customer' => 'Customer'])]
-#[UniqueEntity(fields: ["email"], message: "This email is already in use")]
+#[UniqueEntity(fields: ["email"], message: "This Email is already in use")]
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const PAYLOAD_KEY_FOR_USERNAME = 'phoneNumber';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['shipment.seller.read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Serializer\Groups(['shipment.seller.read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Serializer\Groups(['shipment.seller.read'])]
     private ?string $lastName = null;
 
-    #[Assert\Email(message: "The email '{{ value }}' is not a valid email.")]
+    #[Assert\Email(message: "The Email '{{ value }}' is not a valid Email.")]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
@@ -161,6 +166,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
     /**
      * @return Collection<int, Address>
      */
