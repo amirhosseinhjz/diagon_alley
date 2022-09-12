@@ -25,6 +25,7 @@ services:
 #        synthetic: true
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
+  
   app.jwt.management:
       class: App\Service\Authentication\JWTManagement
   App\Interface\Authentication\JWTManagmentInterface: '@app.jwt.management'
@@ -33,6 +34,16 @@ services:
       tags:
           - { name: kernel.event_listener, event: 'lexik_jwt_authentication.on_jwt_decoded', method: onJWTDecoded }
 
+
+#  App\Service\Cart\CartService:
+#    public: true
+#
+#  App\Service\Cart\CartItemService:
+#    public: true
+#
+#  App\Interface\Cart\CartServiceInterface: '@App\Service\Cart\CartService'
+#  App\Interface\Cart\CartItemServiceInterface: '@App\Service\Cart\CartItemService'
+
   app.cart.service:
     class: App\Service\CartService\CartService
   App\Service\CartService\CartServiceInterface: '@app.cart.service'
@@ -40,3 +51,20 @@ services:
   app.saman.service:
     class: App\Service\Payment\SamanPortalService
   App\Interface\Payment\BankPortalInterface: '@app.saman.service'
+
+  app.feature.management:
+    class: App\Service\FeatureService\FeatureManagement
+  App\Interface\Feature\FeatureManagementInterface: '@app.feature.management'
+
+  app.featureValue.management:
+    class: App\Service\FeatureService\FeatureValueManagement
+  App\Interface\Feature\FeatureValueManagementInterface: '@app.featureValue.management'
+
+  app.variant.management:
+    class: App\Service\VariantService\VariantManagement
+  App\Interface\Variant\VariantManagementInterface: '@app.variant.management'
+
+
+  app.email.service:
+    class: App\Service\Email\EmailManagement
+  App\Interface\Email\EmailManagementInterface: '@app.email.service'

@@ -2,7 +2,9 @@
 
 namespace App\Controller\Feature;
 
+use App\Interface\Feature\FeatureValueManagementInterface;
 use App\Service\FeatureService\FeatureValueManagement;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,31 +12,38 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use OpenApi\Attributes as OA;
 
-#[Route("/api/feature/value")]
+#[Route("/api/feature/value" , name: 'app_feature_value_')]
 class FeatureValueController extends AbstractController
 {
-    #[Route('/define', name: 'app_define_feature_define', methods:['POST'])]
-    public function define(Request $request , FeatureValueManagement $defineFeatureManagement)
+    private FeatureValueManagementInterface $featureValueManagement;
+
+    public function __construct(FeatureValueManagementInterface $featureValueManagement)
+    {
+        $this->featureValueManagement = $featureValueManagement;
+    }
+
+    #[Route('', name: 'create', methods:['POST'])]
+    #[IsGranted('FEATURE_VALUE_CREATE' , message: 'ONLY ADMIN CAN ADD FEATURE VALUE')]
+    public function define(Request $request)
     {
         $body = $request->toArray();
         try {
-            $defineFeatureManagement->defineFeatureValue($body);
+            $this->featureValueManagement->defineFeatureValue($body);
             return $this->json(
-                ["message" => "Feature values have been defiend!"],
-                status: 200
+                ["message" => "Feature values have been defined!"],
             );
         } catch (\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #[Route('/read/{id}', name: 'app_define_feature_read', methods:['GET'])]
-    public function read(FeatureValueManagement $featureValueManagement, $id){
+    #[Route('/{id}', name: 'read', methods:['GET'] , condition: "params['id'] > 0")]
+    #[IsGranted('FEATURE_VALUE_SHOW' , message: 'ONLY ADMIN OR SELLER CAN ACCESS FEATURE VALUE')]
+    public function read(int $id){
         try {
-            $temp = $featureValueManagement->readFeatureValueById($id);
+            $temp = $this->featureValueManagement->readFeatureValueById($id);
             return $this->json(
                 $temp,
-                status: 200,
                 context:[AbstractNormalizer::GROUPS => 'showFeatureValue']
             );
         } catch (\Exception $e){
@@ -42,14 +51,14 @@ class FeatureValueController extends AbstractController
         }
     }
 
-    #[Route('/update/{id}', name: 'app_define_feature_update', methods:['POST'])]
-    public function update(Request $request , FeatureValueManagement $defineFeatureManagement, $id){
+    #[Route('/{id}', name: 'update', methods:['PATCH'] , condition: "params['id'] > 0")]
+    #[IsGranted('FEATURE_VALUE_CREATE' , message: 'ONLY ADMIN CAN UPDATE FEATURE VALUE')]
+    public function update(Request $request , int $id){
         $body = $request->toArray();
         try {
-            $defineFeatureManagement->updateFeatureValue($id,$body);
+            $this->featureValueManagement->updateFeatureValue($id,$body);
             return $this->json(
                 ["message" => "Feature Value updated successfully"],
-                status: 200
             );
         }
         catch (\Exception $e){
@@ -57,25 +66,25 @@ class FeatureValueController extends AbstractController
         }
     }
 
-    #[Route('/delete/{id}', name: 'app_define_feature_delete', methods:['GET'])]
-    public function delete(FeatureValueManagement $defineFeatureManagement, $id){
+    #[Route('/{id}', name: 'delete', methods:['DELETE'] , condition: "params['id'] > 0")]
+    #[IsGranted('FEATURE_VALUE_CREATE' , message: 'ONLY ADMIN CAN DELETE FEATURE VALUE')]
+    public function delete(int $id){
         try {
-            $defineFeatureManagement->deleteFeatureValue($id);
+            $this->featureValueManagement->deleteFeatureValue($id);
             return $this->json(
                 ["message" => "Feature Value deleted successfully"],
-                status: 200
             );
         }catch (\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #[Route('/show', name: 'app_define_features_show', methods:['GET'])]
-    public function show(FeatureValueManagement $defineFeatureManagement){
-        $temp = $defineFeatureManagement->showFeaturesValue();
+    #[Route('', name: 'show', methods:['GET'])]
+    #[IsGranted('FEATURE_VALUE_SHOW' , message: 'ONLY ADMIN OR SELLER CAN ACCESS FEATURE VALUE')]
+    public function show(){
+        $temp = $this->featureValueManagement->showFeaturesValue();
         return $this->json(
             $temp,
-            status: 200,
             context:[AbstractNormalizer::GROUPS => 'showFeatureValue']
         );
     }

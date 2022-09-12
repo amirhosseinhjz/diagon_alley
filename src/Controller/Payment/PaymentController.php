@@ -21,8 +21,9 @@ class PaymentController extends AbstractController
         PaymentRepository $repository,
         CartServiceInterface $cartService,
         int $cartId,
-        string $type,
-    ) {
+        string $type
+    )
+    {
         try {
             $portalService = PortalFactory::create($type, $cartService);
 

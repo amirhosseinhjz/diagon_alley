@@ -89,6 +89,12 @@ class AddressCity
         return $this;
     }
 
+    public function removeAdderess($element): self
+    {
+        $this->addresses->removeElement($element);
+        return $this;
+    }
+
     public function getIsActive(): ?bool
     {
         return $this->isActive;

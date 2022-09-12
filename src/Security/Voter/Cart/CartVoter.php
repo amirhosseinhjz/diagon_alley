@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Security\Voter\CartVoter;
+namespace App\Security\Voter\Cart;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\Cart\Cart;
 
 class CartVoter extends Voter
 {
@@ -15,7 +16,7 @@ class CartVoter extends Voter
     protected function supports(string $attribute, $subject): bool
     {
         return in_array($attribute, [self::EDIT, self::VIEW])
-            && $subject instanceof \App\Entity\Cart\Cart;
+            && $subject instanceof Cart;
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -34,12 +35,12 @@ class CartVoter extends Voter
         }
         switch ($attribute) {
             case self::EDIT:
-                return ($user->getUserIdentifier() === $cart->getUserId() && 
+                return ($user->getUserIdentifier() === $cart->getCustomer()->getId() &&
                 ($cart->getStatus() === "INIT"));
             case self::VIEW:
-                return ($user->getUserIdentifier() === $cart->getUserId()); 
+                return ($user->getUserIdentifier() === $cart->getCustomer()->getId());
             case self::BACK:
-                return (($user->getUserIdentifier() === $cart->getUserId()) &&
+                return (($user->getUserIdentifier() === $cart->getCustomer()->getId()) &&
                 ($cart->getStatus() === "PENDING" || $cart->getStatus() === "EXPIRED"));
         }
 

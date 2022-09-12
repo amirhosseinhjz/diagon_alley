@@ -238,4 +238,12 @@ class AddressService
             $adr2->getLng()
         );
     }
+
+    public function getAddressById(int $id): Address\Address
+    {
+        $address = $this->em->getRepository(Address\Address::class)->find($id);
+        if (is_null($address))
+            throw (new \Exception("Address does not exist."));
+        return $address;
+    }
 }
