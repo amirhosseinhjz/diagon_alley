@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Discount;
 
-use App\Repository\DiscountRepository;
+use App\Repository\Discount\DiscountRepository;
 use App\Entity\Order\PurchaseItem;
 use App\Entity\Order\Purchase;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+#ToDo: important! remove relation from purchaseItem, change the mapping value of the one in Purchase entity
 //
 //Discount is the entity defining simple discount codes that are applied to orders
 //
@@ -16,23 +17,21 @@ use Doctrine\ORM\Mapping as ORM;
 class Discount
 {
 
-//    public const PERCENT_DISCOUNT = "PERCENT_DISCOUNT_TYPE";
-//    public const FIXED_DISCOUNT = "FIXED_VALUE_DISCOUNT";
-//
-//    public const PER_ORDER = "ORDER_DISCOUNT";
-//    public const PER_ITEM = "ITEM_DISCOUNT";
+    public const PERCENT_DISCOUNT = "PERCENT_DISCOUNT_TYPE";
+    public const FIXED_DISCOUNT = "FIXED_VALUE_DISCOUNT";
+
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #ToDo: define different types
     #check: float?
     #[ORM\Column]
     private ?float $percent = null;
 
     #ToDo: must be unique
-    #ToDo: generate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $code = null;
 
@@ -46,11 +45,21 @@ class Discount
     #[ORM\Column(nullable: true)]
     private ?int $maxUsageTimes = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column]
     private ?int $maxUsageTimesPerUser = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateInterval $timePeriod = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $minPurchaseValue = null;
+    #ToDo: check when applying the discount
+    #[ORM\Column(nullable: true)]
+    private ?float $maxDiscountedValue = null;
 
     public function __construct()
     {
+        $this->appliedTo = new ArrayCollection();
         $this->affectedOrders = new ArrayCollection();
     }
 
@@ -70,8 +79,7 @@ class Discount
 
         return $this;
     }
-
-
+    
     public function getCode(): ?string
     {
         return $this->code;
@@ -114,7 +122,6 @@ class Discount
         return $this;
     }
 
-    #ToDo:is this a proper name?
     public function getIsActive(): ?bool
     {
         return $this->isActive;
@@ -147,6 +154,42 @@ class Discount
     public function setMaxUsageTimesPerUser(int $maxUsageTimesPerUser): self
     {
         $this->maxUsageTimesPerUser = $maxUsageTimesPerUser;
+
+        return $this;
+    }
+
+    public function getTimePeriod(): ?\DateInterval
+    {
+        return $this->timePeriod;
+    }
+
+    public function setTimePeriod(?\DateInterval $timePeriod): self
+    {
+        $this->timePeriod = $timePeriod;
+
+        return $this;
+    }
+
+    public function getMinPurchaseValue(): ?float
+    {
+        return $this->minPurchaseValue;
+    }
+
+    public function setMinPurchaseValue(?float $minPurchaseValue): self
+    {
+        $this->minPurchaseValue = $minPurchaseValue;
+
+        return $this;
+    }
+
+    public function getMaxDiscountedValue(): ?float
+    {
+        return $this->maxDiscountedValue;
+    }
+
+    public function setMaxDiscountedValue(?float $maxDiscountedValue): self
+    {
+        $this->maxDiscountedValue = $maxDiscountedValue;
 
         return $this;
     }

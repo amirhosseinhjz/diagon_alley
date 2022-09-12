@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repository\Discount;
 
 use App\Entity\Discount;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
