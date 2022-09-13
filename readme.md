@@ -37,8 +37,8 @@ Structure:
 
 Delete "composer.lock" and run `composer update` if you pull the main project to make a new "composer.lock" for all dependencies.
 
-cron jobs:
-
-- Start using the bundle: nohup bin/console cron:start -b &
-- Add new command: bin/console cron:create
+Cron jobs:
+1. Make migration
+2. Add new commands: bin/console cron:create
+3. Start using the bundle: nohup bin/console cron:start -b &
 - More details: https://github.com/Cron/Symfony-Bundle
