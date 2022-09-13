@@ -173,7 +173,7 @@ class UserAuthenticationController extends AbstractController
             $this->OTPService->requestToken($user);
             $response = $this->json(
                 ['message'=>'token sent successfully'],
-                status: 200
+                status: Response::HTTP_OK
             );
             return $response;
         } catch (Exception $e){

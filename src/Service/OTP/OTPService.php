@@ -50,10 +50,10 @@ class OTPService
         return $item->get();
     }
 
-    public function verifyToken(User $user, string $token)
+    public function verifyToken(User $user, $token)
     {
         $userToken = $this->getUserToken($user);
-        if ($userToken != $token) {
+        if ($userToken != (string)$token) {
             throw new \Exception('Invalid token', 400);
         }
         $this->cache->getAdapter()->deleteItem($this->getCacheKey($user->getId()));
