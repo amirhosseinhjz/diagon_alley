@@ -54,8 +54,21 @@ class ShipmentManagement implements ShipmentManagementInterface
         }
     }
 
-    public function changeStatusFinalized($object)
+    public function changeStatusFinalizedForShipment($object)
     {
+        $shipmentItems = $object->getShipmentItems();
+        foreach ($shipmentItems as $shipmentItem)
+        {
+            if ($shipmentItem->getStatus() === 'CANCEL')
+            {
+                throw new Exception
+                (
+                    json_encode('One of the items is set to Cancel,there is no way to update shipment status to finalized for all items'),
+                    code: Response::HTTP_BAD_REQUEST
+                );
+            }
+            $shipmentItem->setStatus('FINALIZED');
+        }
         $object->setStatus('FINALIZED');
         $this->entityManager->flush();
         return $object;
@@ -64,8 +77,25 @@ class ShipmentManagement implements ShipmentManagementInterface
     public function changeStatusShipmentToCancel($object)
     {
         $shipmentItems = $object->getShipmentItems();
-        dd($shipmentItems);
-        $object->setStatus($status);
+        foreach ($shipmentItems as $shipmentItem)
+        {
+            $shipmentItem->setStatus('CANCEL');
+        }
+        $object->setStatus('CANCEL');
+        $this->entityManager->flush();
+        return $object;
+    }
+
+    public function changeStatusShipmentItemCancel($object)
+    {
+        $object->setStatus('CANCEL');
+        $this->entityManager->flush();
+        return $object;
+    }
+
+    public function changeStatusShipmentItemFinalized($object)
+    {
+        $object->setStatus('FINALIZED');
         $this->entityManager->flush();
         return $object;
     }
@@ -98,7 +128,6 @@ class ShipmentManagement implements ShipmentManagementInterface
 
     public function getShipmentById($id)
     {
-        dd($this->entityManager->getRepository(Shipment::class)->find($id));
         if (!$this->entityManager->getRepository(Shipment::class)->find($id))
         {
             throw new Exception
