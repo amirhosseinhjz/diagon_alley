@@ -2,7 +2,6 @@
 namespace App\Abstract\CacheRepository;
 
 
-use App\Entity\User\Seller;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use App\Interface\Cache\CacheInterface;
 
@@ -45,18 +44,41 @@ abstract class BaseCacheRepository
         if (!$key)
         {
             if ($cache){
-            throw new \Exception('Cache not allowed');
+                throw new \Exception('Cache not allowed');
             } else {
                 return $this->repository->findOneBy($criteria, $orderBy);
             }
         }
         if ($cache)
         {
-        return $this->cache->remember($key, $this->exp, function () use ($criteria, $orderBy) {
-            return $this->repository->findOneBy($criteria, $orderBy);
-        });
+            return $this->cache->remember($key, $this->exp, function () use ($criteria, $orderBy) {
+                return $this->repository->findOneBy($criteria, $orderBy);
+            });
         } else {
             $result = $this->repository->findOneBy($criteria, $orderBy);
+            $this->saveToCache($key, $result);
+            return $result;
+        }
+    }
+
+    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, $cache=true)
+    {
+        $key = $this->getKey($criteria, true);
+        if (!$key)
+        {
+            if ($cache){
+            throw new \Exception('Cache not allowed');
+            } else {
+                return $this->repository->findBy($criteria, $orderBy, $limit, $offset);
+            }
+        }
+        if ($cache)
+        {
+        return $this->cache->remember($key, $this->exp, function () use ($criteria, $orderBy, $limit, $offset) {
+            return $this->repository->findBy($criteria, $orderBy, $limit, $offset);
+        });
+        } else {
+            $result = $this->repository->findBy($criteria, $orderBy, $limit, $offset);
             $this->saveToCache($key, $result);
             return $result;
         }
@@ -76,7 +98,7 @@ abstract class BaseCacheRepository
         }
     }
 
-    private function getKey(array $criteria)
+    private function getKey(array $criteria, $all=false)
     {
         if (count($criteria) > 1) {
             return null;
@@ -85,7 +107,7 @@ abstract class BaseCacheRepository
         if (!in_array($key, static::getCacheKeys())) {
             return null;
         }
-        return static::_getKey($key, $criteria[$key]);
+        return static::_getKey($key, $criteria[$key], $all);
     }
 
     public static function getKeyAll()
@@ -93,9 +115,14 @@ abstract class BaseCacheRepository
         return static::getNamePrefix().'.__all__';
     }
 
-    public static function _getKey(string $key, string $value)
+    public static function _getKey(string $key, string $value, $all=false)
     {
-        return static::getNamePrefix() . '.' . $key . '_' . $value;
+        $_key = static::getNamePrefix();
+        if ($all) {
+            $_key .= '._all';
+        }
+        $_key .= '.' . $key . '_' . $value;
+        return $_key;
     }
 
     private function saveToCache($key, $value)
@@ -124,6 +151,41 @@ abstract class BaseCacheRepository
             $this->cache->forget($key);
         }
         $this->deleteAllFromCache();
+    }
+
+    public function deleteFromCacheByKey($key)
+    {
+        $this->cache->forget($key);
+    }
+
+    private static function removeSpecialCharacters($string) {
+
+        $specChars = array(
+            ' ' => '_',
+            '#' => '',    '$' => '',    '%' => '',
+            '&' => '',    '\'' => '',   '(' => '',
+            ')' => '',    '*' => '',     ';' => '',
+            '--' => '-',   ',' => '',
+            '/-' => '',    ':' => '',   
+            '@' => '',    '[' => '',
+            '\\' => '',   ']' => '',
+            '`' => '',    '{' => '',
+            '}' => '',
+            '/' => '',
+        );
+
+        foreach ($specChars as $k => $v) {
+            $string = str_replace($k, $v, $string);
+        }
+        return $string;
+    }
+
+    /**
+     * @return CacheInterface
+     */
+    public function getCache(): CacheInterface
+    {
+        return $this->cache;
     }
 
 

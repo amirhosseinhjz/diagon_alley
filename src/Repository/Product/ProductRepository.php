@@ -3,8 +3,6 @@
 namespace App\Repository\Product;
 
 use App\Entity\Brand\Brand;
-use App\Entity\Feature\FeatureValue;
-use App\Entity\Variant\Variant;
 use App\Entity\Product\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
@@ -73,19 +71,21 @@ class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findProductsByCategoryId(array $options): array
+    public function findProductsByCategoryId(int $id, array $options): array
     {
-        $qb = $this->createQueryBuilder('p');
+        $qb = $this->createQueryBuilder('product');
         $qb = Filters::addBaseFilters($qb, $options);
+        $qb = Filters::addCategoryIdFilter($qb, $id);
         $qb = Filters::addBrandsFilter($qb, $options);
         $qb = Filters::addFeaturesFilter($qb, $options);
         return $qb->getQuery()->getResult();
     }
 
-    public function findProductByBrandId(array $options): array
+    public function findProductsByBrandId(int $id, array $options): array
     {
-        $qb = $this->createQueryBuilder('p');
+        $qb = $this->createQueryBuilder('product');
         $qb = Filters::addBaseFilters($qb, $options);
+        $qb = Filters::addBrandIdFilter($qb, $id);
         $qb = Filters::addCategoriesFilter($qb, $options);
         return $qb->getQuery()->getResult();
     }

@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: PurchaseItemRepository::class)]
 class PurchaseItem
 {
+    public const STATUS_CANCELED = 'canceled';
+    public const STATUS_ONSHIPMENT = 'onshipment';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -34,6 +37,9 @@ class PurchaseItem
 
     #[ORM\Column]
     private ?int $totalPrice = null;
+
+    #[ORM\Column(length: 10)]
+    private ?string $status = null;
 
     public function getId(): ?int
     {
@@ -112,6 +118,18 @@ class PurchaseItem
     public function setTotalPrice(int $totalPrice): self
     {
         $this->totalPrice = $totalPrice;
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
         return $this;
     }
 }

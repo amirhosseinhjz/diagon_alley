@@ -34,6 +34,8 @@ class Seller extends User
 
     public function __construct()
     {
+        parent::__construct();
+
         $this->shipments = new ArrayCollection();
         $this->variants = new ArrayCollection();
     }

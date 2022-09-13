@@ -17,11 +17,20 @@ use App\Interface\Wallet\WalletServiceInterface;
 #[Route('/api/payment')]
 class PaymentController extends AbstractController
 {
+    private EntityManagerInterface $em;
+    private ValidatorInterface $validator;
+    private OrderService $orderService;
+    
+    
     public function __construct(
-        private EntityManagerInterface $em,
-        private ValidatorInterface $validator,
-        private OrderService $orderService,
+        EntityManagerInterface $em,
+        ValidatorInterface $validator,
+        OrderService $orderService
     ) {
+        $this->em = $em;
+        $this->validator = $validator;
+        $this->orderService = $orderService;
+
     }
 
     #[Route('/walletId', name: 'app_get_wallet_id', methods: ['GET'])]
@@ -102,7 +111,7 @@ class PaymentController extends AbstractController
 
     #[Route('/status', name: 'app_payment_get_status', methods: ['POST'])]
     public function changeStatus(
-        Request $request,
+        Request $request
     ) {
         try {
             $requestToArray = $request->request->all();
