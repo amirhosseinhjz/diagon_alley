@@ -117,11 +117,12 @@ abstract class BaseCacheRepository
 
     public static function _getKey(string $key, string $value, $all=false)
     {
-        $key = static::getNamePrefix() . '.' . $key . '_' . $value;
+        $_key = static::getNamePrefix();
         if ($all) {
-            $key .= '._all';
+            $_key .= '._all';
         }
-        return $key;
+        $_key .= '.' . $key . '_' . $value;
+        return $_key;
     }
 
     private function saveToCache($key, $value)

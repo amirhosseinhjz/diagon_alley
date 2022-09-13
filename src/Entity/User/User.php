@@ -22,6 +22,7 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+
     public const PAYLOAD_KEY_FOR_USERNAME = 'phoneNumber';
 
     #[ORM\Id]
@@ -60,6 +61,9 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class)]
     private Collection $addresses;
+
+    #[ORM\Column]
+    private ?bool $isAuthenticated = false;
 
     public function __construct()
     {
@@ -191,6 +195,18 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $address->setIsActive(false);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsAuthenticated(): ?bool
+    {
+        return $this->isAuthenticated;
+    }
+
+    public function setIsAuthenticated(bool $isAuthenticated): self
+    {
+        $this->isAuthenticated = $isAuthenticated;
 
         return $this;
     }

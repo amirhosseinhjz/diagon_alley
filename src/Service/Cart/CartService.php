@@ -5,14 +5,11 @@ namespace App\Service\Cart;
 use App\Entity\Variant\Variant;
 use App\Service\VariantService\VariantManagement;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\Types\This;
-use Symfony\Component\HttpFoundation\Request;
 use Exception;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
 use App\Entity\Cart\Cart;
 use App\Entity\Cart\CartItem;
 use App\Entity\User\Customer;
@@ -181,8 +178,9 @@ class CartService implements CartServiceInterface
         return $cart;
     }
 
-    private function clearCart(Cart $cart)
+    public function clearCart(Cart $cart)
     {
+        $this->isEditable($cart);
         foreach ($cart->getItems() as $item) {
             $this->removeItem($cart, $item);
         }
