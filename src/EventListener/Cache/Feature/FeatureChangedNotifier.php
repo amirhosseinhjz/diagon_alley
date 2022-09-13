@@ -7,13 +7,15 @@ use App\Entity\Feature\Feature;
 use App\Interface\Cache\CacheInterface;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use App\Abstract\ChangeNotifier\EntityChangeNotifier;
+use App\CacheRepository\FeatureRepository\CacheFeatureRepository;
 
 class FeatureChangedNotifier extends EntityChangeNotifier
 {
-    public function __construct(CacheEntityManager $em, CacheInterface $cache)
+    private $repository;
+
+    public function __construct(CacheEntityManager $em)
     {
         $this->repository = $em->getRepository(Feature::class);
-        $this->cache = $cache;
     }
 
     public function postUpdate(
@@ -22,14 +24,12 @@ class FeatureChangedNotifier extends EntityChangeNotifier
     ): void
     {
         $this->repository->deleteFromCache($feature);
+        $this->repository->deleteFromCacheByKey(CacheFeatureRepository::getNamePrefix().'.'.'active_1._all');
     }
 
-    public function postPersist(LifecycleEventArgs $event)
+    public function postPersist()
     {
+        $this->repository->deleteFromCacheByKey(CacheFeatureRepository::getNamePrefix().'.'.'active_1._all');
         $this->repository->deleteAllFromCache();
     }
-
-//    public function onFlush(){
-//        $this->repository->deleteAllFromCache();
-//    }
 }

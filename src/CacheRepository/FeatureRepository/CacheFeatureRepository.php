@@ -19,7 +19,8 @@ class CacheFeatureRepository extends BaseCacheRepository
     {
         return [
             'id',
-            'active'
+            'active',
+            'label'
         ];
     }
 

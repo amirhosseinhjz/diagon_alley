@@ -3,6 +3,7 @@
 namespace App\EventListener\Cache\Feature;
 
 use App\CacheEntityManager\CacheEntityManager;
+use App\CacheRepository\FeatureRepository\CacheFeatureValueRepository;
 use App\Entity\Feature\FeatureValue;
 use App\Interface\Cache\CacheInterface;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -10,10 +11,11 @@ use App\Abstract\ChangeNotifier\EntityChangeNotifier;
 
 class FeatureValueChangedNotifier extends EntityChangeNotifier
 {
-    public function __construct(CacheEntityManager $em, CacheInterface $cache)
+    private $repository;
+
+    public function __construct(CacheEntityManager $em)
     {
         $this->repository = $em->getRepository(FeatureValue::class);
-        $this->cache = $cache;
     }
 
     public function postUpdate(
@@ -22,11 +24,13 @@ class FeatureValueChangedNotifier extends EntityChangeNotifier
     ): void
     {
         $this->repository->deleteFromCache($featureValue);
+        $this->repository->deleteFromCacheByKey(CacheFeatureValueRepository::getNamePrefix().'.'.'active_1._all');
     }
 
-    public function postPersist(LifecycleEventArgs $event)
+    public function postPersist()
     {
         $this->repository->deleteAllFromCache();
+        $this->repository->deleteFromCacheByKey(CacheFeatureValueRepository::getNamePrefix().'.'.'active_1._all');
     }
 
 }

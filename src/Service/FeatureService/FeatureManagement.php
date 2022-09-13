@@ -23,7 +23,7 @@ class FeatureManagement implements FeatureManagementInterface
 
     public function addLabelsToDB(array $features){
         foreach($features as $feature){
-            if($this->cacheFeatureRepository->find($feature) === null){
+            if($this->cacheFeatureRepository->findOneBy(['label' => $feature] , null , false) === null){
                 $temp = new Feature();
                 $temp->setLabel($feature);
                 $temp->setActive(true);
@@ -32,8 +32,8 @@ class FeatureManagement implements FeatureManagementInterface
         }
     }
 
-    public function readFeatureLabel($id){
-        $temp = $this->cacheFeatureRepository->find($id);
+    public function readFeatureLabel($id , $cache=true){
+        $temp = $this->cacheFeatureRepository->find($id , $cache);
         if(!$temp || !$temp->getActive()){
             throw new \Exception("Feature not found");
         }
@@ -42,7 +42,7 @@ class FeatureManagement implements FeatureManagementInterface
 
     public function updateFeatureLabel($id , $body){
         if($body['active'] === null  || !$body['label'])throw new \Exception("Wrong data type");
-        $feature = $this->readFeatureLabel($id);
+        $feature = $this->readFeatureLabel($id,false);
         $feature->setActive($body['active']);
         $feature->setLabel($body['label']);
         $this->em->flush();
@@ -50,7 +50,7 @@ class FeatureManagement implements FeatureManagementInterface
     }
 
     public function deleteFeatureLabel($id){
-        $feature = $this->readFeatureLabel($id);
+        $feature = $this->readFeatureLabel($id,false);
         $feature->setActive(false);
         $this->em->flush();
         return $feature;

@@ -30,18 +30,18 @@ class CacheVariantRepository extends BaseCacheRepository
         return 'variant';
     }
 
-    public function showVariant($criteria, $cache=true , array $orderBy = null, $limit = null, $offset = null)
-    {
-        $key = 'my_key';
-        if ($cache)
-        {
-            return parent::getCache()->remember($key, $this->exp, function () use ($criteria, $orderBy, $limit, $offset) {
-                return $this->repository->findBy($criteria, $orderBy, $limit, $offset);
-            });
-        } else {
-            $result = $this->repository->findBy($criteria, $orderBy, $limit, $offset);
-            parent::saveToCache($key, $result);
-            return $result;
-        }
-    }
+//    public function showVariant($criteria, $cache=true , array $orderBy = null, $limit = null, $offset = null)
+//    {
+//        $key = 'my_key';
+//        if ($cache)
+//        {
+//            return parent::getCache()->remember($key, $this->exp, function () use ($criteria, $orderBy, $limit, $offset) {
+//                return $this->repository->findBy($criteria, $orderBy, $limit, $offset);
+//            });
+//        } else {
+//            $result = $this->repository->findBy($criteria, $orderBy, $limit, $offset);
+//            parent::saveToCache($key, $result);
+//            return $result;
+//        }
+//    }
 }

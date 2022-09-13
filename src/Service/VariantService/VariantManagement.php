@@ -58,29 +58,29 @@ class VariantManagement implements VariantManagementInterface
         return $variant;
     }
 
-    public function readVariant($serial){
-        $variant = $this->cacheVariantRepository->findOneBy(['serial' => $serial]);
+    public function readVariant($serial,$cache=true){
+        $variant = $this->cacheVariantRepository->findOneBy(['serial' => $serial],$cache);
         if(!$variant)throw new \Exception("Invalid serial number");
         return $variant;
     }
 
     public function updateVariant($serial, int $quantity, int $price){
         if($price < 1 || $quantity < 0)throw new \Exception('Invalid data');
-        $variant = $this->readVariant($serial);
+        $variant = $this->readVariant($serial,false);
         $variant->setQuantity($quantity)->setPrice($price);
         $this->em->flush();
         return $variant;
     }
 
     public function deleteVariant($serial){
-        $variant = $this->readVariant($serial);
+        $variant = $this->readVariant($serial,false);
         $this->em->remove($variant);
         $this->em->flush();
         return $variant;
     }
 
     public function confirmVariant($serial){
-        $variant = $this->readVariant($serial);
+        $variant = $this->readVariant($serial,false);
         $time = new \DateTimeImmutable('now',new \DateTimeZone('Asia/Tehran'));
         $variant->setValid(true);
         $variant->setCreatedAt($time);
@@ -97,7 +97,8 @@ class VariantManagement implements VariantManagementInterface
         foreach($filters_gt as $filter => $value) {
             $criteria->andWhere(Criteria::expr()->gt($filter, $value));
         }
-        return $this->cacheVariantRepository->showVariant($criteria);
+        $criteria->orderBy(['quantity' => Criteria::DESC]);
+        return $this->variantRepository->showVariant($criteria);
     }
 
     public function getById(int $id)

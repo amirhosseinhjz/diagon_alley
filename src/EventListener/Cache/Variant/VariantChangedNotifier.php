@@ -10,10 +10,11 @@ use App\Abstract\ChangeNotifier\EntityChangeNotifier;
 
 class VariantChangedNotifier extends EntityChangeNotifier
 {
+    private $repository;
+
     public function __construct(CacheEntityManager $em, CacheInterface $cache)
     {
         $this->repository = $em->getRepository(Variant::class);
-        $this->cache = $cache;
     }
 
     public function postUpdate(
@@ -24,7 +25,7 @@ class VariantChangedNotifier extends EntityChangeNotifier
         $this->repository->deleteFromCache($variant);
     }
 
-    public function postPersist(LifecycleEventArgs $event)
+    public function postPersist()
     {
         $this->repository->deleteAllFromCache();
     }

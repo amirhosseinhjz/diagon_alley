@@ -27,7 +27,7 @@ class FeatureValueManagement implements FeatureValueManagementInterface
     
     public function defineFeatureValue($features){
         foreach($features as $feature => $value){
-            $itemfeature = $this->featureManagement->readFeatureLabel($feature);
+            $itemfeature = $this->featureManagement->readFeatureLabel($feature,false);
             if(!$itemfeature){
                 throw new \Exception("Invalid Feature ID");
             }
@@ -50,7 +50,7 @@ class FeatureValueManagement implements FeatureValueManagementInterface
             $featureValue = new FeatureValue();
 
             //FeatureValueId validation
-            $featureValue = $this->cacheFeatureValueRepository->findOneBy(array("id" => $FeatureValueId));
+            $featureValue = $this->cacheFeatureValueRepository->findOneBy(array("id" => $FeatureValueId),null,false);
             if ($featureValue) {
                 if ($featureValue->getFeature()->getId() != $featureId || !$featureValue->isActive() || !$featureValue->getFeature()->getActive()){
                     throw new \Exception("Invalid Item feature value");
@@ -72,8 +72,8 @@ class FeatureValueManagement implements FeatureValueManagementInterface
         return $variant;
     }
 
-    public function readFeatureValueById($id): FeatureValue{
-        $featureValue = $this->cacheFeatureValueRepository->find($id);
+    public function readFeatureValueById($id,$cache = true): FeatureValue{
+        $featureValue = $this->cacheFeatureValueRepository->find($id , $cache);
         if(!$featureValue || !$featureValue->isActive()){
             throw new \Exception("Feature value not found");
         }
@@ -81,7 +81,7 @@ class FeatureValueManagement implements FeatureValueManagementInterface
     }
 
     public function updateFeatureValue($id, $value){
-        $featureValue = $this->readFeatureValueById($id);
+        $featureValue = $this->readFeatureValueById($id,false);
         $featureValue->setValue($value);
         return $this->featureValueRepository->add($featureValue,true);
     }
@@ -91,7 +91,7 @@ class FeatureValueManagement implements FeatureValueManagementInterface
     }
 
     public function deleteFeatureValue($id){
-        $temp =  $this->readFeatureValueById($id)->setActive(false);
+        $temp =  $this->readFeatureValueById($id,false)->setActive(false);
         $this->em->flush();
         return $temp;
     }

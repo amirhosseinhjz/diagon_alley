@@ -7,9 +7,9 @@ use App\Interface\Cache\CacheInterface;
 
 abstract class BaseCacheRepository
 {
-    protected ServiceEntityRepository $repository;
+    private ServiceEntityRepository $repository;
     private CacheInterface $cache;
-    protected int $exp;
+    private int $exp;
 
     public static abstract function getNamePrefix():string;
 
@@ -124,7 +124,7 @@ abstract class BaseCacheRepository
         return $key;
     }
 
-    protected function saveToCache($key, $value)
+    private function saveToCache($key, $value)
     {
         $item = $this->cache->getAdapter()->getItem($key);
         $item->tag([$this->tagName]);
@@ -150,6 +150,11 @@ abstract class BaseCacheRepository
             $this->cache->forget($key);
         }
         $this->deleteAllFromCache();
+    }
+
+    public function deleteFromCacheByKey($key)
+    {
+        $this->cache->forget($key);
     }
 
     private static function removeSpecialCharacters($string) {
