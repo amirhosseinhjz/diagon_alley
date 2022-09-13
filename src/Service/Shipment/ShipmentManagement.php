@@ -54,16 +54,17 @@ class ShipmentManagement implements ShipmentManagementInterface
         }
     }
 
-    public function changeStatus($object,$status)
+    public function changeStatusFinalized($object)
     {
-        if (!in_array($status,Shipment::STATUS))
-        {
-            throw new Exception
-            (
-                json_encode('not a valid shipment status'),
-                code: Response::HTTP_NOT_FOUND
-            );
-        }
+        $object->setStatus('FINALIZED');
+        $this->entityManager->flush();
+        return $object;
+    }
+
+    public function changeStatusShipmentToCancel($object)
+    {
+        $shipmentItems = $object->getShipmentItems();
+        dd($shipmentItems);
         $object->setStatus($status);
         $this->entityManager->flush();
         return $object;
@@ -97,6 +98,7 @@ class ShipmentManagement implements ShipmentManagementInterface
 
     public function getShipmentById($id)
     {
+        dd($this->entityManager->getRepository(Shipment::class)->find($id));
         if (!$this->entityManager->getRepository(Shipment::class)->find($id))
         {
             throw new Exception
@@ -123,7 +125,7 @@ class ShipmentManagement implements ShipmentManagementInterface
         $shipmentItem->setPurchaseItem($this->orderService->getPurchaseItemById($fields['purchase_item_id']));
         $shipmentItem->setShipment($shipment);
         $shipmentItem->setType($fields['type']);
-        $shipmentItem->setStatus('PENDING');
+        $shipmentItem->setStatus('ACCEPT');
         $this->entityManager->persist($shipmentItem);
         $this->entityManager->flush();
         return $shipmentItem;
@@ -133,7 +135,7 @@ class ShipmentManagement implements ShipmentManagementInterface
     {
         $shipment = new Shipment();
         $shipment->setSeller($seller);
-        $shipment->setStatus('PENDING');
+        $shipment->setStatus('ACCEPT');
         $this->entityManager->persist($shipment);
         $this->entityManager->flush();
         return $shipment;
@@ -164,5 +166,15 @@ class ShipmentManagement implements ShipmentManagementInterface
     private function fileShipment($file)
     {
 //        TODO send email
+    }
+
+    public function cancelFromOrder()
+    {
+
+    }
+
+    public function cancelFromOrderItem()
+    {
+
     }
 }

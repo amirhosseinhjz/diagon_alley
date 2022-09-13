@@ -123,32 +123,29 @@ class ShipmentController extends AbstractController
         response: Response::HTTP_NOT_FOUND,
         description: 'There is no shipment for given id',
     )]
-    #[OA\RequestBody(
-        description: "update shipment status",
-        required: true,
-        content: new OA\JsonContent(
-            ref: new Model(type: ShipmentAndShipmentItemUpdateDTO::class)
-        )
-    )]
+//    #[OA\RequestBody(
+//        description: "update shipment status",
+//        required: true,
+//        content: new OA\JsonContent(
+//            ref: new Model(type: ShipmentAndShipmentItemUpdateDTO::class)
+//        )
+//    )]
     #[OA\Tag(name: 'Shipment')]
-    #[Route('/shipment/{id}', name: 'app_shipment_status_update',methods: ['PUT','PATCH'])]
-    public function shipmentStatusUpdate(Request $request,$id): Response
+    #[Route('/shipment/{id}/cancel', name: 'app_shipment_status_update',methods: ['GET'])]
+    public function shipmentStatusUpdateCancel($id): Response
     {
         try {
-            $request = $request->toArray();
-            (new ShipmentAndShipmentItemUpdateDTO($request,$this->validator))
-                ->doValidate();
             $shipment = $this->managementShipment->getShipmentById($id);
+            dd($shipment);
             $this->checkAccess
             (
                 'SHIPMENT_ACCESS',
                 $shipment,
                 message:  'Access Denied, not the owner of the shipment'
             );
-            $shipmentRefresh = $this->managementShipment->changeStatus
+            $shipmentRefresh = $this->managementShipment->changeStatusShipmentToCancel
             (
-                $shipment,
-                $request['status']
+                $shipment
             );
             $data = $this->serializer->normalize($shipmentRefresh, null, ['groups' => ['shipment.read']]);
             return $this->json
@@ -195,7 +192,7 @@ class ShipmentController extends AbstractController
                 $shipmentItem,
                 message:  'Access Denied, not the owner of the shipment-item'
             );
-            $shipment = $this->managementShipment->changeStatus
+            $shipment = $this->managementShipment->changeStatusshipmentItem
             (
                 $shipmentItem,
                 $request['status']
