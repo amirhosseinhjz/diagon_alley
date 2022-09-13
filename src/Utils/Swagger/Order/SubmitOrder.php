@@ -9,8 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SubmitOrder
 {
     #[Assert\NotNull]
-    public readonly ?int $cartId;
+    public ?int $cartId;
 
     #[Assert\NotNull]
-    public readonly ?int $addressId;
+    public ?int $addressId;
 }

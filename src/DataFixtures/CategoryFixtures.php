@@ -23,7 +23,7 @@ class CategoryFixtures extends Fixture implements FixtureGroupInterface
 
     public function loadCategories(ObjectManager $manager): void
     {
-        //TODO: replace with this->createMany in BaseFixture
+        //TODO: replace with $this->createMany in BaseFixture
 
 //        $mainCategories = [];
 //        for ($i = 1; $i < 6; $i++) {

@@ -2,15 +2,16 @@
 
 namespace App\CacheRepository\VariantRepository;
 
-use App\Repository\FeatureRepository\FeatureRepository;
+use App\Repository\VariantRepository\VariantRepository;
 use App\Interface\Cache\CacheInterface;
 use App\Abstract\CacheRepository\BaseCacheRepository;
+use App\Service\VariantService\VariantManagement;
 
 class CacheVariantRepository extends BaseCacheRepository
 {
 
 
-    public function __construct(FeatureRepository $repository, CacheInterface $cache)
+    public function __construct(VariantRepository $repository, CacheInterface $cache)
     {
         parent::__construct($repository, $cache, 'variant', 60);
     }

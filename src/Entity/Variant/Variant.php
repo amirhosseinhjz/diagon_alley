@@ -130,6 +130,12 @@ class Variant
         return $this;
     }
 
+    public function getValid(): bool
+    {
+        return $this->valid;
+    }
+
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -238,6 +244,7 @@ class Variant
     public function setDeliveryEstimate(int $deliveryEstimate): self
     {
         $this->deliveryEstimate = $deliveryEstimate;
+        return $this;
     }
     
     public function increaseQuantity(int $quantity): self

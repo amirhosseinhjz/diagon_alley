@@ -207,4 +207,11 @@ class ShipmentController extends AbstractController
             return $this->json(json_decode($exception->getMessage()));
         }
     }
+
+    #[Route('/shipment-test/{id}', name: 'app_shipment_item_status_update',methods: ['GET'])]
+    public function testOrder(int $id): Response
+    {
+        $this->managementShipment->add($id);
+        dd('ok');
+    }
 }

@@ -4,7 +4,8 @@ namespace App\DTO\ProductItem;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class VariantDTO{
+class VariantDTO
+{
     #[Assert\GreaterThan(1)]
     #[Assert\Type(type:'int')]
     public ?int $price = null;
