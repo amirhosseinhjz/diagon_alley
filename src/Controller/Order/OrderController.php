@@ -51,6 +51,10 @@ class OrderController extends AbstractController
     #[OA\Tag(name: 'Order')]
     public function finalizeOrder(Request $request, OrderService $orderService)
     {
+        if (!$this->getUser()->isAuthenticated()) {
+            return $this->json(['message' => 'You havent authenticated your phone number'],
+                    Response::HTTP_UNAUTHORIZED);
+        }
         try {
             $this->checkAccess
             (

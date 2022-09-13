@@ -1,0 +1,1 @@
+nohup bin/console messenger:consume async_sms async_email > /dev/null 2>&1 &
