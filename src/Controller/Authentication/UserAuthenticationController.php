@@ -10,6 +10,7 @@ use App\Service\UserService\UserService;
 use App\Utils\Swagger\User\User;
 use App\Utils\Swagger\User\UserName;
 use Exception;
+use App\Entity\User\Seller;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
+use App\Service\OTP\OTPService;
+use App\Utils\Swagger\Auth\OTPToken;
 use App\DTO\UserDTOs\UserDTO;
 
 
@@ -32,10 +35,13 @@ class UserAuthenticationController extends AbstractController
 
     protected $userService;
 
+    protected $OTPService;
+
     public function __construct(
         JWTManagementInterface $JWTManager,
         UserPasswordHasherInterface $hasher,
-        UserService $userService
+        UserService $userService,
+        OTPService $OTPService
     )
     {
         $this->JWTManager = $JWTManager;
@@ -43,6 +49,8 @@ class UserAuthenticationController extends AbstractController
         $this->passHasher = $hasher;
 
         $this->userService = $userService;
+
+        $this->OTPService = $OTPService;
     }
 
     #[OA\RequestBody(
@@ -198,30 +206,96 @@ class UserAuthenticationController extends AbstractController
         }
     }
 
-
-    #[Route('/gogo/{id}', name: 'gogo',methods: ['GET'])]
-    public function update(UserService $userService, EntityManagerInterface $em, $id): Response
+    #[Route('/user/validate-phone', name: 'app_user_validate_phone',methods: ['GET'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Sends an OTP to the user phone number',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_UNAUTHORIZED,
+        description: 'Invalid credentials',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'Invalid Request',
+    )]
+    #[OA\Tag(name: 'Authentication')]
+    public function validatePhone(): Response
     {
         try{
-            $seller = $em->getRepository(Seller::class)->find($id);
-//            $userService->updatePhoneNumberById($id,'+989666665676');
-            dd($seller);
-        }catch(Exception $e){
-            return $this->json(json_decode($e), Response::HTTP_OK);
+            $user = $this->JWTManager->authenticatedUser();
+            $this->OTPService->requestToken($user);
+            $response = $this->json(
+                ['message'=>'token sent successfully'],
+                status: Response::HTTP_OK
+            );
+            return $response;
+        } catch (Exception $e){
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #[Route('/gogol/{id}', name: 'gogol',methods: ['GET'])]
-    public function _update(CacheEntityManager $em, int $id, CacheInterface $cache): Response
+    #[Route('/user/validate-token', name: 'app_user_validate_token',methods: ['POST'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Validates the token sent to the user phone number',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_UNAUTHORIZED,
+        description: 'Invalid credentials',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: OTPToken::class)
+        )
+    )]
+    #[OA\Tag(name: 'Authentication')]
+    public function validateToken(Request $request): Response
     {
         try{
-            $repo = $em->getRepository(Seller::class);
-            $seller = $repo->find($id);
-//            $repo->deleteAllFromCache();
-//            $userService->updatePhoneNumberById($id,'+989666665676');
-            dd($seller);
-        }catch(Exception $e){
-            return $this->json(json_decode($e), Response::HTTP_OK);
+            $user = $this->JWTManager->authenticatedUser();
+            $body = $request->toArray();
+            if(! array_key_exists('token',$body))
+                throw new Exception("token field is empty");
+            $this->OTPService->verifyToken($user,$body['token']);
+            $response = $this->json(
+                ['message'=>'token validated successfully'],
+                status: Response::HTTP_OK
+            );
+            return $response;
+        } catch (Exception $e){
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
+
+//    #[Route('/gogo/{id}', name: 'gogo',methods: ['GET'])]
+//    public function update(UserService $userService, EntityManagerInterface $em, $id): Response
+//    {
+//        try{
+//            $seller = $em->getRepository(Seller::class)->find($id);
+////            $userService->updatePhoneNumberById($id,'+989666665676');
+//            dd($seller);
+//        }catch(Exception $e){
+//            return $this->json(json_decode($e), Response::HTTP_OK);
+//        }
+//    }
+//
+//    #[Route('/gogol/{id}', name: 'gogol',methods: ['GET'])]
+//    public function _update(CacheEntityManager $em, int $id, CacheInterface $cache): Response
+//    {
+//        try{
+//            $repo = $em->getRepository(Seller::class);
+//            $seller = $repo->find($id);
+////            $repo->deleteAllFromCache();
+////            $userService->updatePhoneNumberById($id,'+989666665676');
+//            dd($seller);
+//        }catch(Exception $e){
+//            return $this->json(json_decode($e), Response::HTTP_OK);
+//        }
+//    }
 }

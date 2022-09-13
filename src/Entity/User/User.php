@@ -62,6 +62,9 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class)]
     private Collection $addresses;
 
+    #[ORM\Column]
+    private ?bool $isAuthenticated = false;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
@@ -192,6 +195,18 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $address->setIsActive(false);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsAuthenticated(): ?bool
+    {
+        return $this->isAuthenticated;
+    }
+
+    public function setIsAuthenticated(bool $isAuthenticated): self
+    {
+        $this->isAuthenticated = $isAuthenticated;
 
         return $this;
     }
