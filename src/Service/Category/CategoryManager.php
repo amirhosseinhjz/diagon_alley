@@ -9,7 +9,6 @@ use App\Interface\Category\CategoryManagerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class CategoryManager implements CategoryManagerInterface
 {
@@ -17,22 +16,14 @@ class CategoryManager implements CategoryManagerInterface
 
     private EntityManagerInterface $em;
 
-    private SerializerInterface $serializer;
-
-    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer)
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->serializer = $serializer;
     }
 
     public function getRequestBody(Request $req)
     {
         return json_decode($req->getContent(), true);
-    }
-
-    public function serialize(array $data, array $groups)
-    {
-         return $this->serializer->serialize($data, 'json', ['groups' => $groups]);
     }
 
     public function normalizeArray(array $array): array
@@ -44,23 +35,19 @@ class CategoryManager implements CategoryManagerInterface
         return $array;
     }
 
-    public function createEntityFromArray(array $validatedArray): array
+    public function createEntityFromArray(array $validatedArray): Category
     {
-        try {
-            $category = new Category();
-            $category->setName($validatedArray['name']);
-            $category->setType($validatedArray['type']);
-            $parent = $validatedArray['parent'];
-            if ($parent != null) {
-                $parent = $this->em->getRepository(Category::class)->findOneById($parent);
-            }
-            $category->setParent($parent);
-            $category->setLeaf($validatedArray['leaf']);
-            $this->em->getRepository(Category::class)->add($category, true);
-            return ['entity' => $category];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
+        $category = new Category();
+        $category->setName($validatedArray['name']);
+        $category->setType($validatedArray['type']);
+        $parent = $validatedArray['parent'];
+        if ($parent != null) {
+            $parent = $this->em->getRepository(Category::class)->findOneById($parent);
         }
+        $category->setParent($parent);
+        $category->setLeaf($validatedArray['leaf']);
+        $this->em->getRepository(Category::class)->add($category, true);
+        return $category;
     }
 
     public function findBrandsById(int $id): array
@@ -80,9 +67,8 @@ class CategoryManager implements CategoryManagerInterface
         return $parents;
     }
 
-    public function updateEntity(Category $category, array $updates): array
+    public function updateEntity(Category $category, array $updates): Category
     {
-        try {
             if (array_key_exists('parent', $updates) == true) {
                 $updates['parent'] = $this->em->getRepository(Category::class)->findOneById($updates['parent']);
             }
@@ -93,22 +79,15 @@ class CategoryManager implements CategoryManagerInterface
             }
             $this->em->persist($category);
             $this->em->flush();
-            return ['entity' => $category];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
+            return $category;
     }
 
     public function removeUnused(Category $category): array
     {
-        try {
             if (count($category->getChildren()) != 0) throw new Exception('category has existing children');
             if (count($category->getProducts()) != 0) throw new Exception('category has existing products');
             $this->em->getRepository(Category::class)->remove($category, true);
             return ['message' => 'category ' . $category->getName() . ' deleted'];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
     }
 
     public function toggleCategoryActivity(Category $category, bool $active)
@@ -120,7 +99,7 @@ class CategoryManager implements CategoryManagerInterface
                 $product->setActive($active);
                 $variants = $product->getVariants();
                 foreach ($variants as $variant) {
-                    $variant->setValid($active);
+                    $variant->setStatus($active);
                     $this->em->persist($variant);
                 }
                 $this->em->persist($product);
@@ -155,26 +134,21 @@ class CategoryManager implements CategoryManagerInterface
 
     public function addFeatures(Category $category, array $features): array
     {
-        try {
             $featureRepo = $this->em->getRepository(Feature::class);
-            foreach ($features['features'] as $featureId) {
-                $feature = $featureRepo->findOneBy(['id' => $featureId]);
+            foreach ($features as $featureId) {
+                $feature = $featureRepo->readFeatureById($featureId);
                 if (!$feature) throw new Exception('invalid feature');
                 $category->addFeature($feature);
             }
             $this->em->persist($category);
             $this->em->flush();
             return ['message' => 'features added'];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
     }
 
     public function removeFeatures(Category $category, array $features): array
     {
-        try {
             $featureRepo = $this->em->getRepository(Feature::class);
-            foreach ($features['features'] as $featureId) {
+            foreach ($features as $featureId) {
                 $feature = $featureRepo->findOneBy(['id' => $featureId]);
                 if (!$feature) throw new Exception('invalid feature');
                 $category->removeFeature($feature);
@@ -182,8 +156,15 @@ class CategoryManager implements CategoryManagerInterface
             $this->em->persist($category);
             $this->em->flush();
             return ['message' => 'features removed'];
-        } catch (Exception $exception) {
-            return ['error' => $exception->getMessage()];
-        }
+    }
+
+    public function findById(int $id): ?Category
+    {
+        return $this->em->getRepository(Category::class)->findOneById($id);
+    }
+
+    public function findMainCategories(): array
+    {
+        return $this->em->getRepository(Category::class)->findMainCategories();
     }
 }

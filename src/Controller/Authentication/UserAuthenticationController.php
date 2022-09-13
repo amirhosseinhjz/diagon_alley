@@ -2,18 +2,16 @@
 
 namespace App\Controller\Authentication;
 use App\CacheEntityManager\CacheEntityManager;
-use App\CacheRepository\UserRepository\CacheSellerRepository;
 use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Interface\Cache\CacheInterface;
-use App\Repository\UserRepository\SellerRepository;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
-use Doctrine\ORM\EntityManager;
+use App\Utils\Swagger\User\User;
+use App\Utils\Swagger\User\UserName;
 use Exception;
-use phpDocumentor\Reflection\Types\This;
+use App\Entity\User\Seller;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Attributes\JsonContent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +21,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
+use App\Service\OTP\OTPService;
+use App\Utils\Swagger\Auth\OTPToken;
+use App\DTO\UserDTOs\UserDTO;
+
 
 #[Route('/api',name: 'user_auth_api')]
 class UserAuthenticationController extends AbstractController
@@ -33,10 +35,13 @@ class UserAuthenticationController extends AbstractController
 
     protected $userService;
 
+    protected $OTPService;
+
     public function __construct(
         JWTManagementInterface $JWTManager,
         UserPasswordHasherInterface $hasher,
-        UserService $userService
+        UserService $userService,
+        OTPService $OTPService
     )
     {
         $this->JWTManager = $JWTManager;
@@ -44,30 +49,52 @@ class UserAuthenticationController extends AbstractController
         $this->passHasher = $hasher;
 
         $this->userService = $userService;
+
+        $this->OTPService = $OTPService;
     }
 
+    #[OA\RequestBody(
+        description: "Define New Variant",
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: User::class)
+        )
+    )]
     #[Route('/user/register', name: 'app_user_register',methods: ['POST'])]
     #[OA\Tag(name: 'Authentication')]
     public function create(Request $request): Response
     {
         try{
             $user = $this->userService->createFromArray($request->toArray());
-            $token = $this->JWTManager->getTokenUser($user,$request);
+            $token = $this->JWTManager->getTokenUser($user);
             return new JsonResponse($token);
         }catch(\Exception $e){
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'bad request',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'you logged out',
+    )]
     #[Route('/user/logout', name: 'app_user_logout',methods: ['GET'])]
     #[OA\Tag(name: 'Authentication')]
     public function logout(): Response
     {
-        $this->JWTManager->invalidateToken();
-        return $this->json([
-            'message'=>'you logged out',
-            'status'=>200
-        ]);
+        try {
+            $this->JWTManager->invalidateToken();
+            return $this->json([
+                'message' => 'you logged out',
+                'status' => Response::HTTP_OK
+            ]);
+        } catch (\Throwable $exception) {
+            return $this->json(json_decode($exception->getMessage()), Response::HTTP_BAD_REQUEST);
+        }
+
     }
 
     #[Route('/user/login', name: 'app_user_login',methods: ['POST'])]
@@ -93,8 +120,9 @@ class UserAuthenticationController extends AbstractController
     public function login(Request $request,UserRepository $repository,ValidatorInterface $validator): Response
     {
         try{
-            (new LoginDTO($request->toArray(),$validator))->doValidate();
-            if ($user = $repository->findOneBy(['phoneNumber'=>$request->toArray()['username']]))
+            $arrayRequest = $request->toArray();
+            (new LoginDTO($arrayRequest,$validator))->doValidate();
+            if ($user = $repository->findOneBy(['phoneNumber'=>$arrayRequest['username']]))
             {
                 $this->JWTManager->checkIfPasswordIsValid($user,$request);
                 $token = $this->JWTManager->getTokenUser($user);
@@ -110,7 +138,22 @@ class UserAuthenticationController extends AbstractController
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'password changed successfully',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: User::class,groups: ['user.pass'])
+        )
+    )]
     #[Route('/user/new-password', name: 'app_user_new_password',methods: ['POST'])]
+    #[OA\Tag(name: 'Authentication')]
     public function newPassword(Request $request): Response
     {
         $body = $request->toArray();
@@ -129,6 +172,21 @@ class UserAuthenticationController extends AbstractController
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'bad request',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'phone number changed successfully',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: User::class,groups: ['user.userName'])
+        )
+    )]
+    #[OA\Tag(name: 'Authentication')]
     #[Route('/user/new-phone-number', name: 'app_user_new_phone_number',methods: ['POST'])]
     public function newUserName(Request $request): Response
     {
@@ -148,30 +206,96 @@ class UserAuthenticationController extends AbstractController
         }
     }
 
-
-    #[Route('/gogo/{id}', name: 'gogo',methods: ['GET'])]
-    public function update(UserService $userService, EntityManagerInterface $em, $id): Response
+    #[Route('/user/validate-phone', name: 'app_user_validate_phone',methods: ['GET'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Sends an OTP to the user phone number',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_UNAUTHORIZED,
+        description: 'Invalid credentials',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'Invalid Request',
+    )]
+    #[OA\Tag(name: 'Authentication')]
+    public function validatePhone(): Response
     {
         try{
-            $seller = $em->getRepository(Seller::class)->find($id);
-//            $userService->updatePhoneNumberById($id,'+989666665676');
-            dd($seller);
-        }catch(Exception $e){
-            return $this->json(json_decode($e), Response::HTTP_OK);
+            $user = $this->JWTManager->authenticatedUser();
+            $this->OTPService->requestToken($user);
+            $response = $this->json(
+                ['message'=>'token sent successfully'],
+                status: Response::HTTP_OK
+            );
+            return $response;
+        } catch (Exception $e){
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
-    #[Route('/gogol/{id}', name: 'gogol',methods: ['GET'])]
-    public function _update(CacheEntityManager $em, int $id, CacheInterface $cache): Response
+    #[Route('/user/validate-token', name: 'app_user_validate_token',methods: ['POST'])]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Validates the token sent to the user phone number',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_UNAUTHORIZED,
+        description: 'Invalid credentials',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: OTPToken::class)
+        )
+    )]
+    #[OA\Tag(name: 'Authentication')]
+    public function validateToken(Request $request): Response
     {
         try{
-            $repo = $em->getRepository(Seller::class);
-            $seller = $repo->findAll();
-            $repo->deleteAllFromCache();
-//            $userService->updatePhoneNumberById($id,'+989666665676');
-            dd($seller);
-        }catch(Exception $e){
-            return $this->json(json_decode($e), Response::HTTP_OK);
+            $user = $this->JWTManager->authenticatedUser();
+            $body = $request->toArray();
+            if(! array_key_exists('token',$body))
+                throw new Exception("token field is empty");
+            $this->OTPService->verifyToken($user,$body['token']);
+            $response = $this->json(
+                ['message'=>'token validated successfully'],
+                status: Response::HTTP_OK
+            );
+            return $response;
+        } catch (Exception $e){
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
+
+//    #[Route('/gogo/{id}', name: 'gogo',methods: ['GET'])]
+//    public function update(UserService $userService, EntityManagerInterface $em, $id): Response
+//    {
+//        try{
+//            $seller = $em->getRepository(Seller::class)->find($id);
+////            $userService->updatePhoneNumberById($id,'+989666665676');
+//            dd($seller);
+//        }catch(Exception $e){
+//            return $this->json(json_decode($e), Response::HTTP_OK);
+//        }
+//    }
+//
+//    #[Route('/gogol/{id}', name: 'gogol',methods: ['GET'])]
+//    public function _update(CacheEntityManager $em, int $id, CacheInterface $cache): Response
+//    {
+//        try{
+//            $repo = $em->getRepository(Seller::class);
+//            $seller = $repo->find($id);
+////            $repo->deleteAllFromCache();
+////            $userService->updatePhoneNumberById($id,'+989666665676');
+//            dd($seller);
+//        }catch(Exception $e){
+//            return $this->json(json_decode($e), Response::HTTP_OK);
+//        }
+//    }
 }

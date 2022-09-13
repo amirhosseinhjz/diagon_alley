@@ -14,15 +14,17 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation as Serializer;
 
-
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\InheritanceType("SINGLE_TABLE")]
 #[ORM\DiscriminatorColumn(name: "type", type: "string")]
 #[ORM\DiscriminatorMap(['seller' => 'Seller', 'admin' => 'Admin', 'customer' => 'Customer'])]
-#[UniqueEntity(fields: ["Email"], message: "This Email is already in use")]
+#[UniqueEntity(fields: ["email"], message: "This Email is already in use")]
 #[UniqueEntity(fields: ["phoneNumber"], message: "This phoneNumber is already in use")]
 abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+
+    public const PAYLOAD_KEY_FOR_USERNAME = 'phoneNumber';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -59,6 +61,9 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class)]
     private Collection $addresses;
+
+    #[ORM\Column]
+    private ?bool $isAuthenticated = false;
 
     public function __construct()
     {
@@ -165,6 +170,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
     /**
      * @return Collection<int, Address>
      */
@@ -189,6 +195,18 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $address->setIsActive(false);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsAuthenticated(): ?bool
+    {
+        return $this->isAuthenticated;
+    }
+
+    public function setIsAuthenticated(bool $isAuthenticated): self
+    {
+        $this->isAuthenticated = $isAuthenticated;
 
         return $this;
     }
