@@ -40,16 +40,7 @@ class VariantRepository extends ServiceEntityRepository
         }
     }
 
-    public function showVariant(array $filters_eq, array $filters_gt){
-        $criteria = Criteria::create();
-        $expr = array();
-        foreach($filters_eq as $filter => $value){
-            $expr[] = $criteria->expr()->eq($filter,$value);
-        }
-        foreach($filters_gt as $filter => $value){
-            $expr[] = $criteria->expr()->gt($filter,$value);
-        }
-        $criteria->where(call_user_func_array(array( $criteria->expr(), 'andX' ),$expr));
+    public function showVariant($criteria){
         return $this->matching($criteria)->toArray();
     }
 
