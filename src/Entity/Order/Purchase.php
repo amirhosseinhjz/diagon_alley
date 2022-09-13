@@ -17,6 +17,7 @@ class Purchase
     public const STATUS_PENDING = 0;
     public const STATUS_PAID = 1;
     public const STATUS_SHIPPED = 2;
+    public const STATUS_EXPIRED = 3;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
