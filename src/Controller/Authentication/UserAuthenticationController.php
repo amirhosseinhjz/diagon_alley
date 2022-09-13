@@ -7,6 +7,8 @@ use App\Interface\Authentication\JWTManagementInterface;
 use App\Interface\Cache\CacheInterface;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
+use App\Utils\Swagger\User\User;
+use App\Utils\Swagger\User\UserName;
 use Exception;
 use App\Entity\User\Seller;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -21,6 +23,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
 use App\Service\OTP\OTPService;
 use App\Utils\Swagger\Auth\OTPToken;
+use App\DTO\UserDTOs\UserDTO;
+
 
 #[Route('/api',name: 'user_auth_api')]
 class UserAuthenticationController extends AbstractController
@@ -49,28 +53,48 @@ class UserAuthenticationController extends AbstractController
         $this->OTPService = $OTPService;
     }
 
+    #[OA\RequestBody(
+        description: "Define New Variant",
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: User::class)
+        )
+    )]
     #[Route('/user/register', name: 'app_user_register',methods: ['POST'])]
     #[OA\Tag(name: 'Authentication')]
     public function create(Request $request): Response
     {
         try{
             $user = $this->userService->createFromArray($request->toArray());
-            $token = $this->JWTManager->getTokenUser($user,$request);
+            $token = $this->JWTManager->getTokenUser($user);
             return new JsonResponse($token);
         }catch(\Exception $e){
             return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'bad request',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'you logged out',
+    )]
     #[Route('/user/logout', name: 'app_user_logout',methods: ['GET'])]
     #[OA\Tag(name: 'Authentication')]
     public function logout(): Response
     {
-        $this->JWTManager->invalidateToken();
-        return $this->json([
-            'message'=>'you logged out',
-            'status'=>200
-        ]);
+        try {
+            $this->JWTManager->invalidateToken();
+            return $this->json([
+                'message' => 'you logged out',
+                'status' => Response::HTTP_OK
+            ]);
+        } catch (\Throwable $exception) {
+            return $this->json(json_decode($exception->getMessage()), Response::HTTP_BAD_REQUEST);
+        }
+
     }
 
     #[Route('/user/login', name: 'app_user_login',methods: ['POST'])]
@@ -114,7 +138,22 @@ class UserAuthenticationController extends AbstractController
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'password changed successfully',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: User::class,groups: ['user.pass'])
+        )
+    )]
     #[Route('/user/new-password', name: 'app_user_new_password',methods: ['POST'])]
+    #[OA\Tag(name: 'Authentication')]
     public function newPassword(Request $request): Response
     {
         $body = $request->toArray();
@@ -133,6 +172,21 @@ class UserAuthenticationController extends AbstractController
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'bad request',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'phone number changed successfully',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: User::class,groups: ['user.userName'])
+        )
+    )]
+    #[OA\Tag(name: 'Authentication')]
     #[Route('/user/new-phone-number', name: 'app_user_new_phone_number',methods: ['POST'])]
     public function newUserName(Request $request): Response
     {

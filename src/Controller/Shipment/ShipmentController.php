@@ -3,6 +3,7 @@
 namespace App\Controller\Shipment;
 
 use App\DTO\ShipmentDTO\ShipmentAndShipmentItemUpdateDTO;
+use App\Entity\Shipment\Shipment;
 use App\Entity\Shipment\ShipmentItem;
 use App\Interface\Shipment\ShipmentManagementInterface;
 use App\Trait\ControllerTrait;
@@ -40,6 +41,23 @@ class ShipmentController extends AbstractController
         $this->serializer = $serializer;
     }
 
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Returns the feature information',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: ShipmentItem::class, groups: ['shipment.shipmentItem.read']))
+        ),
+    )]
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'Invalid Request',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_FORBIDDEN,
+        description: 'forbidden',
+    )]
+    #[OA\Tag(name: 'Shipment')]
     #[Route('/shipment/{id}/shipment-items', name: 'app_shipment_items_show',methods: ['GET'])]
     public function shipmentItemIndex($id): Response
     {
@@ -59,11 +77,26 @@ class ShipmentController extends AbstractController
             );
         } catch (\Throwable $exception){
             return $this->json(json_decode($exception->getMessage()));
-        } catch (AccessDeniedHttpException $exception) {
-            return $this->unAuthorizedResponse($exception);
         }
     }
 
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the feature information',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Shipment::class, groups: ['shipment.seller.read','shipment.read']))
+        ),
+    )]
+    #[OA\Response(
+        response: Response::HTTP_BAD_REQUEST,
+        description: 'Invalid Request',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_FORBIDDEN,
+        description: 'forbidden',
+    )]
+    #[OA\Tag(name: 'Shipment')]
     #[Route('/shipment-seller/{id}', name: 'app_shipment_seller',methods: ['GET'])]
     public function shipmentSellerIndex($id): Response
     {
@@ -83,8 +116,6 @@ class ShipmentController extends AbstractController
             );
         } catch (\Throwable $exception){
             return $this->json(json_decode($exception->getMessage()));
-        } catch (AccessDeniedHttpException $exception) {
-            return $this->unAuthorizedResponse($exception);
         }
     }
 
@@ -125,8 +156,6 @@ class ShipmentController extends AbstractController
                 ['shipment' => $data],
                 status: 200
             );
-        } catch (AccessDeniedHttpException $exception) {
-            return $this->unAuthorizedResponse($exception);
         } catch (\Throwable $exception){
             return $this->json(json_decode($exception->getMessage()));
         }
@@ -151,7 +180,7 @@ class ShipmentController extends AbstractController
             items: new OA\Items(ref: new Model(type: ShipmentItem::class, groups: ['shipment.shipmentItem.read']))
         ),
     )]
-    #[OA\Tag(name: 'shipment-item')]
+    #[OA\Tag(name: 'Shipment')]
     #[Route('/shipment-item/{id}', name: 'app_shipment_item_status_update',methods: ['PUT','PATCH'])]
     public function shipmentItemStatusUpdate(Request $request,$id): Response
     {
@@ -177,8 +206,6 @@ class ShipmentController extends AbstractController
                 ['shipmentItem' => $data],
                 status: 200
             );
-        } catch (AccessDeniedHttpException $exception) {
-            return $this->unAuthorizedResponse($exception);
         } catch (\Throwable $exception){
             return $this->json(json_decode($exception->getMessage()));
         }
