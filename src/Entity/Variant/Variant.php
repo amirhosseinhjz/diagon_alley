@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: VariantRepository::class)]
+#[ORM\Index(columns: ["serial"], name: "idx_serial")]
 class Variant
 {
     public const STATUS_VALIDATE_SUCCESS = 1;
@@ -67,6 +68,9 @@ class Variant
     #[ORM\ManyToOne(inversedBy: 'variants')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
+
+    #[ORM\Column]
+    private ?int $deliveryEstimate = null;
 
     public function __construct()
     {
@@ -125,6 +129,12 @@ class Variant
 
         return $this;
     }
+
+    public function getValid(): bool
+    {
+        return $this->valid;
+    }
+
 
     public function getDescription(): ?string
     {
@@ -226,6 +236,17 @@ class Variant
         return $this;
     }
 
+    public function getDeliveryEstimate(): ?int
+    {
+        return $this->deliveryEstimate;
+    }
+
+    public function setDeliveryEstimate(int $deliveryEstimate): self
+    {
+        $this->deliveryEstimate = $deliveryEstimate;
+        return $this;
+    }
+    
     public function increaseQuantity(int $quantity): self
     {
         $this->quantity += $quantity;

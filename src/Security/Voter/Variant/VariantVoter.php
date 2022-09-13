@@ -6,6 +6,7 @@ use App\Entity\User\User;
 use App\Entity\Variant\Variant;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class VariantVoter extends Voter
@@ -15,6 +16,11 @@ class VariantVoter extends Voter
     public const CONFIRM = 'VARIANT_CONFIRM';
     public const DENY = 'VARIANT_DENIED';
     public const SHOW = 'VARIANT_SHOW';
+    private $security;
+
+    public function __construct(Security $security){
+        $this->security = $security;
+    }
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -27,6 +33,10 @@ class VariantVoter extends Voter
 
         if (!$user instanceof UserInterface) {
             return false;
+        }
+
+        if($this->security->isGranted('ROLE_ADMIN')){
+            return true;
         }
 
         $accessIsGranted = match ($attribute){

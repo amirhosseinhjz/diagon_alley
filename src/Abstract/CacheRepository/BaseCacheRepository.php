@@ -153,6 +153,11 @@ abstract class BaseCacheRepository
         $this->deleteAllFromCache();
     }
 
+    public function deleteFromCacheByKey($key)
+    {
+        $this->cache->forget($key);
+    }
+
     private static function removeSpecialCharacters($string) {
 
         $specChars = array(
@@ -174,4 +179,14 @@ abstract class BaseCacheRepository
         }
         return $string;
     }
+
+    /**
+     * @return CacheInterface
+     */
+    public function getCache(): CacheInterface
+    {
+        return $this->cache;
+    }
+
+
 }

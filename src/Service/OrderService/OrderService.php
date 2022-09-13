@@ -30,6 +30,10 @@ class OrderService implements OrderManagementInterface
         $purchase = new Purchase();
         $purchase->setCustomer($cart->getCustomer());
         $purchase->setTotalPrice($cart->getTotalPrice());
+        $purchase->setCreatedAt(new \DateTimeImmutable());
+        $purchase->setSerial();
+        $this->em->persist($purchase);
+        $this->em->flush();
         $this->setOrderItems($purchase, $cart);
         return $purchase;
     }
@@ -43,8 +47,8 @@ class OrderService implements OrderManagementInterface
     {
         $this->em->getConnection()->beginTransaction();
         try{
-        foreach ($cart->getItems() as $cartItem) {
-            $quantity = $cartItem->getCount();
+        foreach ($cart->getCartItems() as $cartItem) {
+            $quantity = $cartItem->getQuantity();
             $variant = $cartItem->getVariant();
             if ($variant->getQuantity() < $quantity) {
                 throw new \Exception('Not enough items of '.$variant->getSerial().' in stock');
@@ -53,7 +57,7 @@ class OrderService implements OrderManagementInterface
             $purchaseItem = new PurchaseItem();
             $purchaseItem->setVariant($variant);
             $purchaseItem->setQuantity($quantity);
-            $purchaseItem->setTotalPrice($cartItem->getTotalPrice());
+            $purchaseItem->setTotalPrice($cartItem->getPrice());
             $purchaseItem->setPurchase($purchase);
 
             $purchase->addPurchaseItem($purchaseItem);
@@ -70,7 +74,6 @@ class OrderService implements OrderManagementInterface
 
     public function createOrderByCartId(int $cartId, int $addressId): int
     {
-
         $cart = $this->cartService->getCartById($cartId);
         if (!$cart) {
             throw new \Exception('Cart not found');
@@ -82,7 +85,7 @@ class OrderService implements OrderManagementInterface
         if ($address->getUser() != $cart->getCustomer()) {
             throw new \Exception('Address does not belong to user');
         }
-        if ($cart->getItems()->count() === 0) {
+        if ($cart->getCartItems()->count() === 0) {
             throw new \Exception('Cart is empty');
         }
         $purchase = $this->createFromCart($cart);
@@ -118,7 +121,7 @@ class OrderService implements OrderManagementInterface
     {
         $order->setStatus($order::STATUS_PAID);
         $this->em->flush();
-        $this->shipmentService->add($order->getId());
+//        $this->shipmentService->add($order->getId());
     }
 
     public function cancelOrderItemById(Purchase $purchase, int $orderItemId): int
@@ -156,6 +159,20 @@ class OrderService implements OrderManagementInterface
     {
         $order = $this->getOrderById($orderId);
         return $this->cancelOrder($order);
+    }
+
+    public function cancelMultipleOrderItems(array $orderItemIds): int
+    {
+        $totalPrice = 0;
+        foreach ($orderItemIds as $orderItemId) {
+            $orderItem = $this->em->getRepository(PurchaseItem::class)->find($orderItemId);
+            if (!$orderItem) {
+                throw new \Exception('Order item not found');
+            }
+            $totalPrice += $this->cancelOrderItem($orderItem);
+        }
+        $this->em->flush();
+        return $totalPrice;
     }
 
     public function cancelOrder(Purchase $order): int

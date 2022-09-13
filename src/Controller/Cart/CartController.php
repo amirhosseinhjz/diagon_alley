@@ -141,7 +141,7 @@ class CartController extends AbstractController
     public function addItem(Request $request): Response
     {
         try {
-            $cart = $this->cartManager->getCartById($request->get('cartId'));
+            $cart = $this->cartManager->getCartById($request->toArray()['cartId']);
             $this->isGranted('CART_ACCESS', $cart);
             $cart = $this->cartManager->addToCartFromRequest($request->toArray());
             $data = $this->serializer->normalize($cart, 'json', ['groups' => 'Cart.read']);
