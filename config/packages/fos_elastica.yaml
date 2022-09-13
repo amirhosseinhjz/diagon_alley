@@ -48,3 +48,15 @@ fos_elastica:
         model: App\Entity\User\Seller
         provider: ~
         finder: ~
+
+    variant:
+      properties:
+        description:
+          property_path: description
+        price:
+          property_path: price
+      persistence:
+        driver: orm
+        model: App\Entity\Variant\Variant
+        provider: ~
+        finder: ~
