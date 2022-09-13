@@ -64,7 +64,10 @@ services:
     class: App\Service\VariantService\VariantManagement
   App\Interface\Variant\VariantManagementInterface: '@app.variant.management'
 
-
   app.email.service:
     class: App\Service\Email\EmailManagement
   App\Interface\Email\EmailManagementInterface: '@app.email.service'
+
+  app.discount.service:
+    class: App\Service\Discount\DiscountService
+  App\Interface\Discount\DiscountServiceInterface: '@app.discount.service'

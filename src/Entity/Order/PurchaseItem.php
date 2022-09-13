@@ -32,9 +32,6 @@ class PurchaseItem
     #[ORM\Column]
     private ?int $totalPrice = null;
 
-    #[ORM\ManyToOne(inversedBy: 'appliedTo')]
-    private ?Discount $discount = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -100,15 +97,4 @@ class PurchaseItem
         return $this;
     }
 
-    public function getDiscount(): ?Discount
-    {
-        return $this->discount;
-    }
-
-    public function setDiscount(?Discount $discount): self
-    {
-        $this->discount = $discount;
-
-        return $this;
-    }
 }

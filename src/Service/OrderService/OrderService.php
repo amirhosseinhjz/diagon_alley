@@ -111,4 +111,13 @@ class OrderService implements OrderManagementInterface
 //        TODO: call shipping service
     }
 
+    //returns the sum of item prices without any discount or change
+    public function rawTotalPrice(Purchase $purchase){
+        $price = 0;
+        foreach ($purchase->getPurchaseItems() as $item){
+            $price += $item->getVariant()->getPrice() * $item->getQuantity();
+        }
+        return $price;
+    }
+
 }

@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 
 class DiscountDTO
 {
-    #ToDo: needed?
+    #ToDo: needed? not for creation: just for update
     public ?int $id = null;
 
     #[Assert\PositiveOrZero]

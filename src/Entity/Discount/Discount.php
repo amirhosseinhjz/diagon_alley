@@ -3,10 +3,10 @@
 namespace App\Entity\Discount;
 
 use App\Repository\Discount\DiscountRepository;
-use App\Entity\Order\PurchaseItem;
 use App\Entity\Order\Purchase;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #ToDo: important! remove relation from purchaseItem, change the mapping value of the one in Purchase entity
@@ -48,14 +48,18 @@ class Discount
     #[ORM\Column]
     private ?int $maxUsageTimesPerUser = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateInterval $timePeriod = null;
 
     #[ORM\Column(nullable: true)]
     private ?float $minPurchaseValue = null;
-    #ToDo: check when applying the discount
+
     #[ORM\Column(nullable: true)]
-    private ?float $maxDiscountedValue = null;
+    private ?float $maxDiscountValue = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $ActivationTime = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $expirationTime = null;
 
     public function __construct()
     {
@@ -122,12 +126,12 @@ class Discount
         return $this;
     }
 
-    public function getIsActive(): ?bool
+    public function isActive(): ?bool
     {
         return $this->isActive;
     }
 
-    public function setIsActive(bool $isActive): self
+    public function setActivity(bool $isActive): self
     {
         $this->isActive = $isActive;
 
@@ -158,18 +162,6 @@ class Discount
         return $this;
     }
 
-    public function getTimePeriod(): ?\DateInterval
-    {
-        return $this->timePeriod;
-    }
-
-    public function setTimePeriod(?\DateInterval $timePeriod): self
-    {
-        $this->timePeriod = $timePeriod;
-
-        return $this;
-    }
-
     public function getMinPurchaseValue(): ?float
     {
         return $this->minPurchaseValue;
@@ -182,14 +174,38 @@ class Discount
         return $this;
     }
 
-    public function getMaxDiscountedValue(): ?float
+    public function getMaxDiscountValue(): ?float
     {
-        return $this->maxDiscountedValue;
+        return $this->maxDiscountValue;
     }
 
-    public function setMaxDiscountedValue(?float $maxDiscountedValue): self
+    public function setMaxDiscountValue(?float $maxDiscountValue): self
     {
-        $this->maxDiscountedValue = $maxDiscountedValue;
+        $this->maxDiscountValue = $maxDiscountValue;
+
+        return $this;
+    }
+
+    public function getActivationTime(): ?\DateTimeInterface
+    {
+        return $this->ActivationTime;
+    }
+
+    public function setActivationTime(?\DateTimeInterface $ActivationTime): self
+    {
+        $this->ActivationTime = $ActivationTime;
+
+        return $this;
+    }
+
+    public function getExpirationTime(): ?\DateTimeInterface
+    {
+        return $this->expirationTime;
+    }
+
+    public function setExpirationTime(?\DateTimeInterface $expirationTime): self
+    {
+        $this->expirationTime = $expirationTime;
 
         return $this;
     }

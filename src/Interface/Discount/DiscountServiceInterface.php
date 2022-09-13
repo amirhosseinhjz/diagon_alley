@@ -2,7 +2,8 @@
 
 namespace App\Interface\Discount;
 
-use App\Entity\Discount;
+use App\Entity\Discount\Discount;
+use App\DTO\Discount\DiscountDTO;
 use App\Entity\Order\Purchase;
 use App\Entity\Order\PurchaseItem;
 use App\Entity\User\Customer;
@@ -16,23 +17,25 @@ interface DiscountServiceInterface
 
     public function createDiscountFromDTO(DiscountDTO $dto):Discount; #ToDo: remove from here
 
-    public function createDiscountFromArray(DiscountDTO $dto):Discount;
+    public function createDiscountFromArray(array $array):Discount;
 
     public function createDTOFromDiscount(Discount $discount):DiscountDTO;
 
-    public function updateDiscountFromDTO(DTO $dto):Discount;
+    public function updateDiscountFromDTO(DiscountDTO $dto):Discount;
 
     public function updateDiscountFromArray(Array $array):Discount;
 
-    public function getDiscountByCode(string $code);
+    public function getDiscountsByCode(string $code):array;
 
-    public function getDiscountById(string $id);
+    public function getActiveDiscountByCode(string $code):Discount;
+
+    public function getDiscountById(string $id):Discount;
 
     public function removeDiscountByID(int $id);
 
     public function applyDiscountToPurchase(Discount $discount, Purchase $purchase):Purchase;
 
-    public function removeDiscountToPurchase(Discount $discount, Purchase $purchase):Purchase;
+    public function removeDiscountFromPurchase(Purchase $purchase):Purchase;
 
     public function checkApplicability(Discount $discount, Purchase $purchase):bool;
 

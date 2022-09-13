@@ -3,7 +3,7 @@
 namespace App\Entity\Order;
 
 use App\Entity\Address\Address;
-use App\Entity\Discount;
+use App\Entity\Discount\Discount;
 use App\Entity\Payment\Payment;
 use App\Entity\User\Customer;
 use App\Repository\OrderRepository\PurchaseRepository;
@@ -51,7 +51,7 @@ class Purchase
     #[ORM\Column]
     private ?int $status = null;
 
-    #[ORM\ManyToOne(inversedBy: 'usedOn')]
+    #[ORM\ManyToOne(inversedBy: 'affectedOrders')]
     private ?Discount $discount = null;
 
     public function __construct()
