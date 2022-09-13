@@ -16,6 +16,23 @@ fos_elastica:
         model: App\Entity\Product\Product
         provider: ~
         finder: ~
+        listener:
+          defer: true
+        elastica_to_model_transformer:
+          ignore_missing: true
+#      settings:
+#        index:
+#          analysis:
+#            analyzer:
+#              my_analyzer:
+#                type: custom
+#                tokenizer: lowercase
+#                filter: [ my_ngram ]
+#            filter:
+#              my_ngram:
+#                type: "nGram"
+#                min_gram: 3
+#                max_gram: 5
 
     category:
       properties:
@@ -28,6 +45,10 @@ fos_elastica:
         model: App\Entity\Category\Category
         provider: ~
         finder: ~
+        listener:
+          defer: true
+        elastica_to_model_transformer:
+          ignore_missing: true
 
     brand:
       properties:
@@ -38,6 +59,10 @@ fos_elastica:
         model: App\Entity\Brand\Brand
         provider: ~
         finder: ~
+        listener:
+          defer: true
+        elastica_to_model_transformer:
+          ignore_missing: true
 
     seller:
       properties:
@@ -48,6 +73,10 @@ fos_elastica:
         model: App\Entity\User\Seller
         provider: ~
         finder: ~
+        listener:
+          defer: true
+        elastica_to_model_transformer:
+          ignore_missing: true
 
     variant:
       properties:
@@ -60,3 +89,7 @@ fos_elastica:
         model: App\Entity\Variant\Variant
         provider: ~
         finder: ~
+        listener:
+          defer: true
+        elastica_to_model_transformer:
+          ignore_missing: true

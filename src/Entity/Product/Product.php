@@ -49,7 +49,7 @@ class Product
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups('product_basic', 'elastica')]
+    #[Groups('product_basic')]
     private int $viewCount = 0;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: Variant::class)]
@@ -58,7 +58,7 @@ class Product
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['product_brand', 'elastica'])]
+    #[Groups(['product_brand'])]
     private ?Brand $brand = null;
 
     #[ORM\ManyToMany(targetEntity: FeatureValue::class, mappedBy: 'products')]

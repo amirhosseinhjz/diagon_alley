@@ -88,3 +88,9 @@ services:
     arguments:
       $tagName: 'cacheTag'
   App\Interface\Cache\CacheInterface: '@app.cache.service'
+
+  App\Controller\Product\ProductController:
+    tags: [ 'controller.service_arguments' ]
+    public: true
+    arguments:
+      - '@fos_elastica.finder.product'

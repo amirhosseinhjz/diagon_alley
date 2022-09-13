@@ -223,7 +223,6 @@ class Category
 
     public function setType(?string $type): self
     {
-        if ($this->isLeaf() == false && $type == null) throw new Exception('non leaf categories cant have type');
         $this->type = $type;
 
         return $this;
