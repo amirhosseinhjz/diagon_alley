@@ -29,7 +29,7 @@ class Seller extends User
     private Collection $variants;
 
     #[ORM\OneToOne(inversedBy: 'seller', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn]
     private ?Wallet $wallet = null;
 
     public function __construct()

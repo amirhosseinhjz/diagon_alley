@@ -18,7 +18,7 @@ class Customer extends User
     private Collection $purchases;
 
     #[ORM\OneToOne(inversedBy: 'customer', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn]
     private ?Wallet $wallet = null;
 
     public function __construct()

@@ -51,7 +51,6 @@ class Wallet
 
     public function setBalance(int $balance): self
     {
-        if ($balance != 0) throw new Exception('invalid balance');
         $this->balance = $balance;
 
         return $this;

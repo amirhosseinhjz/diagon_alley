@@ -3,6 +3,7 @@
 namespace App\Service\Wallet;
 
 use App\DTO\Payment\PaymentDTO;
+use App\Entity\Payment\Payment;
 use App\Entity\User\Customer;
 use App\Entity\User\Seller;
 use App\Entity\Wallet\Wallet;
@@ -22,11 +23,12 @@ class WalletService extends PaymentService implements WalletServiceInterface
             $wallet->setCustomer($user);
             $this->em->getRepository(Wallet::class)->add($wallet, true);
         }
-        if ($user instanceof Seller) {
+        else if ($user instanceof Seller) {
             $wallet->setSeller($user);
             $this->em->getRepository(Wallet::class)->add($wallet, true);
         }
-        throw new Exception('user type is not valid');
+        else
+            throw new Exception('user type is not valid');
     }
 
     public function withdraw(int $walletId, int $amount)
@@ -54,19 +56,33 @@ class WalletService extends PaymentService implements WalletServiceInterface
 
     public function pay(PaymentDTO $paymentDto, $array)
     {
-        $wallet = $array['user']->getWallet();
+        $payment = $this->em->getRepository(Payment::class)->find($array["payment"]);
+
+        $wallet = $paymentDto->purchase->getCustomer()->getWallet();
         $amount = $paymentDto->paidAmount;
         $purchase = $paymentDto->purchase;
 
         if ($wallet->getBalance() < $amount) {
-            return ["Id" => $purchase->getId(), "Status" => 'not enough balance'];
+            $payment->setStatus("FAILED");
+            return ["type" => "payOrder","Id" => $purchase->getId(), "Status" => 'not enough balance'];
         }
 
         $wallet->deposit($amount);
         $this->em->getRepository(Wallet::class)->add($wallet, false);
+        $payment->setStatus("SUCCESS");
 
         $this->orderService->finalizeOrder($purchase);
         $this->em->flush();
-        return ["Id" => $purchase->getId(), "Status" => 'purchase successful'];
+        return ["type" => "payOrder", "Id" => $purchase->getId(), "Status" => 'OK'];
     }
+
+    public function getUserId(int $walletId)
+    {
+        $wallet = $this->em->getRepository(Wallet::class)->find($walletId);
+
+        if(is_null($wallet->getCustomer()))
+            return $wallet->getSeller()->getId();
+        return $wallet->getCustomer()->getId();
+    }
+
 }

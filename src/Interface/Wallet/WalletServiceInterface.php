@@ -13,4 +13,6 @@ interface WalletServiceInterface
     public function deposit(int $walletId, int $amount);
 
     public function transaction(int $payerId, int $beneficiaryId, int $amount);
+
+    public function getUserId(int $walletId);
 }
