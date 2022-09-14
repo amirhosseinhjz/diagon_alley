@@ -82,7 +82,8 @@ class FeatureValueManagement implements FeatureValueManagementInterface
 
     public function updateFeatureValue($id, $value){
         $featureValue = $this->readFeatureValueById($id,false);
-        $featureValue->setValue($value);
+        if(!array_key_exists('value',$value))throw new \Exception("Invalid data input");
+        $featureValue->setValue($value['value']);
         return $this->featureValueRepository->add($featureValue,true);
     }
 

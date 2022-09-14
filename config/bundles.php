@@ -18,5 +18,5 @@ return [
     Nelmio\Alice\Bridge\Symfony\NelmioAliceBundle::class => ['dev' => true, 'test' => true],
     Fidry\AliceDataFixtures\Bridge\Symfony\FidryAliceDataFixturesBundle::class => ['dev' => true, 'test' => true],
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
-    Fidry\PsyshBundle\PsyshBundle::class => ['dev' => true, 'test' => true],
+//    Fidry\PsyshBundle\PsyshBundle::class => ['dev' => true, 'test' => true],
 ];

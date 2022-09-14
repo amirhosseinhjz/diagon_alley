@@ -5,15 +5,15 @@ namespace App\Tests\Feature;
 use App\Tests\Base\BaseJsonApiTestCase;
 
 /**
- * @group ItemHandleTest
+ * @group FeatureTest
  */
 class FeatureControllerTest extends BaseJsonApiTestCase
 {
-    protected const ROUTE = "/api/feature/" , STATUS = 'status' , NAME = 'label';
+    protected const ROUTE = "/api/feature" , STATUS = 'active' , NAME = 'label';
 
     public function testDefine()
     {
-        $response = $this->loginDefaultUserGetToken();
+        $response = $this->loginDefaultAdminGetToken();
 
         $auth = json_decode($response,true);
 
@@ -29,7 +29,7 @@ class FeatureControllerTest extends BaseJsonApiTestCase
 
         $this->client->request(
             'POST',
-            self::ROUTE.'define',
+            self::ROUTE,
             [],
             [],
             [],
@@ -44,20 +44,20 @@ class FeatureControllerTest extends BaseJsonApiTestCase
 
     public function testUpdate()
     {
-        $response = $this->loginDefaultUserGetToken();
+        $response = $this->loginDefaultAdminGetToken();
 
         $auth = json_decode($response,true);
 
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $body = [
-            'status' => 0,
+            'active' => 0,
             'label' => 'THISNEWCOLOR'
         ];
 
         $this->client->request(
-            'POST',
-            self::ROUTE.'update/1',
+            'PATCH',
+            self::ROUTE.'/1',
             [],
             [],
             [],
@@ -71,12 +71,12 @@ class FeatureControllerTest extends BaseJsonApiTestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         $body = [
-            'status' => 1
+            'active' => 1
         ];
 
         $this->client->request(
-            'POST',
-            self::ROUTE.'update/1',
+            'PATCH',
+            self::ROUTE.'/1',
             [],
             [],
             [],
@@ -92,7 +92,7 @@ class FeatureControllerTest extends BaseJsonApiTestCase
 
     public function testRead()
     {
-        $response = $this->loginDefaultUserGetToken();
+        $response = $this->loginDefaultAdminGetToken();
 
         $auth = json_decode($response,true);
 
@@ -101,7 +101,7 @@ class FeatureControllerTest extends BaseJsonApiTestCase
         //Valid Id
         $this->client->request(
             'GET',
-            self::ROUTE . 'read/3'
+            self::ROUTE . '/3'
         );
 
         $response = $this->client->getResponse();
@@ -112,7 +112,7 @@ class FeatureControllerTest extends BaseJsonApiTestCase
         //Invalid Id
         $this->client->request(
             'GET',
-            self::ROUTE . 'read/1000000'
+            self::ROUTE . '/1000000'
         );
 
         $response = $this->client->getResponse();
@@ -121,15 +121,15 @@ class FeatureControllerTest extends BaseJsonApiTestCase
 
     public function testDelete()
     {
-        $response = $this->loginDefaultUserGetToken();
+        $response = $this->loginDefaultAdminGetToken();
 
         $auth = json_decode($response,true);
 
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $this->client->request(
-            'GET',
-            self::ROUTE . 'delete/2'
+            'DELETE',
+            self::ROUTE . '/2'
         );
 
         $response = $this->client->getResponse();

@@ -5,15 +5,15 @@ namespace App\Tests\Feature;
 use App\Tests\Base\BaseJsonApiTestCase;
 
 /**
- * @group ItemHandleTest
+ * @group FeatureTest
  */
 class FeatureValueControllerTest extends BaseJsonApiTestCase
 {
-    protected const ROUTE = "/api/feature/value/" , VALUE = 'value';
+    protected const ROUTE = "/api/feature-value" , VALUE = 'value';
 
     public function testDefine()
     {
-        $response = $this->loginDefaultUserGetToken();
+        $response = $this->loginDefaultAdminGetToken();
 
         $auth = json_decode($response,true);
 
@@ -21,13 +21,13 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
 
         $body = [
             4 => 'RED',
-            2 => 'BLUE',
-            3 => 'YELLOW'
+            5 => 'BLUE',
+            6 => 'YELLOW'
         ];
 
         $this->client->request(
             'POST',
-            self::ROUTE.'define',
+            self::ROUTE,
             [],
             [],
             [],
@@ -36,6 +36,7 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
 
         $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode());
+
         //Invalid body
         $body = [
             2 => 'gr',
@@ -44,7 +45,7 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
 
         $this->client->request(
             'POST',
-            self::ROUTE.'define',
+            self::ROUTE,
             [],
             [],
             [],
@@ -58,7 +59,7 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
 
     public function testDelete()
     {
-        $response = $this->loginDefaultUserGetToken();
+        $response = $this->loginDefaultAdminGetToken();
 
         $auth = json_decode($response,true);
 
@@ -66,8 +67,8 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
 
         //Valid Id
         $this->client->request(
-            'GET',
-            self::ROUTE . 'delete/1'
+            'DELETE',
+            self::ROUTE . '/1'
         );
 
         $response = $this->client->getResponse();
@@ -78,19 +79,19 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
 
     public function testUpdate()
     {
-        $response = $this->loginDefaultUserGetToken();
+        $response = $this->loginDefaultAdminGetToken();
 
         $auth = json_decode($response,true);
 
         $this->client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $auth['token']));
 
         $body = [
-            3 => 'QWE'
+            'value' => 'QWE'
         ];
 
         $this->client->request(
-            'POST',
-            self::ROUTE.'update/3',
+            'PATCH',
+            self::ROUTE.'/3',
             [],
             [],
             [],
@@ -106,7 +107,7 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
 
     public function testRead()
     {
-        $response = $this->loginDefaultUserGetToken();
+        $response = $this->loginDefaultAdminGetToken();
 
         $auth = json_decode($response,true);
 
@@ -115,7 +116,7 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
         //Valid Id
         $this->client->request(
             'GET',
-            self::ROUTE . 'read/3'
+            self::ROUTE . '/3'
         );
 
         $response = $this->client->getResponse();
@@ -126,7 +127,7 @@ class FeatureValueControllerTest extends BaseJsonApiTestCase
         //Invalid Id
         $this->client->request(
             'GET',
-            self::ROUTE . 'read/1000000'
+            self::ROUTE . '/1000000'
         );
 
         $response = $this->client->getResponse();

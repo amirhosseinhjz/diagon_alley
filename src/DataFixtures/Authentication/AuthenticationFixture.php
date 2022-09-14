@@ -23,7 +23,7 @@ class AuthenticationFixture extends Fixture implements FixtureGroupInterface
         $seller->setName('gigi');
         $seller->setEmail('ee44@gmail.com');
         $seller->setPassword($this->passHasher->hashPassword($seller,'123456789Aa@'));
-        $seller->setPhoneNumber('09128468486');
+        $seller->setPhoneNumber('0912846845');
         $seller->setRoles(['ROLE_SELLER']);
         $manager->persist($seller);
 
