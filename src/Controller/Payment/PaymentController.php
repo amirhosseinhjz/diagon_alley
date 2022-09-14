@@ -13,8 +13,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Interface\Wallet\WalletServiceInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/payment')]
+#[OA\Tag(name: 'Payment')]
 class PaymentController extends AbstractController
 {
     private EntityManagerInterface $em;
