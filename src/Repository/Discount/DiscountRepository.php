@@ -2,7 +2,7 @@
 
 namespace App\Repository\Discount;
 
-use App\Entity\Discount;
+use App\Entity\Discount\Discount;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,6 +13,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Discount|null findOneBy(array $criteria, array $orderBy = null)
  * @method Discount[]    findAll()
  * @method Discount[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
  */
 class DiscountRepository extends ServiceEntityRepository
 {
@@ -37,6 +38,14 @@ class DiscountRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function findActiveCodes(array $criteria)
+    {
+        if(array_key_exists('active',$criteria) && !$criteria['active'])
+            return [];
+        $criteria['active'] = true;
+        return $this->findBy($criteria);
     }
 
 //    /**
