@@ -6,6 +6,7 @@ use App\Entity\User\User;
 use App\Repository\Address\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -24,15 +25,18 @@ class Address
     #[ORM\ManyToOne(inversedBy: 'addresses')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
+    #[Groups(['address'])]
     private ?AddressCity $city = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['address'])]
     private ?string $description = null;
 
     #[Assert\Regex(pattern: '/^[0-9]{4,10}$/', message: "The postCode '{{ value }}' is not a valid postCode.")]
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank]
     #[Assert\NotNull]
+    #[Groups(['address'])]
     private ?string $postCode = null;
 
     #[ORM\Column]
@@ -40,9 +44,11 @@ class Address
 
     #[ORM\Column]
     #[Assert\NotNull]
+    #[Groups(['address'])]
     private ?bool $isActive = true;
 
     #[ORM\Column]
+    #[Groups(['address'])]
     #[Assert\GreaterThanOrEqual(-90, message: "Latitude should be Greater than -90")]
     #[Assert\LessThanOrEqual(90, message: "Latitude should be Less than 90")]
     private ?float $lat = 0;
@@ -50,6 +56,7 @@ class Address
     #[Assert\GreaterThanOrEqual(-180, message: "Longitude should be Greater than -180")]
     #[Assert\LessThanOrEqual(180, message: "Longitude should be Less than 180")]
     #[ORM\Column]
+    #[Groups(['address'])]
     private ?float $lng = 0;
 
     public function getId(): ?int

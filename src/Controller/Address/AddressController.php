@@ -11,18 +11,22 @@ use App\Service\Address\AddressService;
 use Symfony\Component\HttpFoundation\Request;
 use OpenApi\Attributes as OA;
 use App\Utils\Swagger\Address\Address;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Serializer;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+
 
 #[Route('/api/address')]
 class AddressController extends AbstractController
 {
-    private SerializerInterface $serializer;
+    private Serializer $serializer;
 
     public function __construct(
         private AddressService $addressService,
-        SerializerInterface $serializer
     ) {
-        $this->serializer = $serializer;
+        $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
     }
 
     #[OA\Response(
@@ -41,6 +45,7 @@ class AddressController extends AbstractController
     )]
     #[OA\Tag(name: 'Address')]
     #[Route('/province', name: 'app_add_province',methods: 'POST')]
+    #[IsGranted('ADDRESS_ADMIN' , message: 'ONLY ADMIN CAN ADD PROVINCE')]
     public function addProvince(
         Request $request,
     ): Response {
@@ -58,8 +63,9 @@ class AddressController extends AbstractController
     ): Response {
         try {
             $response = $this->addressService->readProvince();
-//            $data = $this->serializer->normalize($response, null, ['groups' => []]);
-            return  $this->json($data);
+            return  $this->json($response,
+            context:[AbstractNormalizer::GROUPS => 'province']
+        );
         } catch (\Exception $e) {
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
@@ -79,6 +85,7 @@ class AddressController extends AbstractController
             ref: new Model(type: Address::class,groups: ['address.pro'])
         )
     )]
+    #[IsGranted('ADDRESS_ADMIN' , message: 'ONLY ADMIN CAN UPDATE PROVINCE')]
     #[OA\Tag(name: 'Address')]
     #[Route('/province/{id}', name: 'app_update_province',methods: 'PATCH')]
     public function updateProvince(
@@ -102,6 +109,7 @@ class AddressController extends AbstractController
         description: 'bad request',
     )]
     #[OA\Tag(name: 'Address')]
+    #[IsGranted('ADDRESS_ADMIN' , message: 'ONLY ADMIN CAN UPDATE PROVINCE')]
     #[Route('/province/{id}', name: 'app_delete_province',methods: ['DELETE'])]
     public function deleteProvince(
         int $id
@@ -114,7 +122,22 @@ class AddressController extends AbstractController
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'City has been added.',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: Address::class,groups: ['address.city'])
+        )
+    )]
     #[OA\Tag(name: 'Address')]
+    #[IsGranted('ADDRESS_ADMIN' , message: 'ONLY ADMIN CAN ADD PROVINCE')]
     #[Route('/city', name: 'app_add_city',methods: ['POST'])]
     public function addCity(
         Request $request,
@@ -133,12 +156,29 @@ class AddressController extends AbstractController
     ): Response {
         try {
             $response = $this->addressService->readCity();
-            return  $this->json($response);
+            return  $this->json($response,
+            context:[AbstractNormalizer::GROUPS => 'city']
+        );
         } catch (\Exception $e) {
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'City has been updated.',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'This city does not exist',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: Address::class,groups: ['address.city'])
+        )
+    )]
+    #[IsGranted('ADDRESS_ADMIN' , message: 'ONLY ADMIN CAN UPDATE PROVINCE')]
     #[OA\Tag(name: 'Address')]
     #[Route('/city/{id}', name: 'app_update_city',methods: 'PATCH')]
     public function updateCity(
@@ -153,6 +193,43 @@ class AddressController extends AbstractController
         }
     }
 
+    #[OA\Response(
+        response: 200,
+        description: 'City has been deleted.',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'bad request',
+    )]
+    #[IsGranted('ADDRESS_ADMIN' , message: 'ONLY ADMIN CAN UPDATE PROVINCE')]
+    #[OA\Tag(name: 'Address')]
+    #[Route('/city/{id}', name: 'app_delete_city',methods: ['DELETE'])]
+    public function deleteCity(
+        int $id
+    ): Response {
+        try {
+            $response = $this->addressService->deleteCity($id);
+            return  $this->json($response);
+        } catch (\Exception $e) {
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+    
+    
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Address has been added.',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: Address::class,groups: ['address'])
+        )
+    )]
     #[OA\Tag(name: 'Address')]
     #[Route('/', name: 'app_add_address',methods: ['POST'])]
     public function addAddress(
@@ -171,30 +248,50 @@ class AddressController extends AbstractController
     }
 
     #[OA\Tag(name: 'Address')]
-    #[Route('/city/{id}', name: 'app_delete_city',methods: ['DELETE'])]
-    public function deleteCity(
-        int $id
+    #[IsGranted('ADDRESS_ADMIN' , message: 'ONLY ADMIN CAN READ ALL ADDRESS')]
+    #[Route('/', name: 'app_read_address',methods: 'GET')]
+    public function readAddress(
     ): Response {
         try {
-            $response = $this->addressService->deleteCity($id);
-            return  $this->json($response);
+            $response = $this->addressService->readAddress();
+            return  $this->json($response,
+            context:[AbstractNormalizer::GROUPS => 'address']
+        );
         } catch (\Exception $e) {
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
     #[OA\Tag(name: 'Address')]
-    #[Route('/', name: 'app_read_address',methods: 'GET')]
-    public function readAddress(
+    #[Route('/my', name: 'app_read_address_By_User',methods: 'GET')]
+    public function readAddressByUser(
+        JWTManagementInterface $jwtManager,
     ): Response {
         try {
-            $response = $this->addressService->readAddress();
-            return  $this->json($response);
+            $user = $jwtManager->authenticatedUser();
+            $response = $this->addressService->readAddressByUser($user);
+            return  $this->json($response,
+            context:[AbstractNormalizer::GROUPS => 'address']
+        );
         } catch (\Exception $e) {
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Address has been updated.',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'This Address does not exist',
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: Address::class,groups: ['address'])
+        )
+    )]
     #[OA\Tag(name: 'Address')]
     #[Route('/{id}', name: 'app_update_address',methods: 'PATCH')]
     public function updateAddress(
@@ -209,6 +306,14 @@ class AddressController extends AbstractController
         }
     }
 
+    #[OA\Response(
+        response: 200,
+        description: 'Address has been deleted.',
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'bad request',
+    )]
     #[OA\Tag(name: 'Address')]
     #[Route('/{id}', name: 'app_delete_address',methods: ['DELETE'])]
     public function deleteAddress(

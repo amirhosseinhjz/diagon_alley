@@ -246,4 +246,9 @@ class AddressService
             throw (new \Exception("Address does not exist."));
         return $address;
     }
+
+    public function readAddressByUser($user)
+    {
+        return $user->getAddresses();
+    }
 }

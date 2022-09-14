@@ -2,18 +2,13 @@
 
 namespace App\Controller\Authentication;
 use App\CacheEntityManager\CacheEntityManager;
-use App\CacheRepository\UserRepository\CacheSellerRepository;
 use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Interface\Authentication\JWTManagementInterface;
 use App\Interface\Cache\CacheInterface;
-use App\Repository\UserRepository\SellerRepository;
 use App\Repository\UserRepository\UserRepository;
 use App\Service\UserService\UserService;
-use Doctrine\ORM\EntityManager;
 use Exception;
-use phpDocumentor\Reflection\Types\This;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Attributes\JsonContent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,7 +50,7 @@ class UserAuthenticationController extends AbstractController
             $token = $this->JWTManager->getTokenUser($user,$request);
             return new JsonResponse($token);
         }catch(\Exception $e){
-            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 

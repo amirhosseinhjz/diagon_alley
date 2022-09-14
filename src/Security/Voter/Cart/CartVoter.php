@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Security\Voter\Cart;
 
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
