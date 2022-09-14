@@ -2,6 +2,7 @@
 
 namespace App\Service\Shipment;
 
+use App\Entity\Order\PurchaseItem;
 use App\Entity\Shipment\Shipment;
 use App\Entity\Shipment\ShipmentItem;
 use App\Interface\Authentication\JWTManagementInterface;
@@ -32,7 +33,6 @@ class ShipmentManagement implements ShipmentManagementInterface
 
     public function __construct(
         MessageBusInterface $messageBus,
-        OrderManagementInterface $orderService,
         EntityManagerInterface $entityManager,
         UserService $userService,
         EmailManagementInterface $emailService,
@@ -41,7 +41,6 @@ class ShipmentManagement implements ShipmentManagementInterface
     {
         $this->dispatcher = $messageBus;
         $this->entityManager = $entityManager;
-        $this->orderService = $orderService;
         $this->userService = $userService;
         $this->emailService = $emailService;
         $this->JWTservice = $JWTManagement;
@@ -56,6 +55,7 @@ class ShipmentManagement implements ShipmentManagementInterface
             $seller = $this->userService->getUserById($id);
             $shipment = $this->createShipment($seller);
             $criteria = ['purchaseId'=>$purchaseId,'sellerId'=>$id];
+            $orderItems = $this->getPurchaseItemsBySellerIdAndPurchaseId($criteria);
             $orderItems = $this->orderService->getPurchaseItemsBySellerIdAndPurchaseId($criteria);
             $shipmentEmail[$shipment->getId()] = $orderItems[0]['delivery_estimate'];
 
@@ -66,6 +66,11 @@ class ShipmentManagement implements ShipmentManagementInterface
             }
         }
         $this->emailShipmentTimeEstimate($shipmentEmail);
+    }
+
+    public function getPurchaseItemsBySellerIdAndPurchaseId(array $criteria)
+    {
+        return $this->entityManager->getRepository(PurchaseItem::class)->findBySellerIdAndPurchaseId($criteria);
     }
 
     public function changeStatusFinalizedForShipment($object)
@@ -195,13 +200,18 @@ class ShipmentManagement implements ShipmentManagementInterface
     private function createShipmentItem($fields,$shipment)
     {
         $shipmentItem = new ShipmentItem();
-        $shipmentItem->setPurchaseItem($this->orderService->getPurchaseItemById($fields['purchase_item_id']));
+        $shipmentItem->setPurchaseItem($this->getPurchaseItemById($fields['purchase_item_id']));
         $shipmentItem->setShipment($shipment);
         $shipmentItem->setType($fields['type']);
         $shipmentItem->setStatus('ACCEPT');
         $this->entityManager->persist($shipmentItem);
         $this->entityManager->flush();
         return $shipmentItem;
+    }
+
+    public function getPurchaseItemById($id)
+    {
+        return $this->entityManager->getRepository(PurchaseItem::class)->findOneBy(['id'=>$id]);
     }
 
     private function createShipment($seller)
