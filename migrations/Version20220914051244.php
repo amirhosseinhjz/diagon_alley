@@ -10,11 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-<<<<<<<< HEAD:migrations/Version20220913160511.php
-final class Version20220913160511 extends AbstractMigration
-========
-final class Version20220913102438 extends AbstractMigration
->>>>>>>> 0dd094ceef3b18d54312a1f1d6870721a318b1b2:migrations/Version20220913102438.php
+final class Version20220914051244 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -40,12 +36,12 @@ final class Version20220913102438 extends AbstractMigration
         $this->addSql('CREATE TABLE portal (id INT AUTO_INCREMENT NOT NULL, type VARCHAR(20) NOT NULL, code VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE product (id INT AUTO_INCREMENT NOT NULL, category_id INT NOT NULL, brand_id INT DEFAULT NULL, name VARCHAR(255) NOT NULL, description VARCHAR(511) DEFAULT NULL, active TINYINT(1) NOT NULL, created_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', view_count INT NOT NULL, INDEX IDX_D34A04AD12469DE2 (category_id), INDEX IDX_D34A04AD44F5D008 (brand_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE purchase (id INT AUTO_INCREMENT NOT NULL, customer_id INT NOT NULL, address_id INT DEFAULT NULL, created_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', serial_number VARCHAR(25) NOT NULL, total_price INT NOT NULL, status VARCHAR(10) NOT NULL, INDEX IDX_6117D13B9395C3F3 (customer_id), INDEX IDX_6117D13BF5B7AF75 (address_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE purchase_item (id INT AUTO_INCREMENT NOT NULL, purchase_id INT NOT NULL, variant_id INT NOT NULL, paid_price INT NOT NULL, quantity INT NOT NULL, total_price INT NOT NULL, status VARCHAR(10) NOT NULL, INDEX IDX_6FA8ED7D558FBEB9 (purchase_id), INDEX IDX_6FA8ED7D3B69A9AF (variant_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE purchase_item (id INT AUTO_INCREMENT NOT NULL, variant_id INT NOT NULL, purchase_id INT NOT NULL, paid_price INT DEFAULT NULL, quantity INT NOT NULL, total_price INT NOT NULL, status VARCHAR(10) NOT NULL, INDEX IDX_6FA8ED7D3B69A9AF (variant_id), INDEX IDX_6FA8ED7D558FBEB9 (purchase_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE refresh_tokens (id INT AUTO_INCREMENT NOT NULL, refresh_token VARCHAR(128) NOT NULL, username VARCHAR(255) NOT NULL, valid DATETIME NOT NULL, UNIQUE INDEX UNIQ_9BACE7E1C74F2195 (refresh_token), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE shipment (id INT AUTO_INCREMENT NOT NULL, seller_id INT NOT NULL, status VARCHAR(255) DEFAULT NULL, INDEX IDX_2CB20DC8DE820D9 (seller_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE shipment_item (id INT AUTO_INCREMENT NOT NULL, shipment_id INT NOT NULL, purchase_item_id INT NOT NULL, status VARCHAR(255) DEFAULT NULL, type VARCHAR(255) DEFAULT NULL, INDEX IDX_1C573407BE036FC (shipment_id), UNIQUE INDEX UNIQ_1C573409B59827 (purchase_item_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) DEFAULT NULL, last_name VARCHAR(255) DEFAULT NULL, email VARCHAR(255) NOT NULL, phone_number VARCHAR(13) NOT NULL, roles LONGTEXT NOT NULL COMMENT \'(DC2Type:simple_array)\', password VARCHAR(255) NOT NULL, token_validate_after DATETIME DEFAULT NULL, is_active TINYINT(1) NOT NULL, is_authenticated TINYINT(1) NOT NULL, type VARCHAR(255) NOT NULL, shop_slug VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_8D93D649E7927C74 (email), UNIQUE INDEX UNIQ_8D93D6496B01BC5B (phone_number), UNIQUE INDEX UNIQ_8D93D649596F7D19 (shop_slug), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE variant (id INT AUTO_INCREMENT NOT NULL, seller_id INT NOT NULL, product_id INT NOT NULL, serial VARCHAR(255) DEFAULT NULL, price BIGINT NOT NULL, quantity INT NOT NULL, valid TINYINT(1) NOT NULL, description VARCHAR(255) DEFAULT NULL, created_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', sold_number INT NOT NULL, type VARCHAR(30) NOT NULL, INDEX IDX_F143BFAD8DE820D9 (seller_id), INDEX IDX_F143BFAD4584665A (product_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE variant (id INT AUTO_INCREMENT NOT NULL, seller_id INT NOT NULL, product_id INT NOT NULL, serial VARCHAR(255) DEFAULT NULL, price BIGINT NOT NULL, quantity INT NOT NULL, valid TINYINT(1) NOT NULL, description VARCHAR(255) DEFAULT NULL, created_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', sold_number INT NOT NULL, type VARCHAR(30) NOT NULL, delivery_estimate INT NOT NULL, INDEX IDX_F143BFAD8DE820D9 (seller_id), INDEX IDX_F143BFAD4584665A (product_id), INDEX idx_serial (serial), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE address ADD CONSTRAINT FK_D4E6F81A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE address ADD CONSTRAINT FK_D4E6F818BAC62AF FOREIGN KEY (city_id) REFERENCES address_city (id)');
         $this->addSql('ALTER TABLE address_city ADD CONSTRAINT FK_5017D2DFE946114A FOREIGN KEY (province_id) REFERENCES address_province (id)');
@@ -66,8 +62,8 @@ final class Version20220913102438 extends AbstractMigration
         $this->addSql('ALTER TABLE product ADD CONSTRAINT FK_D34A04AD44F5D008 FOREIGN KEY (brand_id) REFERENCES brand (id)');
         $this->addSql('ALTER TABLE purchase ADD CONSTRAINT FK_6117D13B9395C3F3 FOREIGN KEY (customer_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE purchase ADD CONSTRAINT FK_6117D13BF5B7AF75 FOREIGN KEY (address_id) REFERENCES address (id)');
-        $this->addSql('ALTER TABLE purchase_item ADD CONSTRAINT FK_6FA8ED7D558FBEB9 FOREIGN KEY (purchase_id) REFERENCES purchase (id)');
         $this->addSql('ALTER TABLE purchase_item ADD CONSTRAINT FK_6FA8ED7D3B69A9AF FOREIGN KEY (variant_id) REFERENCES variant (id)');
+        $this->addSql('ALTER TABLE purchase_item ADD CONSTRAINT FK_6FA8ED7D558FBEB9 FOREIGN KEY (purchase_id) REFERENCES purchase (id)');
         $this->addSql('ALTER TABLE shipment ADD CONSTRAINT FK_2CB20DC8DE820D9 FOREIGN KEY (seller_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE shipment_item ADD CONSTRAINT FK_1C573407BE036FC FOREIGN KEY (shipment_id) REFERENCES shipment (id)');
         $this->addSql('ALTER TABLE shipment_item ADD CONSTRAINT FK_1C573409B59827 FOREIGN KEY (purchase_item_id) REFERENCES purchase_item (id)');
@@ -98,8 +94,8 @@ final class Version20220913102438 extends AbstractMigration
         $this->addSql('ALTER TABLE product DROP FOREIGN KEY FK_D34A04AD44F5D008');
         $this->addSql('ALTER TABLE purchase DROP FOREIGN KEY FK_6117D13B9395C3F3');
         $this->addSql('ALTER TABLE purchase DROP FOREIGN KEY FK_6117D13BF5B7AF75');
-        $this->addSql('ALTER TABLE purchase_item DROP FOREIGN KEY FK_6FA8ED7D558FBEB9');
         $this->addSql('ALTER TABLE purchase_item DROP FOREIGN KEY FK_6FA8ED7D3B69A9AF');
+        $this->addSql('ALTER TABLE purchase_item DROP FOREIGN KEY FK_6FA8ED7D558FBEB9');
         $this->addSql('ALTER TABLE shipment DROP FOREIGN KEY FK_2CB20DC8DE820D9');
         $this->addSql('ALTER TABLE shipment_item DROP FOREIGN KEY FK_1C573407BE036FC');
         $this->addSql('ALTER TABLE shipment_item DROP FOREIGN KEY FK_1C573409B59827');

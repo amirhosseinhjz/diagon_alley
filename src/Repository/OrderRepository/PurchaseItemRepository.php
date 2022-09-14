@@ -72,11 +72,13 @@ class PurchaseItemRepository extends ServiceEntityRepository
         $query = $connection->prepare
         (
             "select pi.id as purchase_item_id, 
-                v.type as type 
+                v.type as type,
+                v.delivery_estimate as delivery_estimate
                 from purchase_item pi 
                 join variant v 
                 on v.id = pi.variant_id 
-                where pi.purchase_id=:purchaseId and v.seller_id=:sellerId;"
+                where pi.purchase_id=:purchaseId and v.seller_id=:sellerId
+                order by v.delivery_estimate DESC;"
         );
         $query->bindValue('purchaseId',$criteria['purchaseId'],ParameterType::INTEGER);
         $query->bindValue('sellerId',$criteria['sellerId'],ParameterType::INTEGER);
