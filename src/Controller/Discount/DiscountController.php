@@ -3,92 +3,113 @@
 namespace App\Controller\Discount;
 
 use App\Interface\Discount\DiscountServiceInterface;
-use http\Env\Request;
 use Lcobucci\JWT\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-#ToDo: serialization ,
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
+
 #[Route('/discount', name: 'app_discount_')]
 class DiscountController extends AbstractController
 {
+    #ToDo: voter & access management
 
+    private Serializer $serializer;
     private DiscountServiceInterface $discountService;
 
     public function __construct(DiscountServiceInterface $discountService)
     {
         $this->discountService = $discountService;
+        $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
     }
 
     #[Route('/{id}', name: 'read' , methods: ['GET'])]
-    public function read($id): Response  #ToDo: should I use the code instead?
+    public function read($id): Response
     {
         try {
-            $discount = $this->discountService->getDiscountById($id);;
-            if($discount === null){
+            $discount = $this->discountService->getDiscountById($id);
+            if(!empty($discount)){
                 return $this->json([
-                    'm' => 'Discount not found.'
+                    'message' => 'Discount not found.'
                 ],Response::HTTP_NOT_FOUND);
             }
-            return $this->json([
-                'result'=> $this->discountService->createDTOFromDiscount($discount)
-            ], Response::HTTP_OK);
+            return $this->json(
+                $this->serializer->normalize($this->discountService->createDTOFromDiscount($discount)),
+                Response::HTTP_OK);
         } catch (Exception $exception) {
             return $this->json( [
-                'm' => $exception->getMessage(),
+                'message' => $exception->getMessage(),
             ],Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
 
     #[Route('/create', name: 'create' , methods: ['POST'])]
-    public function create(Request $request): Response #ToDo: check
+    public function create(Request $request): Response
     {
         try {
             $array = $this->discountService->getRequestBody($request);
             $discount = $this->discountService->createDiscountFromArray($array);
             return $this->json([
-                'm' => 'Discount created.'
+                'message' => 'Discount created.',
+                'discount'=> $this->serializer->normalize($this->discountService->createDTOFromDiscount($discount))
             ], Response::HTTP_CREATED);
         } catch (Exception $exception) {
             return $this->json( [
-                'm' => $exception->getMessage(),
+                'message' => $exception->getMessage(),
             ],Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    #[Route('/update', name: 'update' , methods: ['POST'])]
-    public function update(Request $request): Response
-    {
-        try { #ToDo: handle notfound exception
-            $array = $this->discountService->getRequestBody($request);
-            $updatedDiscount = $this->discountService->updateDiscountFromArray($array);
-            return $this->json([
-                'm' => 'Discount updated successfully.'
-            ], Response::HTTP_OK);
-        } catch (Exception $exception) {
-            return $this->json( [
-                'm' => $exception->getMessage(),
-            ],Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    #ToDo: change method to delete
-    #[Route('/{id}/delete', name: 'delete' , methods: ['GET'])]
-    public function delete($id): Response
+    #[Route('/{id}/update', name: 'update' , methods: ['POST'])]
+    public function update($id, Request $request): Response
     {
         try {
-            $this->discountService->removeDiscountByID($id);
+            $discount = $this->discountService->getDiscountById($id);
+            if(empty($discount)){
+                return $this->json(['message'=>'Discount does not exist.'], Response::HTTP_NOT_FOUND);
+            }
+            $dto = $this->discountService->getRequestDTO($request);
+            $updatedDiscount = $this->discountService->updateDiscountFromDTO($discount,$dto);
             return $this->json([
-                'm' => 'Discount deleted successfully.'
+                'discount'=> $this->serializer->normalize($this->discountService->createDTOFromDiscount($updatedDiscount)),
+                'message' => 'Discount updated successfully.'
             ], Response::HTTP_OK);
         } catch (Exception $exception) {
             return $this->json( [
-                'm' => $exception->getMessage(),
+                'message' => $exception->getMessage(),
             ],Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    #ToDo: check discount Codes to be unique between active discounts (only active ones?)
-    #ToDo: create advanced filters
+    #[Route('/{id}/toggle_activity', name: 'toggle activity status' , methods: ['GET'])]
+    public function toggleActivity($id): Response
+    {
+        try{
+            $discount = $this->discountService->getDiscountById($id);
+            if (empty($discount)){
+                return $this->json(
+                    ['message' => "the discount does not exist"],
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+            $this->discountService->toggleActivity($discount);
+            return $this->json( #check in test
+                $this->serializer->normalize($this->discountService->createDTOFromDiscount($discount)),
+                Response::HTTP_OK
+            );
+        } catch (Exception $exception) {
+            return $this->json( [
+                'message' => $exception->getMessage(),
+            ],Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
+    #ToDo: check discount Codes to be unique between active discounts (only active ones?) when creating codes and activating discounts
+    #ToDo: check correctness of relational queries in cart and discount
 }

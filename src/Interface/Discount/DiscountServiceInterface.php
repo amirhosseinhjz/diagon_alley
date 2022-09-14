@@ -5,25 +5,23 @@ namespace App\Interface\Discount;
 use App\Entity\Discount\Discount;
 use App\DTO\Discount\DiscountDTO;
 use App\Entity\Order\Purchase;
-use App\Entity\Order\PurchaseItem;
 use App\Entity\User\Customer;
 use Symfony\Component\HttpFoundation\Request;
 
 interface DiscountServiceInterface
 {
-    #ToDo: add this class to config file
-    #ToDo: serialiazer and groups
+
     public function getRequestBody(Request $request):array;
 
-    public function createDiscountFromDTO(DiscountDTO $dto):Discount; #ToDo: remove from here
+    public function createDiscountFromDTO(DiscountDTO $dto):Discount;
 
     public function createDiscountFromArray(array $array):Discount;
 
     public function createDTOFromDiscount(Discount $discount):DiscountDTO;
 
-    public function updateDiscountFromDTO(DiscountDTO $dto):Discount;
+    public function updateDiscountFromDTO(Discount $discount, DiscountDTO $dto):Discount;
 
-    public function updateDiscountFromArray(Array $array):Discount;
+    public function getRequestDTO(Request $request):DiscountDTO;
 
     public function getDiscountsByCode(string $code):array;
 
@@ -43,11 +41,9 @@ interface DiscountServiceInterface
 
     public function timesUsed(Discount $discount, Customer $customer = null):int;
 
-    #ToDo: schedule expiration
+    public function isCodeActive(string $code);
 
     #ToDo: if purchase is cancelled, the discounts must be marked unused, if it is completed, the discounts must be marked used
 
-    #ToDo:
-    //public function isApplicableToPurchaseItem(Discount $discount, PurchaseItem $purchaseItem, array $filters):bool;
-    //public function setUniqueCode(Discount $discount):string;
+    public function generateUniqueCode(Discount $discount):string;
 }

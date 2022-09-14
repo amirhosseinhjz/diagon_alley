@@ -2,35 +2,28 @@
 
 namespace App\DTO\Discount;
 
+use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 
-use Doctrine\Common\Collections\Collection;
+
 
 class DiscountDTO
 {
-    #ToDo: needed? not for creation: just for update
-    public ?int $id = null;
-
     #[Assert\PositiveOrZero]
     #[Assert\LessThan(100.0)]
     public ?float $percent = null;
 
-    #[Assert\NotBlank()]
+    #[Assert\Length(min:3, max:255)]
     public ?string $code = null;
 
     #[Assert\NotNull]
     public ?bool $isActive = null;
 
-    #ToDo: or zero?
     #[Assert\PositiveOrZero]
     private ?int $maxUsageTimes = null;
 
-    #ToDo: or zero?
     #[Assert\PositiveOrZero]
     private ?int $maxUsageTimesPerUser = null;
-
-    #ToDo: assert
-    private ?\DateInterval $timePeriod = null;
 
     #[Assert\PositiveOrZero]
     private ?float $minPurchaseValue = null;
@@ -38,23 +31,12 @@ class DiscountDTO
     #[Assert\PositiveOrZero]
     private ?float $maxDiscountedValue = null;
 
-    /**
-     * @return int|null
-     */
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[Assert\DateTime]
+    private ?DateTime $activationTime = null;
 
-    /**
-     * @param int|null $id
-     * @return DiscountDTO
-     */
-    public function setId(?int $id): DiscountDTO
-    {
-        $this->id = $id;
-        return $this;
-    }
+    #[Assert\DateTime]
+    private ?DateTime $expirationTime = null;
+
 
     /**
      * @return float|null
@@ -74,23 +56,6 @@ class DiscountDTO
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
-    public function getAppliedTo(): Collection
-    {
-        return $this->appliedTo;
-    }
-
-    /**
-     * @param Collection $appliedTo
-     * @return DiscountDTO
-     */
-    public function setAppliedTo(Collection $appliedTo): DiscountDTO
-    {
-        $this->appliedTo = $appliedTo;
-        return $this;
-    }
 
     /**
      * @return string|null
@@ -107,24 +72,6 @@ class DiscountDTO
     public function setCode(?string $code): DiscountDTO
     {
         $this->code = $code;
-        return $this;
-    }
-
-    /**
-     * @return Collection
-     */
-    public function getUsedOn(): Collection
-    {
-        return $this->usedOn;
-    }
-
-    /**
-     * @param Collection $usedOn
-     * @return DiscountDTO
-     */
-    public function setUsedOn(Collection $usedOn): DiscountDTO
-    {
-        $this->usedOn = $usedOn;
         return $this;
     }
 
@@ -183,24 +130,6 @@ class DiscountDTO
     }
 
     /**
-     * @return \DateInterval|null
-     */
-    public function getTimePeriod(): ?\DateInterval
-    {
-        return $this->timePeriod;
-    }
-
-    /**
-     * @param \DateInterval|null $timePeriod
-     * @return DiscountDTO
-     */
-    public function setTimePeriod(?\DateInterval $timePeriod): DiscountDTO
-    {
-        $this->timePeriod = $timePeriod;
-        return $this;
-    }
-
-    /**
      * @return float|null
      */
     public function getMinPurchaseValue(): ?float
@@ -233,6 +162,41 @@ class DiscountDTO
     public function setMaxDiscountedValue(?float $maxDiscountedValue): DiscountDTO
     {
         $this->maxDiscountedValue = $maxDiscountedValue;
+        return $this;
+    }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getActivationTime(): ?DateTime
+    {
+        return $this->activationTime;
+    }
+
+    /**
+     * @param DateTime|null $activationTime
+     * @return DiscountDTO
+     */
+    public function setActivationTime(?DateTime $activationTime): DiscountDTO
+    {
+        $this->activationTime = $activationTime;
+        return $this;
+    }
+    /**
+     * @return DateTime|null
+     */
+    public function getExpirationTime(): ?DateTime
+    {
+        return $this->expirationTime;
+    }
+
+    /**
+     * @param DateTime|null $expirationTime
+     * @return DiscountDTO
+     */
+    public function setExpirationTime(?DateTime $expirationTime): DiscountDTO
+    {
+        $this->expirationTime = $expirationTime;
         return $this;
     }
 

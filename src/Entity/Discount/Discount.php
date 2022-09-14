@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#ToDo: important! remove relation from purchaseItem, change the mapping value of the one in Purchase entity
+
 //
 //Discount is the entity defining simple discount codes that are applied to orders
 //
@@ -17,25 +17,17 @@ use Doctrine\ORM\Mapping as ORM;
 class Discount
 {
 
-    public const PERCENT_DISCOUNT = "PERCENT_DISCOUNT_TYPE";
-    public const FIXED_DISCOUNT = "FIXED_VALUE_DISCOUNT";
-
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #ToDo: define different types
-    #check: float?
     #[ORM\Column]
     private ?float $percent = null;
 
-    #ToDo: must be unique
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $code = null;
 
-    #ToDo: add rules
     #[ORM\OneToMany(mappedBy: 'discount', targetEntity: Purchase::class)]
     private Collection $affectedOrders;
 
@@ -126,12 +118,17 @@ class Discount
         return $this;
     }
 
-    public function isActive(): ?bool
+    public function isIsActive(): ?bool
     {
         return $this->isActive;
     }
 
-    public function setActivity(bool $isActive): self
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
 

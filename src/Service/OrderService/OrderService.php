@@ -112,12 +112,37 @@ class OrderService implements OrderManagementInterface
     }
 
     //returns the sum of item prices without any discount or change
-    public function rawTotalPrice(Purchase $purchase){
+    public function resetPrices(Purchase $purchase, bool $flush = true):Purchase
+    {
         $price = 0;
-        foreach ($purchase->getPurchaseItems() as $item){
-            $price += $item->getVariant()->getPrice() * $item->getQuantity();
+        foreach ($purchase->getPurchaseItems() as $item){#ToDo: important: check
+            $item->setPaidPrice($item->getTotalPrice());
+            $price += $item->getTotalPrice();
         }
-        return $price;
+        $purchase->setTotalPrice($price);
+        if($flush){
+            $this->em->flush();
+        }
+        return $purchase;
     }
 
+    public function applyDiscount(Purchase $purchase, float $value, bool $flush = true): Purchase
+    {
+        $price = $purchase->getTotalPrice();
+        if($value>$price || $value<0){
+            throw new \Exception("Invalid discount value");
+        }
+        if($price === 0){
+            return $purchase;
+        }
+        $newPrice = $price-$value;
+        foreach($purchase->getPurchaseItems() as $item){
+            $item->setPaidPrice(($item->getTotalPrice()/$price) * $newPrice );
+        }
+        $purchase->setTotalPrice($newPrice);
+        if($flush){
+            $this->em->flush();
+        }
+        return $purchase;
+    }
 }
