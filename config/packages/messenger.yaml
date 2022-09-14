@@ -12,14 +12,14 @@ framework:
                     multiplier: 2
             failed_sms: '%env(FAILED_SMS_TRANSPORT_DSN)%'
 
-            async_virsual:
+            async_virtual:
                 dsn: '%env(DIGITAL_TRANSPORT_DSN)%'
-                failure_transport: failed_virsual
+                failure_transport: failed_virtual
                 options:
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
-            failed_virsual: '%env(FAILED_DIGITAL_TRANSPORT_DSN)%'
+            failed_virtual: '%env(FAILED_DIGITAL_TRANSPORT_DSN)%'
 
             async_email:
                 dsn: '%env(EMAIL_TRANSPORT_DSN)%'
@@ -33,7 +33,7 @@ framework:
         routing:
         
             App\Message\SendSMSMessage: async_sms
-            App\Message\SendBookMessage: async_virsual
+            App\Message\SendVirtualMessage: async_virtual
             App\Message\Email\SendEmailMessages: async_email
 
             # Route your messages to the transports

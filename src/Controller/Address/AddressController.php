@@ -73,7 +73,6 @@ class AddressController extends AbstractController
             $response = $this->addressService->createCity($request->toArray());
             return $this->json($response);
         } catch (\Exception $e) {
-            dd($e->getMessage());
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }

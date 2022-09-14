@@ -8,7 +8,6 @@ final class SendEmailMessages
 
     private string $emailFrom;
 
-//    #[Assert\n]
     private string $emailTo;
 
     private string $subject;
