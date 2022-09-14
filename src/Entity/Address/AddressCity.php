@@ -7,7 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 #[ORM\Entity(repositoryClass: AddressCityRepository::class)]
 class AddressCity
@@ -15,19 +16,21 @@ class AddressCity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['city'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Length(min: 3, max: 255)]
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    #[Serializer\Groups(['Order.read'])]
+
+    #[Groups(['city','province','address'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'addressCities')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    #[Serializer\Groups(['Order.read'])]
+    #[Groups(['city'])]
     private ?AddressProvince $province = null;
 
     #[ORM\OneToMany(mappedBy: 'city', targetEntity: Address::class, orphanRemoval: true)]
@@ -35,6 +38,7 @@ class AddressCity
 
     #[ORM\Column]
     #[Assert\NotNull]
+    #[Groups(['city'])]
     private ?bool $isActive = true;
 
     public function __construct()
