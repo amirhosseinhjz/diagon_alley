@@ -2,11 +2,8 @@
 
 namespace App\Service\Portal;
 
-use App\DTO\Payment\PaymentDTO;
 use App\DTO\Portal\PortalDTO;
 use App\Entity\Payment\Payment;
-use App\Entity\Portal\Portal;
-use App\Interface\Order\OrderManagementInterface;
 use App\Interface\Portal\portalInterface;
 use App\Service\OrderService\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -49,7 +46,7 @@ class SamanPortalService implements portalInterface
         return [
             'url' => "https://old.banktest.ir/gateway/saman/gate",
             "token" => $token,
-            "redirect_url" => "http://localhost:70/payment/status",
+            "redirect_url" => "http://localhost:70/api/payment/status",
         ];
     }
 
@@ -59,7 +56,13 @@ class SamanPortalService implements portalInterface
 
         if ($result["State"] == "OK") {
             $payment->setStatus("SUCCESS");
-            $this->orderService->finalizeOrder($payment->getPurchase());
+            if(is_null($payment->getPurchase()))
+            {
+                $payment->getWallet()->withdraw($payment->getPaidAmount());
+                $this->em->flush();
+            }
+            else
+                $this->orderService->finalizeOrder($payment->getPurchase());
         } else {
             $payment->setStatus("FAILED");
         }
@@ -67,6 +70,9 @@ class SamanPortalService implements portalInterface
         $payment->getPortal()->setCode($result['TraceNo']);
         $this->em->flush();
 
-        return ["Id" => $payment->getPurchase()->getId(), "Status" => $result["State"]];
+        if(is_null($payment->getPurchase()))
+            return ["type" => "chargeWallet", "Id" => $payment->getWallet()->getId(), "Status" => $result["State"]];
+        else
+            return ["type" => "payOrder", "Id" => $payment->getPurchase()->getId(), "Status" => $result["State"]];
     }
 }

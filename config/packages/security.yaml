@@ -40,6 +40,12 @@ security:
         - { path: ^/api/doc, roles: PUBLIC_ACCESS}
         - { path: ^/api/variant/read, roles: PUBLIC_ACCESS}
         - { path: ^/api/variant/1, roles: PUBLIC_ACCESS}
+        - { path: ^/api/category, roles: PUBLIC_ACCESS}
+        - { path: ^/api/product, roles: PUBLIC_ACCESS}
+        - { path: ^/api/brand, roles: PUBLIC_ACCESS}
+        - { path: ^/api/payment, roles: PUBLIC_ACCESS }
+        - { path: ^/api/payment/status, roles: ROLE_ADMIN }
+        - { path: ^/api/payment/walletId, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 

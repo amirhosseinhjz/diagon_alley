@@ -4,9 +4,9 @@ namespace App\Service\FeatureService;
 
 use App\Entity\Feature\FeatureValue;
 use App\Entity\Variant\Variant;
-use App\Entity\Product\Product;
+use App\CacheRepository\FeatureRepository\CacheFeatureValueRepository;
+use App\Interface\Feature\FeatureManagementInterface;
 use App\Repository\FeatureRepository\FeatureValueRepository;
-use App\Repository\FeatureRepository\FeatureRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Interface\Feature\FeatureValueManagementInterface;
 
@@ -14,18 +14,20 @@ class FeatureValueManagement implements FeatureValueManagementInterface
 {
     private $em;
     private $featureValueRepository;
-    private $featureRepository;
+    private $featureManagement;
+    private $cacheFeatureValueRepository;
 
-    public function __construct(EntityManagerInterface $em , FeatureValueRepository $featureValueRepository , FeatureRepository $featureRepository)
+    public function __construct(EntityManagerInterface $em , FeatureValueRepository $featureValueRepository , FeatureManagementInterface $featureManagement , CacheFeatureValueRepository $cacheFeatureValueRepository)
     {
         $this->em = $em;
         $this->featureValueRepository = $featureValueRepository;
-        $this->featureRepository = $featureRepository;
+        $this->featureManagement = $featureManagement;
+        $this->cacheFeatureValueRepository = $cacheFeatureValueRepository;
     }
     
     public function defineFeatureValue($features){
         foreach($features as $feature => $value){
-            $itemfeature = $this->featureRepository->readFeatureById($feature);
+            $itemfeature = $this->featureManagement->readFeatureLabel($feature,false);
             if(!$itemfeature){
                 throw new \Exception("Invalid Feature ID");
             }
@@ -48,10 +50,11 @@ class FeatureValueManagement implements FeatureValueManagementInterface
             $featureValue = new FeatureValue();
 
             //FeatureValueId validation
-            if (count($this->featureValueRepository->showFeature(array("id" => $FeatureValueId)))) {
-                $temp = $this->featureValueRepository->showOneFeature(array("id" => $FeatureValueId));
-                if ($temp->getFeature()->getId() != $featureId || !$temp->isStatus() || !$temp->getFeature()->getActive()) throw new \Exception("Invalid Item feature value");
-                $featureValue = $temp;
+            $featureValue = $this->cacheFeatureValueRepository->findOneBy(array("id" => $FeatureValueId),null,false);
+            if ($featureValue) {
+                if ($featureValue->getFeature()->getId() != $featureId || !$featureValue->isActive() || !$featureValue->getFeature()->getActive()){
+                    throw new \Exception("Invalid Item feature value");
+                }
             } else {
                 $this->em->remove($variant);
                 $this->em->flush();
@@ -69,25 +72,26 @@ class FeatureValueManagement implements FeatureValueManagementInterface
         return $variant;
     }
 
-    public function readFeatureValueById($id): FeatureValue{
-        if(!$this->featureValueRepository->find($id) || !$this->featureValueRepository->find($id)->isStatus()){
+    public function readFeatureValueById($id,$cache = true): FeatureValue{
+        $featureValue = $this->cacheFeatureValueRepository->find($id , $cache);
+        if(!$featureValue || !$featureValue->isActive()){
             throw new \Exception("Feature value not found");
         }
-        return $this->featureValueRepository->find($id);
+        return $featureValue;
     }
 
     public function updateFeatureValue($id, $value){
-        $featureValue = $this->readFeatureValueById($id);
+        $featureValue = $this->readFeatureValueById($id,false);
         $featureValue->setValue($value);
         return $this->featureValueRepository->add($featureValue,true);
     }
 
     public function showFeaturesValue(){
-        return $this->featureValueRepository->showFeature(['active' => 1]);
+        return $this->cacheFeatureValueRepository->findBy(['active' => 1]);
     }
 
     public function deleteFeatureValue($id){
-        $temp =  $this->readFeatureValueById($id)->setActive(false);
+        $temp =  $this->readFeatureValueById($id,false)->setActive(false);
         $this->em->flush();
         return $temp;
     }

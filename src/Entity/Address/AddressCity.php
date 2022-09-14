@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+
 #[ORM\Entity(repositoryClass: AddressCityRepository::class)]
 class AddressCity
 {
@@ -22,6 +23,7 @@ class AddressCity
     #[Assert\Length(min: 3, max: 255)]
     #[Assert\NotBlank]
     #[Assert\NotNull]
+
     #[Groups(['city','province','address'])]
     private ?string $name = null;
 

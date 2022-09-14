@@ -29,6 +29,7 @@ class CartService implements CartServiceInterface
     )
     {
         $this->entityManager = $entityManager;
+        $this->cartItemRepository = $entityManager->getRepository(CartItem::class);
         $this->validator = $validator;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
         $this->variantManagement = $variantManagement;
@@ -104,7 +105,7 @@ class CartService implements CartServiceInterface
         if ($variant->getQuantity() < $quantity) {
             throw new \Exception("Not enough stock");
         }
-        foreach ($cart->getItems() as $item){
+        foreach ($cart->getCartItems() as $item){
             if($item->getVariant()->getId() == $variant->getId()){
                 $item->increaseQuantity($quantity);
                 $this->entityManager->persist($item);
@@ -121,7 +122,7 @@ class CartService implements CartServiceInterface
         $item->setVariant($variant);
         $item->setQuantity($quantity);
         $item->setCart($cart);
-        $cart->addItem($item);
+        $cart->addCartItem($item);
         $this->entityManager->persist($item);
         $this->entityManager->persist($cart);
         $this->entityManager->flush();
@@ -132,7 +133,7 @@ class CartService implements CartServiceInterface
     {
         $cart = $this->getCartById($cartId);
         $this->isEditable($cart);
-        $item = $this->cartItemService->getCartItemById($itemId);
+        $item = $this->cartItemRepository->find($itemId);
         if ($item->getCart()->getId() != $cart->getId()) {
             throw new \Exception("Invalid Item");
         }
@@ -150,7 +151,7 @@ class CartService implements CartServiceInterface
 
     private function removeItem(Cart $cart, CartItem $item):CartItem
     {
-        $cart->removeItem($item);
+        $cart->removeCartItem($item);
         $this->entityManager->remove($item);
         $this->entityManager->persist($cart);
         $this->entityManager->flush();
@@ -180,7 +181,8 @@ class CartService implements CartServiceInterface
 
     public function clearCart(Cart $cart)
     {
-        foreach ($cart->getItems() as $item) {
+        $this->isEditable($cart);
+        foreach ($cart->getCartItems() as $item) {
             $this->removeItem($cart, $item);
         }
     }

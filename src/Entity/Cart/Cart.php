@@ -27,18 +27,16 @@ class Cart
     #[Serializer\Groups(['Cart.read'])]
     public ?\DateTimeInterface $finalizedAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'Cart', targetEntity: CartItem::class, orphanRemoval: true)]
-//    #[Serializer\Groups(['Cart.read'])]
-    private Collection $items;
-
     #[ORM\ManyToOne(inversedBy: 'carts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Serializer\Groups(['Cart.read'])]
     private ?Customer $customer = null;
 
     #[ORM\Column(length: 8)]
     #[Serializer\Groups(['Cart.read'])]
     private ?string $status = null;
+
+    #[ORM\OneToMany(mappedBy: 'cart', targetEntity: CartItem::class, orphanRemoval: true)]
+    private Collection $cartItems;
 
     public function getCustomer(): ?Customer
     {
@@ -53,6 +51,7 @@ class Cart
     public function __construct()
     {
         $this->items = new ArrayCollection();
+        $this->cartItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -72,37 +71,37 @@ class Cart
         return $this;
     }
 
-    /**
-     * @return Collection<int, CartItem>
-     */
-    public function getItems(): Collection
-    {
-        return $this->items;
-    }
+//    /**
+//     * @return Collection<int, CartItem>
+//     */
+//    public function getItems(): Collection
+//    {
+//        return $this->items;
+//    }
 
-    public function addItem(CartItem $item): self #problem
-    {
-        if (!$this->items->contains($item)) {
-            $this->items->add($item);
-            $item->setCart($this);
-        }
-        else {
-            $item->increaseQuantity();
-        }
-        return $this;
-    }
-
-    public function removeItem(CartItem $item): self  #problem
-    {
-        if ($this->items->removeElement($item)) {
-            // set the owning side to null (unless already changed)
-            if ($item->getCart() === $this) {
-                $item->setCart(null);
-            }
-        }
-
-        return $this;
-    }
+//    public function addItem(CartItem $item): self #problem
+//    {
+//        if (!$this->items->contains($item)) {
+//            $this->items->add($item);
+//            $item->setCart($this);
+//        }
+//        else {
+//            $item->increaseQuantity();
+//        }
+//        return $this;
+//    }
+//
+//    public function removeItem(CartItem $item): self  #problem
+//    {
+//        if ($this->items->removeElement($item)) {
+//            // set the owning side to null (unless already changed)
+//            if ($item->getCart() === $this) {
+//                $item->setCart(null);
+//            }
+//        }
+//
+//        return $this;
+//    }
 
     public function getStatus(): ?string
     {
@@ -122,10 +121,40 @@ class Cart
     public function getTotalPrice()
     {
         $total = 0;
-        foreach ($this->getItems() as $item) {
+        foreach ($this->getCartItems() as $item) {
             $total += $item->getPrice();
         }
         return $total;
+    }
+
+    /**
+     * @return Collection<int, CartItem>
+     */
+    public function getCartItems(): Collection
+    {
+        return $this->cartItems;
+    }
+
+    public function addCartItem(CartItem $cartItem): self
+    {
+        if (!$this->cartItems->contains($cartItem)) {
+            $this->cartItems->add($cartItem);
+            $cartItem->setCart($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCartItem(CartItem $cartItem): self
+    {
+        if ($this->cartItems->removeElement($cartItem)) {
+            // set the owning side to null (unless already changed)
+            if ($cartItem->getCart() === $this) {
+                $cartItem->setCart(null);
+            }
+        }
+
+        return $this;
     }
 }
 

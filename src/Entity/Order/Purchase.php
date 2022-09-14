@@ -9,19 +9,21 @@ use App\Repository\OrderRepository\PurchaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: PurchaseRepository::class)]
 class Purchase
 {
-
     public const STATUS_PENDING = 'pending';
     public const STATUS_PAID = 'paid';
     public const STATUS_CANCELED = 'canceled';
     public const STATUS_SHIPPED = 'shipped';
+    public const STATUS_EXPIRED = 'expired';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['Order.read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'purchases')]
@@ -29,25 +31,29 @@ class Purchase
     private ?Customer $customer = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['Order.read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 25)]
     private ?string $serialNumber = null;
 
-    #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: PurchaseItem::class)]
-    private Collection $purchaseItems;
-
     #[ORM\Column]
+    #[Serializer\Groups(['Order.read'])]
     private ?int $totalPrice = null;
 
     #[ORM\ManyToOne]
+    #[Serializer\Groups(['Order.read'])]
     private ?Address $address = null;
 
     #[ORM\Column(length: 10)]
+    #[Serializer\Groups(['Order.read'])]
     private ?string $status = Purchase::STATUS_PENDING;
 
     #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: Payment::class)]
     private Collection $payments;
+
+    #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: PurchaseItem::class, orphanRemoval: true)]
+    private Collection $purchaseItems;
 
     public function __construct()
     {
@@ -204,5 +210,11 @@ class Purchase
             !$this->getStatus() == self::STATUS_PAID) {
             throw new \Exception('Purchase is not cancellable.');
         }
+    }
+
+
+    public function setSerial()
+    {
+        $this->serialNumber = (string)$this->getId();
     }
 }

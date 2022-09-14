@@ -4,6 +4,7 @@ namespace App\Entity\User;
 
 use App\Entity\Cart\Cart;
 use App\Entity\Order\Purchase;
+use App\Entity\Wallet\Wallet;
 use App\Repository\UserRepository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -20,6 +21,10 @@ class Customer extends User
 
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Purchase::class)]
     private Collection $purchases;
+
+    #[ORM\OneToOne(inversedBy: 'customer', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn]
+    private ?Wallet $wallet = null;
 
     public function __construct()
     {
@@ -93,6 +98,18 @@ class Customer extends User
                 $purchase->setCustomer(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getWallet(): ?Wallet
+    {
+        return $this->wallet;
+    }
+
+    public function setWallet(Wallet $wallet): self
+    {
+        $this->wallet = $wallet;
 
         return $this;
     }

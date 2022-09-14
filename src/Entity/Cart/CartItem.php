@@ -4,10 +4,8 @@ namespace App\Entity\Cart;
 
 use App\Entity\Variant\Variant;
 use App\Repository\Cart\CartItemRepository;
-//use App\Entity\Discount;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\This;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
@@ -16,22 +14,20 @@ class CartItem
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Serializer\Groups(['Cart.read'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Serializer\Groups(['Cart.read'])]
     private ?int $quantity = null;
 
-    #[ORM\ManyToOne(inversedBy: 'items')]
+    #[ORM\ManyToOne(inversedBy: 'cartItems')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Cart $cart = null;
-
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Variant $variant = null;
-
-//    #[ORM\ManyToOne(inversedBy: 'appliedTo')]
-//    private ?Discount $discount = null;
 
     public function getId(): ?int
     {
@@ -46,18 +42,6 @@ class CartItem
     public function setQuantity(int $quantity): self
     {
         $this->quantity = $quantity;
-
-        return $this;
-    }
-
-    public function getCart(): ?Cart
-    {
-        return $this->cart;
-    }
-
-    public function setCart(?Cart $cart): self
-    {
-        $this->cart = $cart;
 
         return $this;
     }
@@ -87,11 +71,16 @@ class CartItem
         return $this->variant->getPrice()*$this->quantity;
     }
 
+    public function getCart(): ?Cart
+    {
+        return $this->cart;
+    }
 
-//    public function clearCache()
-//    {
-//        'user.'.$this->id;
-//        'user.name';
-//    }
+    public function setCart(?Cart $cart): self
+    {
+        $this->cart = $cart;
+
+        return $this;
+    }
 
 }

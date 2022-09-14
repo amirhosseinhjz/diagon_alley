@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 #[Route('/api/brand', name: 'app_brand_')]
 class BrandController extends AbstractController
@@ -20,7 +21,7 @@ class BrandController extends AbstractController
         $this->brandManager = $brandManager;
     }
 
-    //TODO: admin auth
+    #[IsGranted('BRAND_CRUD' , message: 'only admin is allowed')]
     #[Route('/', name: 'create', methods: ['POST'])]
     public function create(Request $req): Response
     {
@@ -45,7 +46,7 @@ class BrandController extends AbstractController
         }
     }
 
-    //TODO: admin auth
+    #[IsGranted('BRAND_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}', name: 'update', methods: ['PATCH'])]
     public function update(Request $req, int $id): Response
     {
@@ -60,7 +61,7 @@ class BrandController extends AbstractController
         }
     }
 
-    //TODO: admin auth
+    #[IsGranted('BRAND_CRUD' , message: 'only admin is allowed')]
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     public function delete(int $id): Response
     {

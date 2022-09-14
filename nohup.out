@@ -1,0 +1,10 @@
+
+ [OK] Consuming messages from transports "async_sms".                           
+
+ // The worker will automatically exit once it has received a stop signal via   
+ // the messenger:stop-workers command.                                         
+
+ // Quit the worker with CONTROL-C.                                             
+
+ // Re-run the command with a -vv option to see logs about consumed messages.   
+

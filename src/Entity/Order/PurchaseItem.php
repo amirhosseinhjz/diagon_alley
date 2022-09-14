@@ -12,21 +12,18 @@ class PurchaseItem
 {
     public const STATUS_CANCELED = 'canceled';
     public const STATUS_ONSHIPMENT = 'onshipment';
+    public const STATUS_DELIVERED = 'delivered';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'purchaseItems')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Purchase $purchase = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Variant $variant = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $paidPrice = null;
 
     #[ORM\OneToOne(mappedBy: 'purchaseItem', cascade: ['persist', 'remove'])]
@@ -39,7 +36,11 @@ class PurchaseItem
     private ?int $totalPrice = null;
 
     #[ORM\Column(length: 10)]
-    private ?string $status = null;
+    private ?string $status = PurchaseItem::STATUS_ONSHIPMENT;
+
+    #[ORM\ManyToOne(inversedBy: 'purchaseItems')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Purchase $purchase = null;
 
     public function getId(): ?int
     {

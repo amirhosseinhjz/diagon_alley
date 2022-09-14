@@ -55,7 +55,7 @@ class ItemHandleFixtures extends Fixture implements FixtureGroupInterface , Depe
 
     public function load(ObjectManager $manager)
     {
-        // $this->loadItemFeature($manager);
+//         $this->loadItemFeature($manager);
     }
 
     public function getDependencies(): array

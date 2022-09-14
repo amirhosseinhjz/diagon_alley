@@ -1,7 +1,6 @@
 <?php
 namespace App\CacheEntityManager;
 
-
 use App\Interface\Cache\CacheInterface;
 use Doctrine\ORM\EntityManager;
 use App\Entity;
@@ -13,6 +12,12 @@ class CacheEntityManager extends EntityManager
     private const Entities = [
         Entity\User\Seller::class =>
             CacheRepository\UserRepository\CacheSellerRepository::class,
+        Entity\Feature\Feature::class =>
+            CacheRepository\FeatureRepository\CacheFeatureRepository::class,
+        Entity\Feature\FeatureValue::class =>
+            CacheRepository\FeatureRepository\CacheFeatureValueRepository::class,
+        Entity\Variant\Variant::class =>
+            CacheRepository\VariantRepository\CacheVariantRepository::class,
         ];
 
     public function __construct(EntityManagerInterface $em, CacheInterface $cache)
