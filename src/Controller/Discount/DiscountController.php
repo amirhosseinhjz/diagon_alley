@@ -4,6 +4,7 @@ namespace App\Controller\Discount;
 
 use App\Interface\Discount\DiscountServiceInterface;
 use Lcobucci\JWT\Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +16,7 @@ use Symfony\Component\Serializer\Serializer;
 #[Route('/discount', name: 'app_discount_')]
 class DiscountController extends AbstractController
 {
-    #ToDo: voter & access management
+
 
     private Serializer $serializer;
     private DiscountServiceInterface $discountService;
@@ -25,6 +26,7 @@ class DiscountController extends AbstractController
         $this->discountService = $discountService;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
     }
+
 
     #[Route('/{id}', name: 'read' , methods: ['GET'])]
     public function read($id): Response
@@ -47,7 +49,7 @@ class DiscountController extends AbstractController
     }
 
 
-    #[Route('/create', name: 'create' , methods: ['POST'])]
+    #[IsGranted('TOTAL_ACCESS' , message: 'This action requires admin access')]
     public function create(Request $request): Response
     {
         try {
@@ -64,7 +66,7 @@ class DiscountController extends AbstractController
         }
     }
 
-    #[Route('/{id}/update', name: 'update' , methods: ['POST'])]
+    #[IsGranted('TOTAL_ACCESS' , message: 'This action requires admin access')]
     public function update($id, Request $request): Response
     {
         try {
@@ -85,7 +87,7 @@ class DiscountController extends AbstractController
         }
     }
 
-    #[Route('/{id}/toggle_activity', name: 'toggle activity status' , methods: ['GET'])]
+    #[IsGranted('TOTAL_ACCESS' , message: 'This action requires admin access')]
     public function toggleActivity($id): Response
     {
         try{
@@ -107,9 +109,4 @@ class DiscountController extends AbstractController
             ],Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
-
-
-    #ToDo: check discount Codes to be unique between active discounts (only active ones?) when creating codes and activating discounts
-    #ToDo: check correctness of relational queries in cart and discount
 }

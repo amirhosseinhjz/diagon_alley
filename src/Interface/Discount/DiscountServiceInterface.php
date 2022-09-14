@@ -43,7 +43,5 @@ interface DiscountServiceInterface
 
     public function isCodeActive(string $code);
 
-    #ToDo: if purchase is cancelled, the discounts must be marked unused, if it is completed, the discounts must be marked used
-
     public function generateUniqueCode(Discount $discount):string;
 }
