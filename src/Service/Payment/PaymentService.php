@@ -2,10 +2,11 @@
 
 namespace App\Service\Payment;
 
-use App\Entity\User\User;
 use App\DTO\Payment\PaymentDTO;
 use App\Entity\Order\Purchase;
 use App\Entity\Payment\Payment;
+use App\Entity\User\Customer;
+use App\Entity\Wallet\Wallet;
 use App\Interface\Payment\paymentInterface;
 use App\Service\OrderService\OrderService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,16 +28,33 @@ abstract class PaymentService implements paymentInterface
 
     public function dtoFromOrderArray($array)
     {
-        $purchase = $this->em->getRepository(Purchase::class)->find($array["purchase"]);
-        if (is_null($purchase))
-            throw (new \Exception("This order is not exist."));
-        if ($purchase->getStatus() != Purchase::STATUS_PENDING)
-            throw (new \Exception("This order is not suitable for payment."));
-        unset($array["purchase"]); 
-
-        $array["paidAmount"] = $purchase->getTotalPrice();
-        $paymentDTO = $this->serializer->deserialize(json_encode($array), PaymentDTO::class, 'json');
-        $paymentDTO->purchase = $purchase;
+        if(array_key_exists("purchase",$array))
+        {
+            $purchase = $this->em->getRepository(Purchase::class)->find($array["purchase"]);
+            if (is_null($purchase))
+                throw (new \Exception("This order is not exist."));
+            if ($purchase->getStatus() != Purchase::STATUS_PENDING)
+                throw (new \Exception("This order is not suitable for payment."));
+            $array["purchase"] = $purchase;
+            if($array["method"]=="wallet")
+            {
+                $wallet = $purchase->getCustomer()->getWallet();
+                $array["wallet"] = $wallet;
+            }
+            $array["paidAmount"] = $purchase->getTotalPrice();
+        }
+        else if(array_key_exists("wallet",$array))
+        {
+            $wallet = $this->em->getRepository(Wallet::class)->find($array["wallet"]);
+            if (is_null($wallet))
+                throw (new \Exception("This wallet is not exist."));
+            $array["wallet"] = $wallet;
+        }
+        
+        $paymentDTO = new PaymentDTO();
+        foreach ($array as $key => $value) {
+            $paymentDTO->$key = $value;
+        }
         
         $DTOErrors = $this->validate($paymentDTO);
         if (count($DTOErrors) > 0) {
