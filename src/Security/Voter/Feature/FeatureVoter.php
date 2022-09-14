@@ -5,12 +5,18 @@ namespace App\Security\Voter\Feature;
 use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class FeatureVoter extends Voter
 {
     public const CREATE = 'FEATURE_CREATE';
     public const SHOW = 'FEATURE_SHOW';
+    private $security;
+
+    public function __construct(Security $security){
+        $this->security = $security;
+    }
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -23,6 +29,10 @@ class FeatureVoter extends Voter
 
         if (!$user instanceof UserInterface) {
             return false;
+        }
+
+        if($this->security->isGranted('ROLE_ADMIN')){
+            return true;
         }
 
         $accessIsGranted = match ($attribute){

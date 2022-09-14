@@ -55,10 +55,10 @@ class OrderController extends AbstractController
             $this->checkAccess
             (
                 'ORDER_FINALIZE',
-                $request->request->all()
+                $request->toArray()
                 ,message: 'Access Denied, not the owner of the cart'
             );
-            $orderId = $orderService->submitOrder($request->request->all());
+            $orderId = $orderService->submitOrder($request->toArray());
 
             $response = [
                 'orderId' => $orderId,
@@ -103,7 +103,9 @@ class OrderController extends AbstractController
                 'order' => $data,
                 'message' => 'Order fetched successfully',
                 'status' => Response::HTTP_OK,
-            ];} catch (\Exception $e) {
+            ];
+            return $this->json($response);
+        } catch (\Exception $e) {
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
@@ -216,5 +218,4 @@ class OrderController extends AbstractController
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
-
 }

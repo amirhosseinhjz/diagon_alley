@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[ORM\Entity(repositoryClass: ShipmentRepository::class)]
 class Shipment
 {
-    const STATUS = ['CANCEL','PENDING','DELIVERED','FINALIZED'];
+    const STATUS = ['CANCEL','ACCEPT','FINALIZED'];
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

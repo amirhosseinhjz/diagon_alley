@@ -37,9 +37,6 @@ class Purchase
     #[ORM\Column(length: 25)]
     private ?string $serialNumber = null;
 
-    #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: PurchaseItem::class)]
-    private Collection $purchaseItems;
-
     #[ORM\Column]
     #[Serializer\Groups(['Order.read'])]
     private ?int $totalPrice = null;
@@ -54,6 +51,9 @@ class Purchase
 
     #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: Payment::class)]
     private Collection $payments;
+
+    #[ORM\OneToMany(mappedBy: 'purchase', targetEntity: PurchaseItem::class, orphanRemoval: true)]
+    private Collection $purchaseItems;
 
     public function __construct()
     {
@@ -210,5 +210,11 @@ class Purchase
             !$this->getStatus() == self::STATUS_PAID) {
             throw new \Exception('Purchase is not cancellable.');
         }
+    }
+
+
+    public function setSerial()
+    {
+        $this->serialNumber = (string)$this->getId();
     }
 }
