@@ -54,17 +54,48 @@ class ShipmentManagement implements ShipmentManagementInterface
         }
     }
 
-    public function changeStatus($object,$status)
+    public function changeStatusFinalizedForShipment($object)
     {
-        if (!in_array($status,Shipment::STATUS))
+        $shipmentItems = $object->getShipmentItems();
+        foreach ($shipmentItems as $shipmentItem)
         {
-            throw new Exception
-            (
-                json_encode('not a valid shipment status'),
-                code: Response::HTTP_NOT_FOUND
-            );
+            if ($shipmentItem->getStatus() === 'CANCEL')
+            {
+                throw new Exception
+                (
+                    json_encode('One of the items is set to Cancel,there is no way to update shipment status to finalized for all items'),
+                    code: Response::HTTP_BAD_REQUEST
+                );
+            }
+            $shipmentItem->setStatus('FINALIZED');
         }
-        $object->setStatus($status);
+        $object->setStatus('FINALIZED');
+        $this->entityManager->flush();
+        return $object;
+    }
+
+    public function changeStatusShipmentToCancel($object)
+    {
+        $shipmentItems = $object->getShipmentItems();
+        foreach ($shipmentItems as $shipmentItem)
+        {
+            $shipmentItem->setStatus('CANCEL');
+        }
+        $object->setStatus('CANCEL');
+        $this->entityManager->flush();
+        return $object;
+    }
+
+    public function changeStatusShipmentItemCancel($object)
+    {
+        $object->setStatus('CANCEL');
+        $this->entityManager->flush();
+        return $object;
+    }
+
+    public function changeStatusShipmentItemFinalized($object)
+    {
+        $object->setStatus('FINALIZED');
         $this->entityManager->flush();
         return $object;
     }
@@ -123,7 +154,7 @@ class ShipmentManagement implements ShipmentManagementInterface
         $shipmentItem->setPurchaseItem($this->orderService->getPurchaseItemById($fields['purchase_item_id']));
         $shipmentItem->setShipment($shipment);
         $shipmentItem->setType($fields['type']);
-        $shipmentItem->setStatus('PENDING');
+        $shipmentItem->setStatus('ACCEPT');
         $this->entityManager->persist($shipmentItem);
         $this->entityManager->flush();
         return $shipmentItem;
@@ -133,7 +164,7 @@ class ShipmentManagement implements ShipmentManagementInterface
     {
         $shipment = new Shipment();
         $shipment->setSeller($seller);
-        $shipment->setStatus('PENDING');
+        $shipment->setStatus('ACCEPT');
         $this->entityManager->persist($shipment);
         $this->entityManager->flush();
         return $shipment;
@@ -164,5 +195,15 @@ class ShipmentManagement implements ShipmentManagementInterface
     private function fileShipment($file)
     {
 //        TODO send email
+    }
+
+    public function cancelFromOrder()
+    {
+
+    }
+
+    public function cancelFromOrderItem()
+    {
+
     }
 }

@@ -38,6 +38,11 @@ class ProductManager implements ProductManagerInterface
         return $array;
     }
 
+    public function findOneById(int $id)
+    {
+        return $this->em->getRepository(Product::class)->findOneById($id);
+    }
+
     public function createEntityFromArray(array $validatedArray): Product
     {
         $product = new Product();

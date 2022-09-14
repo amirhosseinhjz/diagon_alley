@@ -101,8 +101,8 @@ class VariantManagement implements VariantManagementInterface
         return $this->variantRepository->showVariant($criteria);
     }
 
-    public function getById(int $id)
+    public function getById(int $id, $cache=true)
     {
-        return $this->cacheVariantRepository->find($id);
+        return $this->cacheVariantRepository->find($id, $cache);
     }
 }
