@@ -5,7 +5,7 @@ namespace App\Tests\Variant;
 use App\Tests\Base\BaseJsonApiTestCase;
 
 /**
- * @group ItemHandleTest
+ * @group VariantTest
  */
 class VariantControllerTest extends BaseJsonApiTestCase
 {

@@ -35,7 +35,7 @@ class FeatureManagement implements FeatureManagementInterface
     public function readFeatureLabel($id , $cache=true){
         $temp = $this->cacheFeatureRepository->find($id , $cache);
         if(!$temp || !$temp->getActive()){
-            throw new \Exception("Feature not found");
+            throw new \Exception("Invalid Feature ID");
         }
         return $temp;
     }

@@ -63,6 +63,7 @@ class Variant
     private ?Seller $seller = null;
 
     #[ORM\Column(length: 30)]
+    #[Groups(['showVariant'])]
     private ?string $type = null;
 
     #[ORM\ManyToOne(inversedBy: 'variants')]
@@ -70,6 +71,7 @@ class Variant
     private ?Product $product = null;
 
     #[ORM\Column]
+    #[Groups(['showVariant'])]
     private ?int $deliveryEstimate = null;
 
     public function __construct()

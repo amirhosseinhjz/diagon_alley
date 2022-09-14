@@ -26,7 +26,7 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['product_basic'])]
+    #[Groups(['product_basic','showVariant'])]
     #[Assert\NotBlank]
     private ?string $name = null;
 
@@ -58,7 +58,7 @@ class Product
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['product_brand'])]
+    #[Groups(['product_brand','showVariant'])]
     private ?Brand $brand = null;
 
     #[ORM\ManyToMany(targetEntity: FeatureValue::class, mappedBy: 'products')]

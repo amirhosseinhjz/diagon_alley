@@ -66,6 +66,11 @@ class FeatureValue
         return $this->active;
     }
 
+    public function getActive(): ?bool
+    {
+        return $this->active;
+    }
+
     public function setActive(bool $active): self
     {
         $this->active = $active;

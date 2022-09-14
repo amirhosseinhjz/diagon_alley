@@ -18,6 +18,15 @@ class Variant
             ),
             new OA\Property(
                 property: 'description'
+            ),
+            new OA\Property(
+                property: 'productId'
+            ),
+            new OA\Property(
+                property: 'deliveryEstimate'
+            ),
+            new OA\Property(
+                property: 'type'
             )
         ],
         type: "object",

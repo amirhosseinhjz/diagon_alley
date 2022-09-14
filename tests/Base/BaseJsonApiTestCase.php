@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class BaseJsonApiTestCase extends JsonApiTestCase
 {
     static protected array $defaultUser = ['username'=>'09128464485' ,'password'=>'123456789*zZ'];
-
+    static protected array $defaultAdmin = ['username'=>'+989127594548' ,'password'=>'123456789*zZ'];
     /**
      * @return \PHPUnit\Framework\MockObject\MockObject|EventDispatcherInterface
      */
@@ -67,6 +67,25 @@ class BaseJsonApiTestCase extends JsonApiTestCase
             [],
             [],
             json_encode(self::$defaultUser)
+        );
+
+        $response = $this->client->getResponse()->getContent();
+
+        return $response;
+    }
+
+    /**
+     * @return false|string
+     */
+    public function loginDefaultAdminGetToken(): string|false
+    {
+        $this->client->request(
+            'POST',
+            'http://localhost:70/api/user/login',
+            [],
+            [],
+            [],
+            json_encode(self::$defaultAdmin)
         );
 
         $response = $this->client->getResponse()->getContent();

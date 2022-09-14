@@ -5,6 +5,7 @@ namespace App\Repository\VariantRepository;
 use App\Entity\Variant\Variant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -44,28 +45,51 @@ class VariantRepository extends ServiceEntityRepository
         return $this->matching($criteria)->toArray();
     }
 
-    //    /**
-//     * @return Variant[] Returns an array of Variant objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('v')
-//            ->andWhere('v.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('v.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @return Variant[] Returns an array of Variant objects
+     */
+    public function findVariantsByProduct($value): array
+    {
+        $entityManager = $this->getEntityManager();
+        $connection = $entityManager->getConnection();
+        $query = $connection->prepare
+        (
+            "select v.id,v.price,v.quantity,v.seller_id,v.serial,v.description
+                from variant v
+                where v.product_id =:value and v.quantity > 0 and v.valid = 1
+                order by v.quantity DESC"
+        );
+        $query->bindValue('value',$value,ParameterType::INTEGER);
+        return $query->executeQuery()->fetchAllAssociative();
+    }
 
-//    public function findOneBySomeField($value): ?Variant
-//    {
-//        return $this->createQueryBuilder('v')
-//            ->andWhere('v.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function findInValidVariantsBySeller($value): array
+    {
+        $entityManager = $this->getEntityManager();
+        $connection = $entityManager->getConnection();
+        $query = $connection->prepare
+        (
+            "select v.id,v.price,v.quantity,v.seller_id,v.serial,v.description
+                from variant v
+                where v.seller_id =:value and v.quantity > 0 and v.valid = 0
+                order by v.quantity DESC"
+        );
+        $query->bindValue('value',$value,ParameterType::INTEGER);
+        return $query->executeQuery()->fetchAllAssociative();
+    }
+
+    public function findVariantsByValidation($value): array
+    {
+        $entityManager = $this->getEntityManager();
+        $connection = $entityManager->getConnection();
+        $query = $connection->prepare
+        (
+            "select v.id,v.price,v.quantity,v.seller_id,v.serial,v.description
+                from variant v
+                where v.valid =:value and v.quantity > 0
+                order by v.quantity DESC"
+        );
+        $query->bindValue('value',$value,ParameterType::INTEGER);
+        return $query->executeQuery()->fetchAllAssociative();
+    }
 }
