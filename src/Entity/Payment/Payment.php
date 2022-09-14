@@ -4,6 +4,7 @@ namespace App\Entity\Payment;
 
 use App\Entity\Order\Purchase;
 use App\Entity\Portal\Portal;
+use App\Entity\Wallet\Wallet;
 use App\Repository\Payment\PaymentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -34,7 +35,9 @@ class Payment
     #[ORM\ManyToOne(inversedBy: 'payments')]
     private ?Purchase $purchase = null;
 
-    //TODO: walletId
+    #[ORM\ManyToOne]
+    private ?Wallet $wallet = null;
+
 
     public function getId(): ?int
     {
@@ -110,6 +113,18 @@ class Payment
     public function setPurchase(?Purchase $purchase): self
     {
         $this->purchase = $purchase;
+
+        return $this;
+    }
+
+    public function getWallet(): ?Wallet
+    {
+        return $this->wallet;
+    }
+
+    public function setWallet(?Wallet $wallet): self
+    {
+        $this->wallet = $wallet;
 
         return $this;
     }
