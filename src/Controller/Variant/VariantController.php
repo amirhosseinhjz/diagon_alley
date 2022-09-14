@@ -2,6 +2,8 @@
 
 namespace App\Controller\Variant;
 
+use App\Entity\Product\Product;
+use App\Entity\User\User;
 use App\Entity\Variant\Variant as VariantEntity;
 use App\Utils\Swagger\Variant\Variant;
 use App\Interface\Authentication\JWTManagementInterface;
@@ -138,12 +140,17 @@ class VariantController extends AbstractController
         description: 'Invalid Request',
     )]
     #[OA\Tag(name: 'Variant')]
+    /**
+     * @var User $seller
+     */
     public function show(bool $valid): Response
     {
         if(!$valid)$this->denyAccessUnlessGranted('VARIANT_SHOW', subject: $valid , message: 'Access Denied For Customers');
-        $filters_eq = array("valid" => $valid);
-        $filters_gt = array("quantity" => 0);
-        $variants = $this->variantManagement->showVariant($filters_eq,$filters_gt);
+        $seller = $this->JWTManager->authenticatedUser();
+        if($seller && array_search('ROLE_SELLER',$seller->getRoles()) !== false && !$valid) {
+            $variants = $this->variantManagement->findInValidVariantsBySeller($seller->getId());
+        }
+        else $variants = $this->variantManagement->findVariantsByValidation($valid);
         return $this->json(
             $variants,
             context:[AbstractNormalizer::GROUPS => 'showVariant']
@@ -229,5 +236,31 @@ class VariantController extends AbstractController
         } catch(\Exception $e){
             return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    #[Route('/show/{productId}', name: 'show_product_variants', methods: ['GET'])]
+    #[OA\RequestBody(
+        description: "Show variants of product",
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Returns Variant',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: VariantEntity::class, groups: ['showVariant']))
+        ),
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Invalid Request',
+    )]
+    #[OA\Tag(name: 'Variant')]
+    public function showVariantOfProduct(int $productId){
+        $variants = $this->variantManagement->findVariantsByProduct($productId);
+        return $this->json(
+            $variants,
+            status: 200,
+            context: [AbstractNormalizer::GROUPS => 'showVariant']
+        );
     }
 }

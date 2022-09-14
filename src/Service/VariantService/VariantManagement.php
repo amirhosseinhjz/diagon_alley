@@ -88,17 +88,18 @@ class VariantManagement implements VariantManagementInterface
         return $variant;
     }
 
-    public function showVariant($filters_eq, $filters_gt)
+    public function findVariantsByProduct($productId)
     {
-        $criteria = Criteria::create();
-        foreach($filters_eq as $filter => $value){
-            $criteria->andWhere(Criteria::expr()->eq($filter, $value));
-        }
-        foreach($filters_gt as $filter => $value) {
-            $criteria->andWhere(Criteria::expr()->gt($filter, $value));
-        }
-        $criteria->orderBy(['quantity' => Criteria::DESC]);
-        return $this->variantRepository->showVariant($criteria);
+        return $this->variantRepository->findVariantsByProduct($productId);
+    }
+
+    public function findInValidVariantsBySeller($sellerId)
+    {
+        return $this->variantRepository->findInValidVariantsBySeller($sellerId);
+    }
+
+    public function findVariantsByValidation($valid){
+        return $this->variantRepository->findVariantsByValidation($valid);
     }
 
     public function getById(int $id, $cache=true)

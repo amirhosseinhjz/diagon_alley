@@ -20,5 +20,9 @@ interface VariantManagementInterface
 
     public function confirmVariant($serial);
 
-    public function showVariant($filters_eq,$filters_gt);
+    public function findVariantsByProduct($productId);
+
+    public function findInValidVariantsBySeller($sellerId);
+
+    public function findVariantsByValidation($valid);
 }
