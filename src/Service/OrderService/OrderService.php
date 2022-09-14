@@ -10,19 +10,22 @@ use App\Entity\User\Customer;
 use App\Interface\Order\OrderManagementInterface;
 use App\Service\Cart\CartService;
 use Doctrine\ORM\EntityManagerInterface;
-//use App\Interface\Shipment\ShipmentManagementInterface;
+use App\Service\Wallet\WalletService;
+use App\Service\Shipment\ShipmentManagement;
 
 class OrderService implements OrderManagementInterface
 {
     public function __construct(
         EntityManagerInterface $em,
         CartService $cartService,
-//        ShipmentManagementInterface $shipmentService,
+        WalletService $walletService,
+        ShipmentManagement $shipmentManagement
     )
     {
         $this->em = $em;
         $this->cartService = $cartService;
-//        $this->shipmentService = $shipmentService;
+        $this->walletService = $walletService;
+        $this->shipmentManagement = $shipmentManagement;
     }
 
     public function createFromCart(Cart $cart): Purchase
@@ -121,10 +124,10 @@ class OrderService implements OrderManagementInterface
     {
         $order->setStatus($order::STATUS_PAID);
         $this->em->flush();
-//        $this->shipmentService->add($order->getId());
+        $this->shipmentManagement->add($order->getId());
     }
 
-    public function cancelOrderItemById(Purchase $purchase, int $orderItemId): int
+    public function cancelOrderItemById(Purchase $purchase, int $orderItemId, bool $cancelShipmentItem=true): int
     {
         $orderItem = $this->em->getRepository(PurchaseItem::class)->find($orderItemId);
         if (!$orderItem) {
@@ -133,17 +136,32 @@ class OrderService implements OrderManagementInterface
         if ($orderItem->getPurchase() != $purchase) {
             throw new \Exception('Order item does not belong to order');
         }
-        return $this->cancelOrderItem($orderItem);
+        return $this->cancelOrderItem($orderItem, true, $cancelShipmentItem);
     }
 
-    public function cancelOrderItem(PurchaseItem $orderItem, bool $flush=false): int
+    public function cancelItemById(int $id)
+    {
+        $orderItem = $this->em->getRepository(PurchaseItem::class)->find($id);
+        if (!$orderItem) {
+            throw new \Exception('Order item not found');
+        }
+        return $this->cancelOrderItem($orderItem, true);
+    }
+
+    public function cancelOrderItem(PurchaseItem $orderItem, bool $flush=false, bool $cancelShipmentItem=false): int
     {
         $orderItem->setStatus($orderItem::STATUS_CANCELED);
         $price = $orderItem->getTotalPrice();
-//        call wallet service
+        $customer = $orderItem->getPurchase()->getCustomer();
+        $wallet = $this->walletService->getByUser($customer);
+        $this->walletService->addMoney($wallet, $price);
         $orderItem->getVariant()->increaseQuantity($orderItem->getQuantity());
         if ($flush) {
             $this->em->flush();
+        }
+        if ($cancelShipmentItem) {
+            $shipmentItemId = $orderItem->getShipmentItem()->getId();
+            $this->shipmentManagement->cancelShipmentItemsByItemId($shipmentItemId, $flush);
         }
         return $orderItem->getTotalPrice();
     }
@@ -175,13 +193,13 @@ class OrderService implements OrderManagementInterface
         return $totalPrice;
     }
 
-    public function cancelOrder(Purchase $order): int
+    public function cancelOrder(Purchase $order)
     {
         $order->isCancellable();
         foreach ($order->getPurchaseItems() as $orderItem) {
-            $this->cancelOrderItem($orderItem);
+            $this->cancelOrderItem($orderItem, false, true);
         }
-        return 0;
+        $this->em->flush();
     }
 
     public function getPurchaseItemsBySellerIdAndPurchaseId(array $criteria)
@@ -192,5 +210,35 @@ class OrderService implements OrderManagementInterface
     public function getPurchaseItemById($id)
     {
         return $this->em->getRepository(PurchaseItem::class)->findOneBy(['id'=>$id]);
+    }
+
+    public function deliverOrderItem(PurchaseItem $orderItem): void
+    {
+        $seller = $orderItem->getVariant()->getSeller();
+        $wallet = $this->walletService->getByUser($seller);
+        $this->walletService->addMoney($wallet, $orderItem->getTotalPrice());
+        $orderItem->setStatus($orderItem::STATUS_DELIVERED);
+        $this->em->flush();
+    }
+
+    public function deliverOrderItemById(int $orderItemId): void
+    {
+        $orderItem = $this->em->getRepository(PurchaseItem::class)->find($orderItemId);
+        if (!$orderItem) {
+            throw new \Exception('Order item not found');
+        }
+        $this->deliverOrderItem($orderItem);
+    }
+
+    public function deliverMultipleOrderItems(array $orderItemIds): void
+    {
+        foreach ($orderItemIds as $orderItemId) {
+            $orderItem = $this->em->getRepository(PurchaseItem::class)->find($orderItemId);
+            if (!$orderItem) {
+                throw new \Exception('Order item not found');
+            }
+            $this->deliverOrderItem($orderItem);
+        }
+        $this->em->flush();
     }
 }

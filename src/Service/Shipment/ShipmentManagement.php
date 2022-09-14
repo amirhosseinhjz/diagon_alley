@@ -57,6 +57,7 @@ class ShipmentManagement implements ShipmentManagementInterface
     public function changeStatusFinalizedForShipment($object)
     {
         $shipmentItems = $object->getShipmentItems();
+        $orderItemIds = [];
         foreach ($shipmentItems as $shipmentItem)
         {
             if ($shipmentItem->getStatus() === 'CANCEL')
@@ -68,22 +69,31 @@ class ShipmentManagement implements ShipmentManagementInterface
                 );
             }
             $shipmentItem->setStatus('FINALIZED');
+            $orderItemIds[] = $shipmentItem->getPurchaseItem()->getId();
         }
         $object->setStatus('FINALIZED');
         $this->entityManager->flush();
-        return $object;
+        return [
+            'orderItemIds' => $orderItemIds,
+            'shipment' => $object
+        ];
     }
 
     public function changeStatusShipmentToCancel($object)
     {
         $shipmentItems = $object->getShipmentItems();
+        $orderItemIds = [];
         foreach ($shipmentItems as $shipmentItem)
         {
             $shipmentItem->setStatus('CANCEL');
+            $orderItemIds[] = $shipmentItem->getPurchaseItem()->getId();
         }
         $object->setStatus('CANCEL');
         $this->entityManager->flush();
-        return $object;
+        return [
+            'shipment' => $object,
+            'orderItemIds' => $orderItemIds
+        ];
     }
 
     public function changeStatusShipmentItemCancel($object)
@@ -91,6 +101,26 @@ class ShipmentManagement implements ShipmentManagementInterface
         $object->setStatus('CANCEL');
         $this->entityManager->flush();
         return $object;
+    }
+
+    public function cancelShipmentItemsByItemIds(array $shipmentItemIds)
+    {
+        foreach ($shipmentItemIds as $shipmentItemId)
+        {
+            $this->cancelShipmentItemsByItemId($shipmentItemId);
+        }
+        $this->entityManager->flush();
+    }
+
+    public function cancelShipmentItemsByItemId(int $shipmentItemId, $flush=true)
+    {
+        $repository = $this->entityManager->getRepository(ShipmentItem::class);
+        $shipmentItem = $repository->find($shipmentItemId);
+        $shipmentItem->setStatus('CANCEL');
+        if ($flush)
+        {
+            $this->entityManager->flush();
+        }
     }
 
     public function changeStatusShipmentItemFinalized($object)
@@ -195,15 +225,5 @@ class ShipmentManagement implements ShipmentManagementInterface
     private function fileShipment($file)
     {
 //        TODO send email
-    }
-
-    public function cancelFromOrder()
-    {
-
-    }
-
-    public function cancelFromOrderItem()
-    {
-
     }
 }

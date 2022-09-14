@@ -85,4 +85,22 @@ class WalletService extends PaymentService implements WalletServiceInterface
         return $wallet->getCustomer()->getId();
     }
 
+    public function getByUser(User $user): Wallet
+    {
+        if ($user instanceof Customer) {
+            return $this->em->getRepository(Wallet::class)->findOneBy(['customer' => $user]);
+        }
+        else if ($user instanceof Seller) {
+            return $this->em->getRepository(Wallet::class)->findOneBy(['seller' => $user]);
+        }
+        else
+            throw new Exception('user type is not valid');
+    }
+
+    public function addMoney(Wallet $wallet, int $amount)
+    {
+        $wallet->deposit($amount);
+        $this->em->persist($wallet);
+        $this->em->flush();
+    }
 }

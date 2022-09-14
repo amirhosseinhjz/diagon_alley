@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
+use App\Service\OrderService\OrderService;
 
 #[Route('/api',name: '_api_shipment_')]
 class ShipmentController extends AbstractController
@@ -25,10 +26,13 @@ class ShipmentController extends AbstractController
 
     private ValidatorInterface $validator;
 
+    private OrderService $orderService;
+
     public function __construct(
         ShipmentManagementInterface $managementShipment,
         ValidatorInterface $validator,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        OrderService $orderService
     )
     {
         $this->managementShipment = $managementShipment;
@@ -36,6 +40,8 @@ class ShipmentController extends AbstractController
         $this->validator = $validator;
 
         $this->serializer = $serializer;
+
+        $this->orderService = $orderService;
     }
 
     #[OA\Response(
@@ -140,10 +146,13 @@ class ShipmentController extends AbstractController
                 $shipment,
                 message:  'Access Denied, not the owner of the shipment'
             );
-            $shipmentRefresh = $this->managementShipment->changeStatusShipmentToCancel
+            $data = $this->managementShipment->changeStatusShipmentToCancel
             (
                 $shipment
             );
+            $orderIds = $data['orderItemIds'];
+            $this->orderService->cancelMultipleOrderItems($orderIds);
+            $shipmentRefresh = $data['shipment'];
             $data = $this->serializer->normalize($shipmentRefresh, null, ['groups' => ['shipment.read']]);
             return $this->json
             (
@@ -183,6 +192,7 @@ class ShipmentController extends AbstractController
             (
                 $shipmentItem
             );
+            $this->orderService->cancelItemById($shipmentItem->getOrderItem()->getId());
             $data = $this->serializer->normalize($shipment, null, ['groups' => ['shipment.shipmentItem.read']]);
             return $this->json
             (
@@ -261,10 +271,13 @@ class ShipmentController extends AbstractController
                 $shipment,
                 message:  'Access Denied, not the owner of the shipment'
             );
-            $shipmentRefresh = $this->managementShipment->changeStatusFinalizedForShipment
+            $data = $this->managementShipment->changeStatusFinalizedForShipment
             (
                 $shipment
             );
+            $orderItemIds = $data['orderItemIds'];
+            $this->orderService->deliverMultipleOrderItems($orderItemIds);
+            $shipmentRefresh = $data['shipment'];
             $data = $this->serializer->normalize($shipmentRefresh, null, ['groups' => ['shipment.read']]);
             return $this->json
             (

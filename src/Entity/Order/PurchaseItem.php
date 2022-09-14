@@ -12,6 +12,7 @@ class PurchaseItem
 {
     public const STATUS_CANCELED = 'canceled';
     public const STATUS_ONSHIPMENT = 'onshipment';
+    public const STATUS_DELIVERED = 'delivered';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
