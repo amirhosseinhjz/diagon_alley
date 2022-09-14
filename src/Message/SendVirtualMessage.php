@@ -2,7 +2,7 @@
 
 namespace App\Message;
 
-final class SendBookMessage
+final class SendVirtualMessage
 {
      private $shipmentItemId;
 

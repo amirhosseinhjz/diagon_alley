@@ -8,6 +8,7 @@
 /vendor/
 /storage
 /.idea
+/nohup.out
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
