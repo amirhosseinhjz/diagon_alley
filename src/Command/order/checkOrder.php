@@ -32,10 +32,10 @@ class checkOrder extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $orders = $this->em->getRepository(Purchase::class)->findBy(['status'=>Purchase::STATUS_PENDING]);
-        $expiredTime = new DateTime(date("Y-m-d H:i:s", time()-3600));
+        $lastModified = new DateTime(date("Y-m-d H:i:s", time()-3600));
         foreach($orders as $order)
         {
-            if($order->getCreatedAt()<$expiredTime)
+            if($order->getCreatedAt()<$lastModified)
             {
                 $order->setStatus(Purchase::STATUS_EXPIRED);
             }
