@@ -7,6 +7,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use App\Interface\Brand\BrandManagerInterface;
+use OpenApi\Attributes as OA;
+
 
 class BrandManager implements BrandManagerInterface
 {
