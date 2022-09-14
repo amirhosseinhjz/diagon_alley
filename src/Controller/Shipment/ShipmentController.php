@@ -7,6 +7,7 @@ use App\Entity\Shipment\ShipmentItem;
 use App\Interface\Shipment\ShipmentManagementInterface;
 use App\Trait\ControllerTrait;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,6 +15,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
 use App\Service\OrderService\OrderService;
+use App\Service\Wallet\WalletService;
 
 #[Route('/api',name: '_api_shipment_')]
 class ShipmentController extends AbstractController
@@ -32,7 +34,8 @@ class ShipmentController extends AbstractController
         ShipmentManagementInterface $managementShipment,
         ValidatorInterface $validator,
         SerializerInterface $serializer,
-        OrderService $orderService
+        OrderService $orderService,
+        WalletService $walletService
     )
     {
         $this->managementShipment = $managementShipment;
@@ -42,6 +45,8 @@ class ShipmentController extends AbstractController
         $this->serializer = $serializer;
 
         $this->orderService = $orderService;
+
+        $this->walletService = $walletService;
     }
 
     #[OA\Response(
@@ -151,7 +156,7 @@ class ShipmentController extends AbstractController
                 $shipment
             );
             $orderIds = $data['orderItemIds'];
-            $this->orderService->cancelMultipleOrderItems($orderIds);
+            $this->orderService->cancelMultipleOrderItems($orderIds, $this->walletService);
             $shipmentRefresh = $data['shipment'];
             $data = $this->serializer->normalize($shipmentRefresh, null, ['groups' => ['shipment.read']]);
             return $this->json
@@ -192,7 +197,7 @@ class ShipmentController extends AbstractController
             (
                 $shipmentItem
             );
-            $this->orderService->cancelItemById($shipmentItem->getOrderItem()->getId());
+            $this->orderService->cancelItemById($shipmentItem->getOrderItem()->getId(), $this->walletService);
             $data = $this->serializer->normalize($shipment, null, ['groups' => ['shipment.shipmentItem.read']]);
             return $this->json
             (
@@ -276,7 +281,7 @@ class ShipmentController extends AbstractController
                 $shipment
             );
             $orderItemIds = $data['orderItemIds'];
-            $this->orderService->deliverMultipleOrderItems($orderItemIds);
+            $this->orderService->deliverMultipleOrderItems($orderItemIds, $this->walletService);
             $shipmentRefresh = $data['shipment'];
             $data = $this->serializer->normalize($shipmentRefresh, null, ['groups' => ['shipment.read']]);
             return $this->json
