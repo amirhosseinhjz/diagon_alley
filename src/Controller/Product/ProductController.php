@@ -10,8 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/product', name: 'app_product_')]
+#[OA\Tag(name: 'Product')]
 class ProductController extends AbstractController
 {
     protected ProductManagerInterface $productManager;

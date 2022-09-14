@@ -2,16 +2,22 @@
 
 namespace App\Controller\Brand;
 
+use App\Entity\Cart\Cart;
 use App\Interface\Brand\BrandManagerInterface;
 use Exception;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use OpenApi\Attributes as OA;
+use App\Utils\Swagger\Brand\Brand as BrandSwagger;
+use App\Entity\Brand\Brand;
 
 #[Route('/api/brand', name: 'app_brand_')]
+#[OA\Tag(name: 'Brand')]
 class BrandController extends AbstractController
 {
     protected BrandManagerInterface $brandManager;
@@ -23,6 +29,18 @@ class BrandController extends AbstractController
 
     #[IsGranted('BRAND_CRUD' , message: 'only admin is allowed')]
     #[Route('/', name: 'create', methods: ['POST'])]
+    #[OA\RequestBody(
+        description: "Add a new brand with name and description",
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: BrandSwagger::class)
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Brand created',
+    )]
+    #[OA\Tag(name: 'Brand')]
     public function create(Request $req): Response
     {
         try {
@@ -36,6 +54,14 @@ class BrandController extends AbstractController
     }
 
     #[Route('/', name: 'get_all', methods: ['GET'])]
+    #[OA\Response(
+        response: 200,
+        description: 'List of all brands',
+        content: new OA\JsonContent(
+            ref: new Model(type: Brand::class, groups: ['brand_basic'])
+        ),
+    )]
+    #[OA\Tag(name: 'Brand')]
     public function getAll(): Response
     {
         try {

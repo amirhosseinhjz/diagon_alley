@@ -14,11 +14,11 @@ use Symfony\Component\Serializer\Annotation as Serializer;
 #[ORM\Entity(repositoryClass: PurchaseRepository::class)]
 class Purchase
 {
-
     public const STATUS_PENDING = 'pending';
     public const STATUS_PAID = 'paid';
     public const STATUS_CANCELED = 'canceled';
     public const STATUS_SHIPPED = 'shipped';
+    public const STATUS_EXPIRED = 'expired';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

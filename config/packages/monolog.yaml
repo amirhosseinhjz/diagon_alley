@@ -33,7 +33,6 @@
 #                webhook_url: "https://hooks.slack.com/services/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"
 #                channel: '#log'
 #                level: info
-#                formatter: my_formatter
 #
 #            doctrineLog_grouped:
 #                type: group

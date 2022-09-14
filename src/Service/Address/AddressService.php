@@ -3,7 +3,6 @@
 namespace App\Service\Address;
 
 use App\Entity\Address;
-use App\Entity\User;
 use App\Trait\Distance\CalculateDistanceTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -246,5 +245,10 @@ class AddressService
         if (is_null($address))
             throw (new \Exception("Address does not exist."));
         return $address;
+    }
+
+    public function readAddressByUser($user)
+    {
+        return $user->getAddresses();
     }
 }

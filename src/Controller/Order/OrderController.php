@@ -13,6 +13,7 @@ use OpenApi\Attributes as OA;
 use App\Utils\Swagger\Order;
 use Symfony\Component\Serializer\SerializerInterface;
 use App\Entity\Order\Purchase;
+use App\Service\Wallet\WalletService;
 
 #[Route('/api')]
 class OrderController extends AbstractController
@@ -21,11 +22,13 @@ class OrderController extends AbstractController
 
     public function __construct(
         OrderService $orderService,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        WalletService $walletService
     )
     {
         $this->orderService = $orderService;
         $this->serializer = $serializer;
+        $this->walletService = $walletService;
     }
 
     #[Route('/order', name: 'app_order_new', methods: ['POST'])]
@@ -208,7 +211,7 @@ class OrderController extends AbstractController
                 $order
                 ,message: 'Access Denied, not the owner of the order'
             );
-            $orderService->cancelOrderItemById($order, $orderItemId);
+            $orderService->cancelOrderItemById($order, $this->walletService, $orderItemId);
             $response = [
                 'message' => 'Order item cancelled successfully',
                 'status' => Response::HTTP_OK,

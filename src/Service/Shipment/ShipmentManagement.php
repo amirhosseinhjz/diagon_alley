@@ -2,8 +2,11 @@
 
 namespace App\Service\Shipment;
 
+use App\Entity\Order\PurchaseItem;
 use App\Entity\Shipment\Shipment;
 use App\Entity\Shipment\ShipmentItem;
+use App\Interface\Authentication\JWTManagementInterface;
+use App\Interface\Email\EmailManagementInterface;
 use App\Interface\Order\OrderManagementInterface;
 use App\Interface\Shipment\ShipmentManagementInterface;
 use App\Service\UserService\UserService;
@@ -22,17 +25,25 @@ class ShipmentManagement implements ShipmentManagementInterface
 
     protected $userService;
 
+    private $emailService;
+
+    private $JWTservice;
+
+    private MessageBusInterface $dispatcher;
+
     public function __construct(
         MessageBusInterface $messageBus,
-        OrderManagementInterface $orderService,
         EntityManagerInterface $entityManager,
         UserService $userService,
+        EmailManagementInterface $emailService,
+        JWTManagementInterface $JWTManagement
     )
     {
         $this->dispatcher = $messageBus;
         $this->entityManager = $entityManager;
-        $this->orderService = $orderService;
         $this->userService = $userService;
+        $this->emailService = $emailService;
+        $this->JWTservice = $JWTManagement;
     }
 
     public function add($purchaseId)
@@ -44,7 +55,9 @@ class ShipmentManagement implements ShipmentManagementInterface
             $seller = $this->userService->getUserById($id);
             $shipment = $this->createShipment($seller);
             $criteria = ['purchaseId'=>$purchaseId,'sellerId'=>$id];
+            $orderItems = $this->getPurchaseItemsBySellerIdAndPurchaseId($criteria);
             $orderItems = $this->orderService->getPurchaseItemsBySellerIdAndPurchaseId($criteria);
+            $shipmentEmail[$shipment->getId()] = $orderItems[0]['delivery_estimate'];
 
             foreach ($orderItems as $orderItem)
             {
@@ -52,11 +65,18 @@ class ShipmentManagement implements ShipmentManagementInterface
                 $this->digitalProductDelivery($shipmentItem,$orderItem);
             }
         }
+        $this->emailShipmentTimeEstimate($shipmentEmail);
+    }
+
+    public function getPurchaseItemsBySellerIdAndPurchaseId(array $criteria)
+    {
+        return $this->entityManager->getRepository(PurchaseItem::class)->findBySellerIdAndPurchaseId($criteria);
     }
 
     public function changeStatusFinalizedForShipment($object)
     {
         $shipmentItems = $object->getShipmentItems();
+        $orderItemIds = [];
         foreach ($shipmentItems as $shipmentItem)
         {
             if ($shipmentItem->getStatus() === 'CANCEL')
@@ -68,22 +88,31 @@ class ShipmentManagement implements ShipmentManagementInterface
                 );
             }
             $shipmentItem->setStatus('FINALIZED');
+            $orderItemIds[] = $shipmentItem->getPurchaseItem()->getId();
         }
         $object->setStatus('FINALIZED');
         $this->entityManager->flush();
-        return $object;
+        return [
+            'orderItemIds' => $orderItemIds,
+            'shipment' => $object
+        ];
     }
 
     public function changeStatusShipmentToCancel($object)
     {
         $shipmentItems = $object->getShipmentItems();
+        $orderItemIds = [];
         foreach ($shipmentItems as $shipmentItem)
         {
             $shipmentItem->setStatus('CANCEL');
+            $orderItemIds[] = $shipmentItem->getPurchaseItem()->getId();
         }
         $object->setStatus('CANCEL');
         $this->entityManager->flush();
-        return $object;
+        return [
+            'shipment' => $object,
+            'orderItemIds' => $orderItemIds
+        ];
     }
 
     public function changeStatusShipmentItemCancel($object)
@@ -91,6 +120,26 @@ class ShipmentManagement implements ShipmentManagementInterface
         $object->setStatus('CANCEL');
         $this->entityManager->flush();
         return $object;
+    }
+
+    public function cancelShipmentItemsByItemIds(array $shipmentItemIds)
+    {
+        foreach ($shipmentItemIds as $shipmentItemId)
+        {
+            $this->cancelShipmentItemsByItemId($shipmentItemId);
+        }
+        $this->entityManager->flush();
+    }
+
+    public function cancelShipmentItemsByItemId(int $shipmentItemId, $flush=true)
+    {
+        $repository = $this->entityManager->getRepository(ShipmentItem::class);
+        $shipmentItem = $repository->find($shipmentItemId);
+        $shipmentItem->setStatus('CANCEL');
+        if ($flush)
+        {
+            $this->entityManager->flush();
+        }
     }
 
     public function changeStatusShipmentItemFinalized($object)
@@ -151,13 +200,18 @@ class ShipmentManagement implements ShipmentManagementInterface
     private function createShipmentItem($fields,$shipment)
     {
         $shipmentItem = new ShipmentItem();
-        $shipmentItem->setPurchaseItem($this->orderService->getPurchaseItemById($fields['purchase_item_id']));
+        $shipmentItem->setPurchaseItem($this->getPurchaseItemById($fields['purchase_item_id']));
         $shipmentItem->setShipment($shipment);
         $shipmentItem->setType($fields['type']);
         $shipmentItem->setStatus('ACCEPT');
         $this->entityManager->persist($shipmentItem);
         $this->entityManager->flush();
         return $shipmentItem;
+    }
+
+    public function getPurchaseItemById($id)
+    {
+        return $this->entityManager->getRepository(PurchaseItem::class)->findOneBy(['id'=>$id]);
     }
 
     private function createShipment($seller)
@@ -197,13 +251,29 @@ class ShipmentManagement implements ShipmentManagementInterface
 //        TODO send email
     }
 
-    public function cancelFromOrder()
-    {
 
+    private function makeText($shipmentEmail)
+    {
+        $emailContent = 'your order time estimation for each shipment is:'."\n";
+        $delivery = 1;
+        foreach ($shipmentEmail as $text)
+        {
+            $emailContent .= "delivery {$delivery} will be send at: ". $text." days";
+            $delivery += 1 ;
+        }
+        return $emailContent;
     }
 
-    public function cancelFromOrderItem()
+    private function emailShipmentTimeEstimate($shipmentEmail)
     {
-
+        $text = $this->makeText($shipmentEmail);
+        $this->emailService
+            ->setSubject('Order Submit')
+            ->setEmailFrom($_ENV['COMPANY_EMAIL'])
+            ->setEmailTo($this->JWTservice->authenticatedUser()->getEmail())
+            ->setText($text)
+            ->send();
+        return;    
     }
+
 }

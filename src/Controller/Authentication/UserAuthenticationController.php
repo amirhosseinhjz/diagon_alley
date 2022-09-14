@@ -1,16 +1,13 @@
 <?php
 
 namespace App\Controller\Authentication;
-use App\CacheEntityManager\CacheEntityManager;
 use App\DTO\AuthenticationDTO\LoginDTO;
 use App\Interface\Authentication\JWTManagementInterface;
-use App\Interface\Cache\CacheInterface;
+use App\Interface\Wallet\WalletServiceInterface;
 use App\Repository\UserRepository\UserRepository;
-use App\Service\UserService\UserService;
+use App\Service\UserService\UserService;;
 use App\Utils\Swagger\User\User;
-use App\Utils\Swagger\User\UserName;
 use Exception;
-use App\Entity\User\Seller;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,11 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
 use App\Service\OTP\OTPService;
 use App\Utils\Swagger\Auth\OTPToken;
-use App\DTO\UserDTOs\UserDTO;
 
 
 #[Route('/api',name: 'user_auth_api')]
@@ -62,14 +57,17 @@ class UserAuthenticationController extends AbstractController
     )]
     #[Route('/user/register', name: 'app_user_register',methods: ['POST'])]
     #[OA\Tag(name: 'Authentication')]
-    public function create(Request $request): Response
+    public function create(Request $request, WalletServiceInterface $walletService): Response
     {
         try{
             $user = $this->userService->createFromArray($request->toArray());
+
             $token = $this->JWTManager->getTokenUser($user);
+            $walletService->create($user);
+
             return new JsonResponse($token);
         }catch(\Exception $e){
-            return $this->json(json_decode($e->getMessage()), Response::HTTP_BAD_REQUEST);
+            return $this->json($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 

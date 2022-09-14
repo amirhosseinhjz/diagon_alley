@@ -39,6 +39,7 @@ class JWTManagement implements JWTManagementInterface
 
     public function getTokenUser(UserInterface $user)
     {
+//        dd(1);
         $jwt = $this->JWTManager->create($user);
         $response = new Response();
         $event = new AuthenticationSuccessEvent(['token'=>$jwt],$user,$response);
