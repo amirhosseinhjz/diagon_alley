@@ -24,6 +24,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DiscountService implements DiscountServiceInterface
 {
+    public const CODE_LENGTH = 10;
+
     private EntityManagerInterface $entityManager;
     private Serializer $serializer;
     private ValidatorInterface $validator;
@@ -263,7 +265,6 @@ class DiscountService implements DiscountServiceInterface
 
     public function generateUniqueCode(Discount $discount): string
     {
-        #ToDo
-        return "";
+        return substr(base_convert(sha1(uniqid(mt_rand())), 16, 36), 0, self::CODE_LENGTH);
     }
 }
