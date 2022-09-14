@@ -16,6 +16,7 @@ class Address
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['address'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'addresses')]
