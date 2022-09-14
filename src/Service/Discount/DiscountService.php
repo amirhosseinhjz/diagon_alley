@@ -9,14 +9,18 @@ use App\Entity\User\Customer;
 use App\DTO\Discount\DiscountDTO;
 use App\Interface\Discount\DiscountServiceInterface;
 use App\Repository\Discount\DiscountRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use function PHPUnit\Framework\isEmpty;
+
+
 
 class DiscountService implements DiscountServiceInterface
 {
@@ -37,18 +41,21 @@ class DiscountService implements DiscountServiceInterface
         $this->orderManagement = $orderManagement;
     }
 
-    #ToDo: check
     public function getRequestBody(Request $request): array
     {
         return json_decode($request->getContent(), true);
     }
 
+    /**
+     * @throws ExceptionInterface
+     * @throws Exception
+     */
     public function getRequestDTO(Request $request):DiscountDTO
     {
         try {
             return $this->serializer->denormalize($this->getRequestBody($request), DiscountDTO::class);
-        }catch (NotNormalizableValueException $exception){
-            throw new \Exception("Invalid request structure.");
+        }catch (NotNormalizableValueException){
+            throw new Exception("Invalid request structure.");
         }
     }
 
@@ -56,32 +63,38 @@ class DiscountService implements DiscountServiceInterface
     public function createDiscountFromDTO(DiscountDTO $dto, bool $flush = true): Discount
     {
         $discount = new Discount();
-        $this->updatePropertiesFromDTO($dto, $discount, $flush);
+        $this->updatePropertiesFromDTO($dto, $discount);
+        $this->entityManager->persist($discount);
+        $this->entityManager->flush();
         return $discount;
     }
 
+    /**
+     * @throws Exception
+     */
     public function createValidDTOFromArray(array $array):DiscountDTO
     {
         $dto = $this->arrayToDTO($array);
         $DTOErrors = $this->validateDiscountDTO($dto);
         if (count($DTOErrors) > 0) {
-            throw (new \Exception(json_encode($DTOErrors)));
+            throw (new Exception(json_encode($DTOErrors)));
         }
         return $dto;
     }
 
+    /**
+     * @throws Exception
+     */
     public function createDiscountFromArray(array $array): Discount
     {
         $dto = $this->createValidDTOFromArray($array);
-        $discount = $this->createDiscountFromDTO($dto);
-
-        return $discount;
+        return $this->createDiscountFromDTO($dto);
     }
 
     public function createDTOFromDiscount(Discount $discount): DiscountDTO
     {
         $dto= new DiscountDTO();
-        foreach ($discount as $key => $value) {
+        foreach ($dto as $key => $value) {
             $getterName = 'get' . ucfirst($key);
             $setterName = 'set' . ucfirst($key);
             $dto->$setterName($discount->$getterName());
@@ -89,21 +102,17 @@ class DiscountService implements DiscountServiceInterface
         return $dto;
     }
 
-    public function updateDiscountFromDTO(DiscountDTO $dto, bool $flush = true): Discount #ToDo: use code?
+    /**
+     * @throws Exception
+     */
+    public function updateDiscountFromDTO(Discount $discount, DiscountDTO $dto, bool $flush = true): Discount
     {
-        if(empty($dto->getId()))
-            throw new \Exception("No Discount Id was provided");
-        $discount = $this->getDiscountById($dto->getId());
         if(empty($discount))
-            throw new \Exception("Discount does not exist");
-        $this->updatePropertiesFromDTO($dto, $discount, $flush);
-        return $discount;
-    }
-
-    public function updateDiscountFromArray(array $array): Discount
-    {
-        $dto = $this->createValidDTOFromArray($array);
-        $discount = $this->updateDiscountFromDTO($dto);
+            throw new Exception("Discount does not exist");
+        $this->updatePropertiesFromDTO($dto, $discount);
+        if ($flush){
+            $this->entityManager->flush();
+        }
         return $discount;
     }
 
@@ -125,14 +134,12 @@ class DiscountService implements DiscountServiceInterface
 
     public function getDiscountsByCode(string $code):array
     {
-        $discounts = $this->repository->findBy(['code'=>$code]);
-        return $discounts;
+        return $this->repository->findBy(['code'=>$code]);
     }
 
     public function getActiveDiscountByCode(string $code):Discount
     {
-        $discount = $this->repository->findOneBy(['code' => $code, 'isActive' => true]);
-        return $discount;
+        return $this->repository->findOneBy(['code' => $code, 'isActive' => true]);
     }
 
     public function getDiscountById(string $id):Discount
@@ -140,67 +147,79 @@ class DiscountService implements DiscountServiceInterface
         return $this->repository->findOneBy(['id' => $id]);
     }
 
-    public function removeDiscountByID(int $id) #ToDo: what if the discount is already applied to a few paid and unpaid orders
+    /**
+     * @throws Exception
+     */
+    public function removeDiscountByID(int $id)
     {
         $discount = $this->getDiscountById($id);
         if(empty($discount)) {
-            throw new \Exception("Discount does not exist.");
+            throw new Exception("Discount does not exist.");
+        }
+        if($this->timesUsed($discount)>0){
+            throw new Exception("Used discounts can not be deleted.");
         }
         $this->entityManager->remove($discount);
         $this->entityManager->flush();
     }
 
+    /**
+     * @throws Exception
+     */
     public function applyDiscountToPurchase(Discount $discount, Purchase $purchase, bool $flush = true): Purchase
     {
         if(!$this->checkApplicability($discount,$purchase)){
-            throw new \Exception("The discount is not applicable to this purchase");
+            throw new Exception("The discount is not applicable to this purchase");
         }
         $discountValue = $this->getDiscountValue($purchase,$discount);
         $discount->addAffectedOrder($purchase);
-        $purchase->setTotalPrice($purchase->getTotalPrice() - $discountValue);
+        $purchase = $this->orderManagement->applyDiscount($purchase, $discountValue, false);
         $this->entityManager->flush();
         return $purchase;
     }
 
+    /**
+     * @throws Exception
+     */
     public function removeDiscountFromPurchase(Purchase $purchase): Purchase
     {
         if(empty($purchase->getDiscount())){
-            throw new \Exception("Discount not found");
+            throw new Exception("Discount not found");
         }
-        $price = $this->orderManagement->rawTotalPrice($purchase);  //check: consider item discounts
+        if($purchase->getStatus() === Purchase::STATUS_PAID || $purchase->getStatus() === Purchase::STATUS_SHIPPED){
+            throw new Exception("Paid purchases cannot be edited.");
+        }
         $purchase->getDiscount()->removeAffectedOrder($purchase);
-        $purchase->setTotalPrice($price);
+        $purchase = $this->orderManagement->resetPrices($purchase, false);
         $this->entityManager->flush();
         return $purchase;
     }
 
 
+    /**
+     * @throws Exception
+     */
     public function checkApplicability(Discount $discount, Purchase $purchase): bool
     {
-        if(!$discount->isActive()){
+        if(!$discount->getIsActive()){
             return false;
-            //throw new \Exception("Discount is disabled.");
         }
         if($this->timesUsed($discount)>= $discount->getMaxUsageTimes() ||
             $this->timesUsed($discount, $purchase->getCustomer())>=$discount->getMaxUsageTimesPerUser()){
             return false;
-            //throw new \Exception("Discount is used up.");
         }
-        $time = new \DateTime('now');
+        $time = new DateTime('now');
         if(!empty($discount->getActivationTime()) && $time<$discount->getActivationTime()) { #should I do it softly? e.g. just minutes.
             return false;
-            //throw new \Exception("Discount is unavailable at this time");
         }
         if(!empty($discount->getExpirationTime()) && $time>$discount->getExpirationTime()) { #should I do it softly? e.g. just minutes.
             return false;
-            //throw new \Exception("Discount is unavailable at this time");
         }
         if(!empty($purchase->getDiscount())) {
             $this->removeDiscountFromPurchase($purchase);  //check: should I throw an exception instead?
         }
         if(!empty($discount->getMinPurchaseValue()) && $purchase->getTotalPrice()<$discount->getMinPurchaseValue()){
             return false;
-            //throw new \Exception("Total order price is below the minimum");
         }
         return true;
     }
@@ -209,9 +228,17 @@ class DiscountService implements DiscountServiceInterface
         return min($purchase->getTotalPrice() * $discount->getPercent(), $discount->getMaxDiscountValue());
     }
 
+    /**
+     * @throws Exception
+     */
     public function toggleActivity(Discount $discount): Discount
     {
-        $discount->setActivity(!$discount->isActive());
+        if(!$discount->getIsActive() && !empty($discount->getCode())){
+            if($this->isCodeActive($discount->getCode())){
+                throw new Exception("There is already an active discount with this code.");
+            }
+        }
+        $discount->setIsActive(!$discount->getIsActive()); #change isActive
         return $discount;
     }
 
@@ -220,19 +247,23 @@ class DiscountService implements DiscountServiceInterface
         return $this->repository->count(["discount" => $discount, "customer" => $customer]);
     }
 
-    private function updatePropertiesFromDTO(DiscountDTO $dto, Discount $discount, bool $flush): void
+    private function updatePropertiesFromDTO(DiscountDTO $dto, Discount $discount): void
     {
         foreach ($dto as $key => $value) {
-            #ToDo: remove next line
-            if ($key === "id")
-                continue;
             $getterName = 'get' . ucfirst($key);
             $setterName = 'set' . ucfirst($key);
             $discount->$setterName($dto->$getterName());
         }
-        $this->entityManager->persist($discount);
-        if ($flush) {
-            $this->entityManager->flush();
-        }
+    }
+
+    public function isCodeActive(string $code): bool
+    {
+        return !empty($this->getActiveDiscountByCode($code));
+    }
+
+    public function generateUniqueCode(Discount $discount): string
+    {
+        #ToDo
+        return "";
     }
 }
